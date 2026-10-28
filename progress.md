@@ -5,7 +5,7 @@
 ## Current State
 
 - **Current section:** Section 2: Equation Engine
-- **Next task:** "Allowed" list (numbers, operators, implicit multiplication, constants, functions). The parser already accepts all of it and tests cover it, so the next session should mainly confirm and tick it, plus the `y=` task, then move on to LaTeX input.
+- **Next task:** LaTeX input subset (`rac`, `\sqrt`, `^{}`, `\sin`…, `\left( ight)`, `\cdot`, `\pi`), mixed with plain math. Rules and required tests are in `src/core/equation/CLAUDE.md` § LaTeX Input.
 - **Overall:** Section 1 done and reviewed. Section 2 under way: the parser works; no evaluator yet.
 
 ## Section Status
@@ -59,3 +59,4 @@ Status key: ⬜ Not started · 🟨 In progress · 🔍 In review · ✅ Done
 - 2026-10-28: Git identity set for this repo only (`heelo1909` / heelo1909@gmail.com). First commit made.
 - 2026-10-28: Section 1 review (independent reviewer): no must-fix items. Fixed the should-fix items: `.gitkeep` files for `tests/e2e` and `tests/fixtures`, `test:e2e` passes with no tests, and `globalThis`/`self` are blocked in `src/core` (verified with a probe). Deferred: Playwright browser install (Section 5) and type-checking `worker/` (Section 8). Section 1 ✅.
 - 2026-10-28: Section 2 task 1 done: `tokenizer.ts`, `parser.ts`, `errors.ts` and `index.ts` in `src/core/equation/`, exported from `src/core/index.ts`. The parser covers the full plain grammar, with positioned friendly errors and min/max arity checks. 94 parser tests. Verified lint ✅, `npm test` (95) ✅, build ✅, coverage 98.9% ✅. Also removed a stray garbled line from section.md.
+- 2026-10-28: Section 2 tasks 2 and 3 ticked (allowed tokens; optional leading `y=`). No code change needed: the existing parser tests already cover every allowed number form, operator, constant and function, the 21-case precedence table, implicit multiplication, `y=` equivalence and misplaced-`y` errors. Verified lint ✅, `npm test` (95) ✅, build ✅.
