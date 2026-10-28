@@ -5,9 +5,8 @@
 ## Current State
 
 - **Current section:** Section 2: Equation Engine
-- **Next task:** LaTeX input subset (`\frac`, `\sqrt`, `^{}`, `\sin`…, `\left( \right)`, `\cdot`, `\pi`), mixed with plain math. Rules and required tests are in `src/core/equation/CLAUDE.md` § LaTeX Input.
-ight)`, `\cdot`, `\pi`), mixed with plain math. Rules and required tests are in `src/core/equation/CLAUDE.md` § LaTeX Input.
-- **Overall:** Section 1 done and reviewed. Section 2 under way: the parser works; no evaluator yet.
+- **Next task:** `toLatex(expr)` for the pretty display, with round-trip tests. Rules are in `src/core/equation/CLAUDE.md` § Pretty Display.
+- **Overall:** Section 1 done and reviewed. Section 2 under way: the parser accepts plain math and the LaTeX subset; no evaluator or `toLatex` yet.
 
 ## Section Status
 
@@ -43,6 +42,7 @@ Status key: ⬜ Not started · 🟨 In progress · 🔍 In review · ✅ Done
 - 2026-10-28: ESLint enforces the core rules. `src/core` can't use `Math.random`, `window`, `document`, `localStorage`, `fetch` or `navigator`, and `eval`/`new Function` are banned everywhere. Verified with a probe file.
 - 2026-10-28: The project's own agents (`section-reviewer`, `level-golfer`) and commands only load when Claude Code is opened **in `D:\Projects\CoasterGolf`**. Open sessions there.
 - 2026-10-28: Extra scripts kept even though Section 1 didn't list them (`preview`, `test:watch`, `format`); harmless conveniences, as the reviewer noted.
+- 2026-10-28: LaTeX details (Claude's call, recorded in `src/core/equation/CLAUDE.md` Gotchas): commands match longest-prefix because spaces are stripped, so `\sin x` is `\sin`·x (and needs parentheses) and `\pix` is π·x. Any function takes `()` or `{}`, plain names too (`sin{x}`). `\left(`/`\right)` are plain `(`/`)`, so mismatched pairs like `\left(x)` are accepted. `\frac{a}{b}` is one atom, so `\frac{x}{2}^2` = (x/2)². `\sqrt[n]` isn't supported.
 - 2026-10-28: Parser details (Claude's call, recorded in `src/core/equation/CLAUDE.md` Gotchas): spaces are stripped before tokenizing, so `s in(x)` = `sin(x)`. `2|x|` and `|x||x|` work as implicit multiplication. `1e3` means 1·e·3. `3.` and `1.2.3` are errors. `|a|` is stored as `abs(a)` in the tree.
 
 ## Blockers / Open Questions
@@ -61,3 +61,4 @@ Status key: ⬜ Not started · 🟨 In progress · 🔍 In review · ✅ Done
 - 2026-10-28: Section 1 review (independent reviewer): no must-fix items. Fixed the should-fix items: `.gitkeep` files for `tests/e2e` and `tests/fixtures`, `test:e2e` passes with no tests, and `globalThis`/`self` are blocked in `src/core` (verified with a probe). Deferred: Playwright browser install (Section 5) and type-checking `worker/` (Section 8). Section 1 ✅.
 - 2026-10-28: Section 2 task 1 done: `tokenizer.ts`, `parser.ts`, `errors.ts` and `index.ts` in `src/core/equation/`, exported from `src/core/index.ts`. The parser covers the full plain grammar, with positioned friendly errors and min/max arity checks. 94 parser tests. Verified lint ✅, `npm test` (95) ✅, build ✅, coverage 98.9% ✅. Also removed a stray garbled line from section.md.
 - 2026-10-28: Section 2 tasks 2 and 3 ticked (allowed tokens; optional leading `y=`). No code change needed: the existing parser tests already cover every allowed number form, operator, constant and function, the 21-case precedence table, implicit multiplication, `y=` equivalence and misplaced-`y` errors. Verified lint ✅, `npm test` (95) ✅, build ✅.
+- 2026-10-28: Section 2 task 4 done: the LaTeX subset (`\frac`, `\sqrt`, `{}` grouping, `\sin`…`\exp`, `\left`/`\right`, `\cdot`, `\times`, `\pi`) in the tokenizer and parser, with friendly errors (`unknown command "\alpha"`, `missing "}"`, `"\frac" needs two parts…`). 45 new tests. Also removed the stray `ight)…` line that a carriage return in `\right` had left in Next task. Verified lint ✅, `npm test` (140) ✅, build ✅, coverage 99.1% ✅.

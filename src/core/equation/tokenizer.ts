@@ -3,7 +3,7 @@ import { EquationError, messages } from './errors';
 export type FuncName =
   'sin' | 'cos' | 'tan' | 'abs' | 'sqrt' | 'log' | 'ln' | 'exp' | 'min' | 'max' | 'floor';
 export type ConstName = 'pi' | 'e';
-export type Sym = '+' | '-' | '*' | '/' | '^' | '(' | ')' | ',' | '|' | '=';
+export type Sym = '+' | '-' | '*' | '/' | '^' | '(' | ')' | '{' | '}' | ',' | '|' | '=';
 
 type TokenBody =
   | { kind: 'num'; value: number }
@@ -11,6 +11,7 @@ type TokenBody =
   | { kind: 'y' }
   | { kind: 'const'; name: ConstName }
   | { kind: 'func'; name: FuncName }
+  | { kind: 'frac' }
   | { kind: 'sym'; sym: Sym };
 
 // pos is a 0-based index into the original input, text is what the player typed (no spaces).
@@ -35,7 +36,29 @@ const WORDS: readonly string[] = [...FUNCS, 'pi', 'e', 'x', 'y'].sort(
   (a, b) => b.length - a.length,
 );
 
-const SYMBOLS = '+-*/^(),|=';
+// The LaTeX subset from equation/CLAUDE.md. \left and \right are handled separately because
+// they take the following "(", ")" or "|" with them.
+const COMMANDS: ReadonlyMap<string, TokenBody> = new Map<string, TokenBody>([
+  ['\\frac', { kind: 'frac' }],
+  ['\\sqrt', { kind: 'func', name: 'sqrt' }],
+  ['\\sin', { kind: 'func', name: 'sin' }],
+  ['\\cos', { kind: 'func', name: 'cos' }],
+  ['\\tan', { kind: 'func', name: 'tan' }],
+  ['\\ln', { kind: 'func', name: 'ln' }],
+  ['\\log', { kind: 'func', name: 'log' }],
+  ['\\exp', { kind: 'func', name: 'exp' }],
+  ['\\cdot', { kind: 'sym', sym: '*' }],
+  ['\\times', { kind: 'sym', sym: '*' }],
+  ['\\pi', { kind: 'const', name: 'pi' }],
+]);
+
+// Longest first, like WORDS. Spaces are already gone, so "\sin x" arrives as "\sinx" and the
+// command has to be found as a prefix rather than as a whole run of letters.
+const COMMAND_NAMES: readonly string[] = [...COMMANDS.keys(), '\\left', '\\right'].sort(
+  (a, b) => b.length - a.length,
+);
+
+const SYMBOLS = '+-*/^(){},|=';
 const NUMBER = /^(\d+(\.\d+)?|\.\d+)/;
 
 function wordToken(word: string): TokenBody {
@@ -83,6 +106,28 @@ export function tokenize(input: string): Token[] {
       }
       tokens.push({ ...wordToken(word), pos, text: word });
       i += word.length;
+      continue;
+    }
+
+    if (ch === '\\') {
+      const name = COMMAND_NAMES.find((c) => s.startsWith(c, i));
+      if (!name) {
+        const run = /^\\([a-z]+|.?)/i.exec(s.slice(i))?.[0] ?? ch;
+        throw new EquationError(messages.unknownCommand(run), pos);
+      }
+      i += name.length;
+      const body = COMMANDS.get(name);
+      if (body) {
+        tokens.push({ ...body, pos, text: name });
+        continue;
+      }
+      // \left( and \right| are just a parenthesis or a bar with a longer spelling.
+      const next = s.charAt(i);
+      if (next === '' || !'()|'.includes(next)) {
+        throw new EquationError(messages.leftRightNeedsBracket(name), pos);
+      }
+      i++;
+      tokens.push({ kind: 'sym', sym: next as Sym, pos, text: name + next });
       continue;
     }
 

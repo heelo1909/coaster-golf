@@ -181,3 +181,77 @@ describe('parseEquation: friendly errors with positions', () => {
     expect(errorOf(input)).toEqual({ message, position });
   });
 });
+
+describe('parseEquation: LaTeX input reads the same as plain math', () => {
+  it.each([
+    [String.raw`\frac{x}{2}`, '(x)/(2)'],
+    [String.raw`\frac{1}{2}x`, '(1/2)x'],
+    [String.raw`\frac{x-3}{2}^2`, '((x-3)/2)^2'],
+    [String.raw`\sqrt{x}`, 'sqrt(x)'],
+    [String.raw`\sqrt(x+1)`, 'sqrt(x+1)'],
+    [String.raw`x^{2}`, 'x^(2)'],
+    [String.raw`2^{x+1}`, '2^(x+1)'],
+    [String.raw`{x+1}2`, '(x+1)2'],
+    [String.raw`2{x-1}`, '2(x-1)'],
+    [String.raw`\sin(x)`, 'sin(x)'],
+    [String.raw`\sin{x}`, 'sin(x)'],
+    [String.raw`\cos(x)`, 'cos(x)'],
+    [String.raw`\tan{x}`, 'tan(x)'],
+    [String.raw`\ln(x)`, 'ln(x)'],
+    [String.raw`\log{x}`, 'log(x)'],
+    [String.raw`\exp(x)`, 'exp(x)'],
+    [String.raw`\left(x+1\right)^2`, '(x+1)^2'],
+    [String.raw`\left|x-2\right|`, '|x-2|'],
+    [String.raw`\left|\left|x\right|-1\right|`, '||x|-1|'],
+    [String.raw`2\cdot x`, '2*x'],
+    [String.raw`2\times x`, '2*x'],
+    [String.raw`\pi x`, 'pix'],
+    [String.raw`2\pi`, '2pi'],
+    [String.raw`y=\frac{x}{2}`, 'x/2'],
+  ])('%s reads like %s', (latex, plain) => {
+    expect(read(latex)).toBe(read(plain));
+  });
+
+  it('mixes freely with plain math', () => {
+    expect(read(String.raw`\frac{x}{2}+sin(x)`)).toBe(read('x/2+sin(x)'));
+    expect(read(String.raw`|x|\cdot\sqrt{x}`)).toBe(read('|x|*sqrt(x)'));
+    expect(read(String.raw`\left(x-1\right)(x+2)`)).toBe(read('(x-1)(x+2)'));
+  });
+
+  it('handles nested fractions and roots', () => {
+    expect(read(String.raw`\frac{\frac{x}{2}}{3}`)).toBe('((x/2)/3)');
+    expect(read(String.raw`\frac{1}{\frac{1}{x}}`)).toBe('(1/(1/x))');
+    expect(read(String.raw`\sqrt{\frac{x}{2}}`)).toBe('sqrt((x/2))');
+  });
+
+  it('ignores spaces between a command and what follows', () => {
+    expect(read(String.raw`\frac {x} {2}`)).toBe('(x/2)');
+    expect(read(String.raw`2 \cdot x`)).toBe('(2*x)');
+    expect(read(String.raw`\left( x \right)`)).toBe('x');
+  });
+});
+
+describe('parseEquation: LaTeX errors', () => {
+  it.each([
+    [String.raw`\alpha`, String.raw`unknown command "\alpha"`, 0],
+    [String.raw`x+\alpha`, String.raw`unknown command "\alpha"`, 2],
+    [String.raw`\Sin(x)`, String.raw`unknown command "\Sin"`, 0],
+    [String.raw`\,`, String.raw`unknown command "\,"`, 0],
+    ['x\\', 'unknown command "\\"', 1],
+    [String.raw`\frac{x}`, String.raw`"\frac" needs two parts in braces, like \frac{x}{2}`, 0],
+    [String.raw`\frac x2`, String.raw`"\frac" needs two parts in braces, like \frac{x}{2}`, 0],
+    [String.raw`\sqrt x`, String.raw`"\sqrt" needs braces, like \sqrt{x}`, 0],
+    [String.raw`\sin x`, String.raw`"\sin" needs parentheses, like \sin(x)`, 0],
+    [String.raw`\left x`, String.raw`"\left" needs "(", ")" or "|" right after it`, 0],
+    [String.raw`x\right`, String.raw`"\right" needs "(", ")" or "|" right after it`, 1],
+    [String.raw`\left(x`, 'missing ")"', 0],
+    [String.raw`{x`, 'missing "}"', 0],
+    [String.raw`\sin{x`, 'missing "}"', 4],
+    [String.raw`x}`, 'unexpected "}"', 1],
+    [String.raw`(x}`, 'unexpected "}"', 2],
+    [String.raw`{x)`, 'unexpected ")"', 2],
+    [String.raw`\cdot x`, String.raw`unexpected "\cdot"`, 0],
+  ])('%j → %s', (input, message, position) => {
+    expect(errorOf(input)).toEqual({ message, position });
+  });
+});

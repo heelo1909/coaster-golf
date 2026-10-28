@@ -97,4 +97,8 @@ Short, friendly, with a 0-based `position` the UI can underline. Examples:
 - Spaces are stripped before tokenizing (like scoring), so `s in(x)` is `sin(x)` and `1 2` is `12`.
 - `1e3` is `1·e·3` (two atoms side by side), not 1000. Tested so it can't change silently.
 - Unary minus versus implicit multiplication: `2-x` is subtraction, never `2·(-x)`.
+- LaTeX commands are matched **longest-prefix**, like words, because spaces are already gone: `\sin x` arrives as `\sinx` and reads as `\sin`·x (an error: needs parentheses), `\pix` is π·x, and `\alpha` is an unknown command.
+- Any function takes `()` or `{}`, including the plain names (`sin{x}`), and `\sqrt` takes parentheses too. `\sqrt[n]{…}` isn't supported.
+- `\left(` and `\right)` are just `(` and `)` (same for `|`), so a mismatched pair like `\left(x)` is accepted. That's harmless, since scoring counts the typed characters anyway.
+- `\frac{a}{b}` is a single atom, so `\frac{x}{2}^2` is (x/2)² and `\frac{1}{2}x` is (1/2)·x.
 - Keep the original `source` string; the leaderboard shows exactly what the player typed (minus whitespace).

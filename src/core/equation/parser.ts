@@ -104,13 +104,13 @@ class Parser {
         return { type: 'const', name: t.name };
       case 'func':
         return this.call(t, t.name);
+      case 'frac':
+        return this.frac(t);
       case 'y':
         throw new EquationError(messages.yOnlyAtStart(), t.pos);
       case 'sym':
-        if (t.sym === '(') {
-          const expr = this.insideParens(() => this.sum());
-          this.close(t, ')', messages.missingParen());
-          return expr;
+        if (t.sym === '(' || t.sym === '{') {
+          return this.group(t);
         }
         if (t.sym === '|') {
           this.openBars++;
@@ -123,9 +123,35 @@ class Parser {
     }
   }
 
+  // "(" sum ")" or the LaTeX grouping "{" sum "}"; `open` has already been consumed.
+  private group(open: Token & { kind: 'sym' }): Expr {
+    const expr = this.insideParens(() => this.sum());
+    this.closeGroup(open);
+    return expr;
+  }
+
+  // \frac{a}{b} is (a)/(b), and like any atom it can take a "^" or sit next to another factor.
+  private frac(t: Token): Expr {
+    const part = (): Expr => {
+      const open = this.peek();
+      if (!open || !isSym(open, '{')) throw new EquationError(messages.fracParts(), t.pos);
+      this.i++;
+      return this.group(open);
+    };
+    const left = part();
+    return { type: 'binary', op: '/', left, right: part() };
+  }
+
+  // Functions take parentheses or braces, so sin(x), \sin(x), \sin{x} and \sqrt{x} all work.
   private call(t: Token, fn: FuncName): Expr {
     const open = this.peek();
-    if (!open || !isSym(open, '(')) throw new EquationError(messages.needsParens(fn), t.pos);
+    if (!open || !(isSym(open, '(') || isSym(open, '{'))) {
+      const name = t.text;
+      throw new EquationError(
+        name === '\\sqrt' ? messages.needsBraces(name) : messages.needsParens(name),
+        t.pos,
+      );
+    }
     this.i++;
     const args = this.insideParens(() => {
       const list = [this.sum()];
@@ -135,7 +161,7 @@ class Parser {
       }
       return list;
     });
-    this.close(open, ')', messages.missingParen());
+    this.closeGroup(open);
     if (MULTI_ARG.includes(fn)) {
       if (args.length < 2) throw new EquationError(messages.twoInputs(fn), t.pos);
     } else if (args.length !== 1) {
@@ -154,6 +180,11 @@ class Parser {
     }
   }
 
+  private closeGroup(open: Token & { kind: 'sym' }): void {
+    if (open.sym === '{') this.close(open, '}', messages.missingBrace());
+    else this.close(open, ')', messages.missingParen());
+  }
+
   // Consume the closing token for `open`; at end of input the error points at the opener.
   private close(open: Token, sym: Sym, missing: string): void {
     const t = this.peek();
@@ -165,7 +196,8 @@ class Parser {
   // An atom can follow directly (implicit multiplication). A "|" opens a new bar here only
   // when no bar is waiting to be closed, so 2|x| works and |x|-1| closes where expected.
   private startsImplicitFactor(t: Token): boolean {
-    if (t.kind === 'sym') return t.sym === '(' || (t.sym === '|' && this.openBars === 0);
+    if (t.kind === 'sym')
+      return t.sym === '(' || t.sym === '{' || (t.sym === '|' && this.openBars === 0);
     return t.kind !== 'y';
   }
 
