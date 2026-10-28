@@ -5,7 +5,8 @@
 ## Current State
 
 - **Current section:** Section 2: Equation Engine
-- **Next task:** LaTeX input subset (`rac`, `\sqrt`, `^{}`, `\sin`…, `\left( ight)`, `\cdot`, `\pi`), mixed with plain math. Rules and required tests are in `src/core/equation/CLAUDE.md` § LaTeX Input.
+- **Next task:** LaTeX input subset (`\frac`, `\sqrt`, `^{}`, `\sin`…, `\left( \right)`, `\cdot`, `\pi`), mixed with plain math. Rules and required tests are in `src/core/equation/CLAUDE.md` § LaTeX Input.
+ight)`, `\cdot`, `\pi`), mixed with plain math. Rules and required tests are in `src/core/equation/CLAUDE.md` § LaTeX Input.
 - **Overall:** Section 1 done and reviewed. Section 2 under way: the parser works; no evaluator yet.
 
 ## Section Status
