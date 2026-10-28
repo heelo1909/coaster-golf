@@ -5,15 +5,15 @@
 ## Current State
 
 - **Current section:** Section 2: Equation Engine
-- **Next task:** Tokenizer + parser (recursive descent) that builds an expression tree (see `src/core/equation/CLAUDE.md`)
-- **Overall:** Section 1 done and reviewed. No game logic yet.
+- **Next task:** "Allowed" list (numbers, operators, implicit multiplication, constants, functions). The parser already accepts all of it and tests cover it, so the next session should mainly confirm and tick it, plus the `y=` task, then move on to LaTeX input.
+- **Overall:** Section 1 done and reviewed. Section 2 under way: the parser works; no evaluator yet.
 
 ## Section Status
 
 | # | Section | Status |
 |---|---------|--------|
 | 1 | Project Setup | ✅ Done |
-| 2 | Equation Engine | ⬜ Not started |
+| 2 | Equation Engine | 🟨 In progress |
 | 3 | Track & Physics Simulation | ⬜ Not started |
 | 4 | Levels & the Level Set | ⬜ Not started |
 | 5 | Play Screen | ⬜ Not started |
@@ -42,6 +42,7 @@ Status key: ⬜ Not started · 🟨 In progress · 🔍 In review · ✅ Done
 - 2026-10-28: ESLint enforces the core rules. `src/core` can't use `Math.random`, `window`, `document`, `localStorage`, `fetch` or `navigator`, and `eval`/`new Function` are banned everywhere. Verified with a probe file.
 - 2026-10-28: The project's own agents (`section-reviewer`, `level-golfer`) and commands only load when Claude Code is opened **in `D:\Projects\CoasterGolf`**. Open sessions there.
 - 2026-10-28: Extra scripts kept even though Section 1 didn't list them (`preview`, `test:watch`, `format`); harmless conveniences, as the reviewer noted.
+- 2026-10-28: Parser details (Claude's call, recorded in `src/core/equation/CLAUDE.md` Gotchas): spaces are stripped before tokenizing, so `s in(x)` = `sin(x)`. `2|x|` and `|x||x|` work as implicit multiplication. `1e3` means 1·e·3. `3.` and `1.2.3` are errors. `|a|` is stored as `abs(a)` in the tree.
 
 ## Blockers / Open Questions
 
@@ -57,3 +58,4 @@ Status key: ⬜ Not started · 🟨 In progress · 🔍 In review · ✅ Done
 - 2026-10-28: Section 1 tasks done. Verified `npm run build` ✅, `npm test` (1 test) ✅, `npm run lint` (ESLint + Prettier) ✅, `npm run check-levels` (stub) ✅, coverage ✅. The blank canvas page says "Coaster Golf". 
 - 2026-10-28: Git identity set for this repo only (`heelo1909` / heelo1909@gmail.com). First commit made.
 - 2026-10-28: Section 1 review (independent reviewer): no must-fix items. Fixed the should-fix items: `.gitkeep` files for `tests/e2e` and `tests/fixtures`, `test:e2e` passes with no tests, and `globalThis`/`self` are blocked in `src/core` (verified with a probe). Deferred: Playwright browser install (Section 5) and type-checking `worker/` (Section 8). Section 1 ✅.
+- 2026-10-28: Section 2 task 1 done: `tokenizer.ts`, `parser.ts`, `errors.ts` and `index.ts` in `src/core/equation/`, exported from `src/core/index.ts`. The parser covers the full plain grammar, with positioned friendly errors and min/max arity checks. 94 parser tests. Verified lint ✅, `npm test` (95) ✅, build ✅, coverage 98.9% ✅. Also removed a stray garbled line from section.md.

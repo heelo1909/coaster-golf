@@ -93,6 +93,8 @@ Short, friendly, with a 0-based `position` the UI can underline. Examples:
 
 ## Gotchas
 
-- `|` is both the opening and closing bar. Decide by context: a bar opens where an atom is expected, and closes otherwise.
+- `|` is both the opening and closing bar. Decide by context: a bar opens where an atom is expected, and closes otherwise. After a finished factor, a bar opens (implicit multiplication) only if no bar is waiting to close, so `2|x|` and `|x||x|` work while `||x|-1|` closes where expected. Parentheses reset this count, because a bar can't close across a `(`: `|(2|x|)|` parses.
+- Spaces are stripped before tokenizing (like scoring), so `s in(x)` is `sin(x)` and `1 2` is `12`.
+- `1e3` is `1·e·3` (two atoms side by side), not 1000. Tested so it can't change silently.
 - Unary minus versus implicit multiplication: `2-x` is subtraction, never `2·(-x)`.
 - Keep the original `source` string; the leaderboard shows exactly what the player typed (minus whitespace).
