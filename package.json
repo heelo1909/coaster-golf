@@ -10,7 +10,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:e2e": "playwright test",
+    "test:e2e": "playwright test --pass-with-no-tests",
     "lint": "eslint . && prettier --check .",
     "format": "prettier --write .",
     "check-levels": "tsx scripts/check-levels.ts"

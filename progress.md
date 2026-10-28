@@ -4,15 +4,15 @@
 
 ## Current State
 
-- **Current section:** Section 1: Project Setup (all tasks done and committed; awaiting review)
-- **Next task:** Run `/review-section` for Section 1
-- **Overall:** Project skeleton builds, tests and lints. No game logic yet.
+- **Current section:** Section 2: Equation Engine
+- **Next task:** Tokenizer + parser (recursive descent) that builds an expression tree (see `src/core/equation/CLAUDE.md`)
+- **Overall:** Section 1 done and reviewed. No game logic yet.
 
 ## Section Status
 
 | # | Section | Status |
 |---|---------|--------|
-| 1 | Project Setup | 🔍 In review |
+| 1 | Project Setup | ✅ Done |
 | 2 | Equation Engine | ⬜ Not started |
 | 3 | Track & Physics Simulation | ⬜ Not started |
 | 4 | Levels & the Level Set | ⬜ Not started |
@@ -40,6 +40,8 @@ Status key: ⬜ Not started · 🟨 In progress · 🔍 In review · ✅ Done
 
 - 2026-10-28: Toolchain is Node 24, Vite 8, TypeScript 6 (strict, plus `noUncheckedIndexedAccess` and `exactOptionalPropertyTypes`), Vitest 5 with v8 coverage (80% threshold on `src/core`), ESLint 10 with typescript-eslint and Prettier, and Playwright installed (browsers not yet; run `npx playwright install chromium` in Section 5).
 - 2026-10-28: ESLint enforces the core rules. `src/core` can't use `Math.random`, `window`, `document`, `localStorage`, `fetch` or `navigator`, and `eval`/`new Function` are banned everywhere. Verified with a probe file.
+- 2026-10-28: The project's own agents (`section-reviewer`, `level-golfer`) and commands only load when Claude Code is opened **in `D:\Projects\CoasterGolf`**. Open sessions there.
+- 2026-10-28: Extra scripts kept even though Section 1 didn't list them (`preview`, `test:watch`, `format`); harmless conveniences, as the reviewer noted.
 
 ## Blockers / Open Questions
 
@@ -54,3 +56,4 @@ Status key: ⬜ Not started · 🟨 In progress · 🔍 In review · ✅ Done
 - 2026-10-28: Harnesses updated for the user's new requirements: LaTeX input, a pretty KaTeX preview (`toLatex`), and paste blocking.
 - 2026-10-28: Section 1 tasks done. Verified `npm run build` ✅, `npm test` (1 test) ✅, `npm run lint` (ESLint + Prettier) ✅, `npm run check-levels` (stub) ✅, coverage ✅. The blank canvas page says "Coaster Golf". 
 - 2026-10-28: Git identity set for this repo only (`heelo1909` / heelo1909@gmail.com). First commit made.
+- 2026-10-28: Section 1 review (independent reviewer): no must-fix items. Fixed the should-fix items: `.gitkeep` files for `tests/e2e` and `tests/fixtures`, `test:e2e` passes with no tests, and `globalThis`/`self` are blocked in `src/core` (verified with a probe). Deferred: Playwright browser install (Section 5) and type-checking `worker/` (Section 8). Section 1 ✅.

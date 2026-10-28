@@ -31,6 +31,8 @@ export default tseslint.config(
     rules: {
       'no-restricted-globals': [
         'error',
+        'globalThis',
+        'self',
         'window',
         'document',
         'localStorage',
