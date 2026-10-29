@@ -262,3 +262,44 @@ describe('simulate: the path the renderer replays', () => {
     expect(ride('5-x/2', level({ obstacles: [box] })).path).toEqual([]);
   });
 });
+
+describe('simulate: the same ride always ends the same way', () => {
+  const cases: Array<[string, string, SimLevel]> = [
+    ['a winning downhill', '5-x/2', level()],
+    ['a winning valley', '(x-4)^2/4', valley],
+    ['a fly-off', 'cos(x)', cosHill(4)],
+    ['a stall', '(x-4)^2/4', level({ start: { x: 0, y: 4, speed: 0.5 }, end: { x: 8, y: 4 } })],
+    ['a timeout', '0', level({ start: { x: 0, y: 0, speed: 0.1 }, end: { x: 10, y: 0 } })],
+    ['a missed start', '5-x/2', level({ start: { x: 0, y: 6, speed: 1 } })],
+  ];
+
+  it.each(cases)('%s gives an identical result 100 times in a row', (_, input, lvl) => {
+    const first = ride(input, lvl);
+    for (let i = 0; i < 99; i++) expect(ride(input, lvl)).toStrictEqual(first);
+  });
+});
+
+describe('simulate: fast enough for live preview', () => {
+  // The slowest kind of run: a busy equation ridden for the full 30 seconds (7200 steps).
+  const crawl = level({ start: { x: 0, y: 1, speed: 0.1 }, end: { x: 10, y: 1 } });
+  const busy = '1+sin(x)^2/10^5+sqrt(|cos(3x)|)/10^5+ln(2+x)/10^6';
+
+  // Wall-clock time of simulate alone, without parsing or the test's expect() calls.
+  function timeRide(): { ms: number; result: SimResult } {
+    const r = parseEquation(busy);
+    if (!r.ok) throw new Error(r.error.message);
+    const expr = r.expr;
+    const start = performance.now();
+    const result = simulate(crawl, (x) => evaluate(expr, x));
+    return { ms: performance.now() - start, result };
+  }
+
+  it('a full 30-second ride on a busy equation takes under 50 ms', () => {
+    timeRide(); // warm up the JIT, as the game would after the first keystroke
+    const { result } = timeRide();
+    expect(result.reason).toBe('TIMEOUT');
+    // A single slow run can be a garbage-collection pause; take the best of 3.
+    const best = Math.min(timeRide().ms, timeRide().ms, timeRide().ms);
+    expect(best).toBeLessThan(50);
+  });
+});

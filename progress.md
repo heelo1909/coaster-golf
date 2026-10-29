@@ -5,8 +5,8 @@
 ## Current State
 
 - **Current section:** Section 3: Track & Physics Simulation
-- **Next task:** Tests: known-good and known-bad tracks for every fail reason, plus a determinism test (same input run 100 times → identical output) and the 50 ms performance benchmark.
-- **Overall:** Sections 1 and 2 done and reviewed. The equation engine parses plain math and the LaTeX subset with friendly errors, evaluates safely (NaN for gaps), scores length, renders a LaTeX preview, and survives a 10,000-string fuzz test. Simulation started: the track is sampled (`sampleTrack`) and the cart steps along it (`startCart`/`stepCart`), and `simulate(level, f)` returns success or one of the 8 fail reasons with a recorded 60 fps `path`; the remaining test task (determinism, benchmark) is next.
+- **Next task:** Section review (`/review-section`): every Section 3 task is ticked.
+- **Overall:** Sections 1 and 2 done and reviewed. The equation engine parses plain math and the LaTeX subset with friendly errors, evaluates safely (NaN for gaps), scores length, renders a LaTeX preview, and survives a 10,000-string fuzz test. Simulation started: the track is sampled (`sampleTrack`) and the cart steps along it (`startCart`/`stepCart`), and `simulate(level, f)` returns success or one of the 8 fail reasons with a recorded 60 fps `path`. Every fail reason is tested, 100 repeat runs are identical, and the slowest ride takes about 2.4 ms. All Section 3 tasks are ticked; the section review is next.
 
 ## Section Status
 
@@ -14,7 +14,7 @@
 |---|---------|--------|
 | 1 | Project Setup | ✅ Done |
 | 2 | Equation Engine | ✅ Done |
-| 3 | Track & Physics Simulation | 🟨 In progress |
+| 3 | Track & Physics Simulation | 🔍 In review |
 | 4 | Levels & the Level Set | ⬜ Not started |
 | 5 | Play Screen | ⬜ Not started |
 | 6 | Level Select & Local Progress | ⬜ Not started |
@@ -85,3 +85,4 @@ Status key: ⬜ Not started · 🟨 In progress · 🔍 In review · ✅ Done
 - 2026-10-28: Section 3 task 2 done (cart physics). `physics.ts` with `startCart`/`stepCart`, plus `G`, `DRAG`, `DT` in `constants.ts`, exported from `src/core/sim/index.ts`. 16 new tests: fixed 1/240 s step, 45° downhill/uphill speed change matching g·sin θ exactly, steeper is faster, x advances by v·cos θ, drag decay on flat ground ≈ 5·e^(-0.2), energy kept within 1% through a valley without drag and lost with drag (exit 2.73 vs 3.03), no motion at zero speed, no rolling back, stop at the end, normal force on flat/valley/hilltop, and bit-identical repeat runs. Verified lint ✅, `npm test` (404) ✅, build ✅, coverage 99.48% ✅.
 - 2026-10-28: Section 3 tasks 3 and 4 done (fail conditions, success). `simulate(level, f)` in `src/core/sim/simulate.ts` and `circleTouches` in `collide.ts`, plus `MAX_TIME`, `STATION_TOLERANCE`, `MAX_SLOPE`, `JUMP_THRESHOLD`, `CART_RADIUS` in `constants.ts`, all exported. Checks 1–5 fail fast at t = 0; the ride stops on FLEW_OFF, the win, STALLED or TIMEOUT. `path` is still empty (next task). 22 new tests: each of the 8 reasons with its `failAt`, success on a downhill line and a valley, the cos(x) hill at speed 2.5 (rides) vs 4 (flies off), a near-miss box and a cart-only circle hit, and check order (broken before missed station, start before end). Verified lint ✅, `npm test` (426) ✅, build ✅, coverage 99.35% ✅.
 - 2026-10-28: Section 3 task 5 done (path output). `simulate` now records `path` (start point, one point per 4 steps, and the final step), with `PATH_EVERY` in `constants.ts` and `PathPoint` exported. 6 new tests: a win starts at the start station and ends at end.x with t = duration, steady 1/60 s frames with x never going back, FLEW_OFF/STALLED/TIMEOUT paths end exactly at `failAt`, TIMEOUT has 1801 frames, and fail-fast results have an empty path. Verified lint ✅, `npm test` (432) ✅, build ✅, coverage 99.37% ✅.
+- 2026-10-28: Section 3 task 6 done (tests). Every fail reason already had a test; added the rest in `simulate.test.ts`. Determinism: six rides (two wins, fly-off, stall, timeout, missed start) each give a `toStrictEqual` result 100 times. Benchmark: a busy equation ridden for the full 30 s (7200 steps) must take under 50 ms, best of 3 after a warm-up so a GC pause can't fail it; it takes about 2.4 ms. Proved it can fail by temporarily setting the limit to 0.001 ms. Verified lint ✅, `npm test` (439, sim file 5/5 runs) ✅, build ✅, coverage 99.37% ✅. All Section 3 tasks ticked.
