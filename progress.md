@@ -5,15 +5,15 @@
 ## Current State
 
 - **Current section:** Section 2: Equation Engine
-- **Next task:** Tests task: fill any gaps (valid/invalid inputs, implicit multiplication, precedence, scoring), plus the Done-when fuzz test (10,000 random strings, nothing throws, each under 5 ms).
-- **Overall:** Section 1 done and reviewed. Section 2 nearly done: the parser accepts plain math and the LaTeX subset with friendly errors, `toLatex` renders the preview, and safety limits, the evaluator and `scoreEquation` are in. The fuzz test is still to do.
+- **Next task:** Section review: run `/review-section` for Section 2, then fix what the reviewer finds.
+- **Overall:** Section 1 done and reviewed. Section 2 tasks all done: the parser accepts plain math and the LaTeX subset with friendly errors, `toLatex` renders the preview, safety limits, the evaluator and `scoreEquation` are in, and a fuzz test covers the whole engine. Waiting on the critic review.
 
 ## Section Status
 
 | # | Section | Status |
 |---|---------|--------|
 | 1 | Project Setup | ✅ Done |
-| 2 | Equation Engine | 🟨 In progress |
+| 2 | Equation Engine | 🔍 In review |
 | 3 | Track & Physics Simulation | ⬜ Not started |
 | 4 | Levels & the Level Set | ⬜ Not started |
 | 5 | Play Screen | ⬜ Not started |
@@ -48,6 +48,7 @@ Status key: ⬜ Not started · 🟨 In progress · 🔍 In review · ✅ Done
 
 - 2026-10-28: Safety limits (Claude's call, recorded in `src/core/equation/CLAUDE.md` Gotchas): the 200-character limit counts the raw input, spaces included, so a huge paste fails before any work; the error points at position 200. Depth 50 counts `()`, `{}`, bars, `\lfloor` and function calls (unary minus and `^` chains don't count). The 500-node limit can't be reached within 200 characters (densest is `xx…x` = 399 nodes), so it's tested through the internal `parseWithLimits()`.
 - 2026-10-28: Evaluator rules (Claude's call, recorded in `src/core/equation/CLAUDE.md` Gotchas): any step that isn't a finite number becomes `NaN`, so `1/0`, `ln(0)` and overflow like `exp(1000)` are gaps in the track, never infinities, and `0*(1/x)` at 0 stays `NaN`. `x^(1/3)` is `NaN` for negative x (no real cube roots), and `0^0` = 1, as in JavaScript. These change which tricks work for golfing, so the user can adjust them.
+- 2026-10-28: The `toLatex` read-back promise holds only while the preview fits in 200 characters (Claude's call, recorded in `src/core/equation/CLAUDE.md` § Pretty Display). The fuzz test found that `\left|`, `\frac{}` and `\cdot` can push a long equation's preview past the length limit. The game never parses a preview, so the limit stays, and the fuzz test requires exactly the length error in that case.
 
 ## Blockers / Open Questions
 
@@ -71,3 +72,4 @@ Status key: ⬜ Not started · 🟨 In progress · 🔍 In review · ✅ Done
 - 2026-10-28: Section 2 task 7 done (hard limits). `parseEquation` now rejects input over 200 characters before tokenizing (`equation is too long (max 200 characters)` at 200), brackets nested deeper than 50 (`too many brackets inside each other (max 50)` at the 51st opener) and trees over 500 nodes (`equation has too many parts (max 500)`). Limits live in `LIMITS` in `parser.ts`; `parseWithLimits` is internal (not in the index). 15 new tests, including a 1 MB paste rejected in under 50 ms. Verified lint ✅, `npm test` (279) ✅, build ✅, coverage 99.35% ✅.
 - 2026-10-28: Section 2 task 8 done (evaluator). `evaluate(expr, x)` in `src/core/equation/evaluate.ts` is a plain recursive switch (no eval), exported from the equation index, and turns every non-finite step into `NaN`. 71 new tests cover each node type and function, 16 undefined points, NaN that stays NaN, LaTeX input, determinism, and a 24-case precedence table checked by value at 5 values of x. Verified lint ✅, `npm test` (350) ✅, build ✅, coverage 99.41% ✅.
 - 2026-10-28: Section 2 task 9 done (scoring rule). `scoreEquation(input)` in `src/core/equation/score.ts` strips whitespace with the same `/\s/` as the tokenizer, drops one leading `y=`, and returns `length`. It's exported from the equation index. 17 new tests cover whitespace, `y=`, LaTeX costing more, empty input, and agreement with `source`. Fixed a wrong example in the harness: `y = (x-3)^2/2` scores 9, not 11. Verified lint ✅, `npm test` (367) ✅, build ✅, coverage 99.41% ✅.
+- 2026-10-28: Section 2 task 10 done (tests). Every required case already had tests except the Done-when fuzz test, now in `src/core/equation/fuzz.test.ts`. 10,000 strings from a seeded generator (mulberry32, since `src/core` bans `Math.random`) are built from single characters, whole pieces and the grammar itself; 4,050 parse. It checks that nothing throws, evaluation is finite or `NaN` (never Infinity), errors have a valid position, the preview reads back, and each string takes under 5 ms (slowest 0.84 ms, stable over 5 runs). It found long previews passing 200 characters (see Decisions), which is now documented. All Section 2 tasks are ticked. Verified lint ✅, `npm test` (368) ✅, build ✅, coverage ✅.

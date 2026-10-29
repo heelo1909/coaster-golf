@@ -65,6 +65,7 @@ Players may type LaTeX instead of plain math. The tokenizer recognizes this subs
 - Juxtaposition only after a plain number (`2x`, `2\sin(x)`, `3\left(x+1\right)`). Before a bar or a `\frac` it writes `\cdot`, because `|x|x||` can't be read back and `2\frac{1}{3}` looks like a mixed number.
 - A command followed by a letter gets a space (`\pi\cdot x`, `\lfloor x\rfloor`), because KaTeX reads `\cdotx` as one unknown command.
 - Huge or tiny literals come out of `String()` as `1e+21`; they're written as `1\times10^{21}` because the grammar has no e-notation.
+- The read-back holds while the preview fits in 200 characters. `\left|`, `\frac{}` and `\cdot` make a preview longer than what was typed, so a long equation's preview can hit the length limit. That's harmless, because the game never parses a preview; the fuzz test checks it reads back whenever it fits.
 
 ## Scoring Rule
 
