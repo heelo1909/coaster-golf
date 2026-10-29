@@ -95,6 +95,25 @@ describe('shortcuts found by golfing stay closed', () => {
   });
 });
 
+describe('the first level', () => {
+  it('is beaten by nearly any sensible track between its stations', () => {
+    const c01 = campaign[0]!;
+    // Flat, dipping or humped: anything that starts and ends on the ground makes it.
+    for (const input of [
+      '0',
+      'x-x',
+      '0x',
+      'x(x-6)/9',
+      'x(6-x)/9',
+      'sin(pix/6)',
+      '-sin(pix/6)/2',
+      '(x-3)^2/9-1',
+    ]) {
+      expect(wins(c01, input), input).toBe(true);
+    }
+  });
+});
+
 describe('every level asks for its own idea', () => {
   it('the first three levels are beaten by a straight line between the stations', () => {
     for (const level of campaign.slice(0, 3)) expect(wins(level, straightLine(level))).toBe(true);

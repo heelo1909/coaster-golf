@@ -1,23 +1,11 @@
 {
   "id": "c01",
-  "name": "First Drop",
-  "bounds": {
-    "xMin": -1,
-    "xMax": 6,
-    "yMin": -7,
-    "yMax": 2
-  },
-  "start": {
-    "x": 0,
-    "y": 0,
-    "speed": 1
-  },
-  "end": {
-    "x": 5,
-    "y": -5
-  },
+  "name": "Warm Up",
+  "bounds": { "xMin": -1, "xMax": 7, "yMin": -3, "yMax": 3 },
+  "start": { "x": 0, "y": 0, "speed": 5 },
+  "end": { "x": 6, "y": 0 },
   "obstacles": [],
-  "par": 2,
-  "reference": "-x",
-  "hint": "Try a line that goes down."
+  "par": 1,
+  "reference": "0",
+  "hint": "Both stations sit on the ground. Any track that joins them works."
 }

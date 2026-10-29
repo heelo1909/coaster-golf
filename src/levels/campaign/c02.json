@@ -19,5 +19,5 @@
   "obstacles": [],
   "par": 5,
   "reference": "3-x/2",
-  "hint": "A line can start higher up, and slope gently."
+  "hint": "A track doesn't have to start at zero."
 }
