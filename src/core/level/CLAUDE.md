@@ -56,6 +56,8 @@ d001  …
 
 It exits non-zero if anything fails. CI and the section reviewer both run it.
 
+How it's built: the logic is in `scripts/level-check.ts` (`loadLevelFiles`, `checkLevels`, `formatReport`, tested in `tests/check-levels.test.ts` against `tests/fixtures/check-levels/`), and `scripts/check-levels.ts` is the thin entry point. Each failing file's errors are listed under the table. Files that aren't `.json` are skipped, a missing folder counts as empty, and a file that isn't valid JSON fails without stopping the others. Every file sharing an id gets the duplicate-id error. With no level files at all it prints `no level files found.` and passes; the 15-level requirement is checked by `tests/levels.test.ts`, not here.
+
 ## Tests Required
 
 - A valid level passes; each rule above has a test where that rule alone fails

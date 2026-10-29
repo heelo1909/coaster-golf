@@ -1,0 +1,1 @@
+Not a level; check-levels skips files that aren't .json.

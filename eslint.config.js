@@ -39,6 +39,19 @@ export default tseslint.config(
         'sessionStorage',
         'fetch',
         'navigator',
+        // Node globals type-check everywhere once a script references node types; ban them here.
+        'process',
+        'Buffer',
+        'require',
+        '__dirname',
+      ],
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            { group: ['node:*', 'fs', 'path', 'url'], message: 'src/core runs in the Worker too.' },
+          ],
+        },
       ],
       'no-restricted-properties': [
         'error',

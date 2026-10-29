@@ -1,0 +1,11 @@
+{
+  "id": "fx-valley",
+  "name": "Fixture Valley",
+  "bounds": { "xMin": -1, "xMax": 9, "yMin": -1, "yMax": 6 },
+  "start": { "x": 0, "y": 4, "speed": 2 },
+  "end": { "x": 8, "y": 4 },
+  "obstacles": [],
+  "par": 9,
+  "reference": "(x-4)^2/4",
+  "hint": "Try a curve that dips then rises."
+}
