@@ -92,7 +92,7 @@ Work through the sections in order. Each one has a goal, tasks, and a "Done when
   - 4–7: parabolas, going over or under one obstacle
   - 8–11: sine waves, absolute value, multiple obstacles
   - 12–15: tight gaps where clever short equations really pay off
-- [ ] Each level has a "par" that's beatable but not obvious
+- [x] Each level has a "par" that's beatable but not obvious
 
 **Done when:** `npm run check-levels` passes for all 15, and a test proves every reference solution wins.
 

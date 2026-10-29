@@ -51,6 +51,50 @@ describe('every level can be beaten', () => {
   );
 });
 
+// Known solutions shorter than the reference, from golfing every level (see progress.md). Each
+// must win, and par is set from the shortest one.
+const shorter: Record<string, string[]> = {
+  c05: ['x-xx/8', 'x-x/8x'],
+  c06: ['xx/4-3x+6'],
+  c07: ['3+x-xx/4', 'x-xx/4+3', '3+x-x^2/4'],
+  c12: ['xx/4', 'x/4x'],
+  c14: ['|xx-4|/4', '|xx/4-1|'],
+};
+
+describe('par', () => {
+  it.each(Object.entries(shorter))('%s: the known shorter solutions win', (id, inputs) => {
+    const level = campaign.find((l) => l.id === id)!;
+    for (const input of inputs) {
+      expect(wins(level, input), input).toBe(true);
+      expect(scoreEquation(input)).toBeLessThan(scoreEquation(level.reference));
+    }
+  });
+
+  it('every par can be reached by a known solution', () => {
+    for (const level of campaign) {
+      const best = Math.min(...[level.reference, ...(shorter[level.id] ?? [])].map(scoreEquation));
+      expect(level.par, level.id).toBeGreaterThanOrEqual(best);
+      // A good player matches par; a clever one beats it by at most 1 (see src/levels/CLAUDE.md).
+      expect(level.par - best, level.id).toBeLessThanOrEqual(1);
+    }
+  });
+});
+
+describe('shortcuts found by golfing stay closed', () => {
+  it('The Dip needs a curve: a sharp V hits the rocks beside it', () => {
+    expect(wins(campaign[3]!, '|x-4|')).toBe(false);
+  });
+
+  it('Gull Wings needs the hill in the middle: one wide dip hits the post', () => {
+    expect(wins(campaign[13]!, 'xx/4-1')).toBe(false);
+  });
+
+  it('Camel Back must stay above the ground: an upside-down wave hits the rocks', () => {
+    expect(wins(campaign[14]!, '-sin(x)')).toBe(false);
+    expect(wins(campaign[14]!, 'sin(-x)')).toBe(false);
+  });
+});
+
 describe('every level asks for its own idea', () => {
   it('the first three levels are beaten by a straight line between the stations', () => {
     for (const level of campaign.slice(0, 3)) expect(wins(level, straightLine(level))).toBe(true);

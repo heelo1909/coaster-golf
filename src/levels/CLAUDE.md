@@ -30,6 +30,8 @@ index.ts                        imports and exports both lists in order
 2. Try to golf it shorter. Use the `level-golfer` agent for a second try.
 3. `par` = the shortest you found, **plus 0–2 characters**, so par is beatable by a good player but leaves room to brag.
 4. Any solution shorter than the reference gets a test in `tests/levels.test.ts` proving it wins.
+5. How the campaign applies step 3: par = the shortest known solution, **+1** when that solution needs a golf trick beyond the obvious form (`xx` for x², expanding brackets), otherwise **+0**. `tests/levels.test.ts` checks par is within 1 of the shortest known solution.
+6. Golfers search with brute force and miss tricks like `xx`. Always try the `xx` and expanded forms by hand too.
 
 ## Daily Pool
 
