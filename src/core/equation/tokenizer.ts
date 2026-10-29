@@ -67,6 +67,20 @@ const COMMAND_NAMES: readonly string[] = [...COMMANDS.keys(), '\\left', '\\right
 const SYMBOLS = '+-*/^(){},|=';
 const NUMBER = /^(\d+(\.\d+)?|\.\d+)/;
 
+// Math symbols a phone keyboard or a habit might produce, mapped to what to type instead.
+const LOOKALIKES: Readonly<Record<string, string>> = {
+  '−': '-',
+  '–': '-',
+  '—': '-',
+  '×': '*',
+  '·': '*',
+  '÷': '/',
+  '²': '^2',
+  '³': '^3',
+  '√': 'sqrt(x)',
+  π: 'pi',
+};
+
 function wordToken(word: string): TokenBody {
   if (word === 'x') return { kind: 'x' };
   if (word === 'y') return { kind: 'y' };
@@ -144,7 +158,11 @@ export function tokenize(input: string): Token[] {
     }
 
     if (/[A-Z]/.test(ch)) throw new EquationError(messages.uppercase(ch), pos);
-    throw new EquationError(messages.unknownSymbol(ch), pos);
+    // A whole code point, so an emoji shows as itself rather than half a surrogate pair.
+    const symbol = String.fromCodePoint(s.codePointAt(i) ?? 0);
+    const use = LOOKALIKES[symbol];
+    if (use) throw new EquationError(messages.lookalike(symbol, use), pos);
+    throw new EquationError(messages.unknownSymbol(symbol), pos);
   }
   return tokens;
 }

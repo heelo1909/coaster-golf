@@ -87,6 +87,9 @@ Short, friendly, with a 0-based `position` the UI can underline. Examples:
 - `"sin" needs parentheses, like sin(x)`
 - `nothing after "^"`
 - `equation is too long (max 200 characters)`
+- `nothing inside "()"`, `"sin" needs something inside, like sin(x)` (empty brackets)
+- `use "-" instead of "−"`: look-alike symbols (`− – — × · ÷ ² ³ √ π`) say what to type instead
+- An unknown symbol is quoted as a whole character, so an emoji isn't split in half
 
 ## Tests Required
 

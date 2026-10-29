@@ -5,8 +5,8 @@
 ## Current State
 
 - **Current section:** Section 2: Equation Engine
-- **Next task:** Clear error messages for bad input ("unknown word 'sinx' at position 3", "missing ')'"). Most already exist with tests; check the list in `src/core/equation/CLAUDE.md` § Error Messages and fill any gaps.
-- **Overall:** Section 1 done and reviewed. Section 2 under way: the parser accepts plain math and the LaTeX subset, and `toLatex` renders the preview; no evaluator, scoring or safety limits yet.
+- **Next task:** Hard limits: max 200 characters (`equation is too long (max 200 characters)`), max nesting depth 50, max 500 nodes (see `src/core/equation/CLAUDE.md` § Safety Limits).
+- **Overall:** Section 1 done and reviewed. Section 2 under way: the parser accepts plain math and the LaTeX subset with friendly errors, and `toLatex` renders the preview; no evaluator, scoring or safety limits yet.
 
 ## Section Status
 
@@ -64,3 +64,4 @@ Status key: ⬜ Not started · 🟨 In progress · 🔍 In review · ✅ Done
 - 2026-10-28: Section 2 tasks 2 and 3 ticked (allowed tokens; optional leading `y=`). No code change needed: the existing parser tests already cover every allowed number form, operator, constant and function, the 21-case precedence table, implicit multiplication, `y=` equivalence and misplaced-`y` errors. Verified lint ✅, `npm test` (95) ✅, build ✅.
 - 2026-10-28: Section 2 task 4 done: the LaTeX subset (`\frac`, `\sqrt`, `{}` grouping, `\sin`…`\exp`, `\left`/`\right`, `\cdot`, `\times`, `\pi`) in the tokenizer and parser, with friendly errors (`unknown command "\alpha"`, `missing "}"`, `"\frac" needs two parts…`). 45 new tests. Also removed the stray `ight)…` line that a carriage return in `\right` had left in Next task. Verified lint ✅, `npm test` (140) ✅, build ✅, coverage 99.1% ✅.
 - 2026-10-28: Section 2 task 5 done: `toLatex(expr)` in `src/core/equation/latex.ts`, exported from the equation index. It uses minimal brackets, `\frac`, `\sqrt`, `\left|…\right|` and `\lfloor…\rfloor`, juxtaposes after numbers, and writes big or tiny numbers as powers of ten. The tokenizer and parser now also read `\min`, `\max`, `\lfloor…\rfloor`. Added 95 latex tests (34 display strings, 57 round-trips proving parse(toLatex(tree)) is the identical tree, and edge cases) plus 7 parser tests. Verified lint ✅, `npm test` (242) ✅, build ✅, coverage 99.3% ✅. KaTeX rendering itself is untested until Section 5.
+- 2026-10-28: Section 2 task 6 done (error messages). Every harness message already had a positioned test except the 200-character one (that's the next task). Gaps filled: empty brackets (`()`, `{}`, `sin()`, `\sqrt{}`; `min()` uses the two-inputs message), look-alike symbols (`−`, `×`, `÷`, `²`, `√`, `π` and others) now say what to type instead, and unknown symbols are quoted as whole code points (emoji were split). Harness § Error Messages updated. 22 new tests. Verified lint ✅, `npm test` (264) ✅, build ✅, coverage 99.3% ✅.

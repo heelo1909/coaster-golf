@@ -131,6 +131,9 @@ class Parser {
 
   // "(" sum ")" or the LaTeX grouping "{" sum "}"; `open` has already been consumed.
   private group(open: Token & { kind: 'sym' }): Expr {
+    if (this.closesRightAway(open)) {
+      throw new EquationError(messages.emptyGroup(open.sym + closerOf(open)), open.pos);
+    }
     const expr = this.insideParens(() => this.sum());
     this.closeGroup(open);
     return expr;
@@ -159,6 +162,12 @@ class Parser {
       );
     }
     this.i++;
+    if (this.closesRightAway(open)) {
+      const message = MULTI_ARG.includes(fn)
+        ? messages.twoInputs(fn)
+        : messages.emptyCall(t.text, open.sym, closerOf(open));
+      throw new EquationError(message, t.pos);
+    }
     const args = this.insideParens(() => {
       const list = [this.sum()];
       for (let c = this.peek(); c && isSym(c, ','); c = this.peek()) {
@@ -184,6 +193,11 @@ class Parser {
     } finally {
       this.openBars = saved;
     }
+  }
+
+  private closesRightAway(open: Token & { kind: 'sym' }): boolean {
+    const t = this.peek();
+    return t !== undefined && isSym(t, closerOf(open));
   }
 
   private closeGroup(open: Token & { kind: 'sym' }): void {
@@ -221,6 +235,10 @@ class Parser {
 
 function isSym<S extends Sym>(t: Token, sym: S): t is Token & { kind: 'sym'; sym: S } {
   return t.kind === 'sym' && t.sym === sym;
+}
+
+function closerOf(open: Token & { kind: 'sym' }): Sym {
+  return open.sym === '{' ? '}' : ')';
 }
 
 export function parseEquation(input: string): ParseResult {

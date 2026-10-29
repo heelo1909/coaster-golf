@@ -177,6 +177,24 @@ describe('parseEquation: friendly errors with positions', () => {
     ['2y', '"y" can only start the equation, like y=x', 1],
     ['sin(x,1)', '"sin" takes one input, like sin(x)', 0],
     ['min(x)', '"min" needs at least two inputs, like min(x,1)', 0],
+    ['sin()', '"sin" needs something inside, like sin(x)', 0],
+    ['2+sqrt()', '"sqrt" needs something inside, like sqrt(x)', 2],
+    ['sin{}', '"sin" needs something inside, like sin{x}', 0],
+    ['max()', '"max" needs at least two inputs, like max(x,1)', 0],
+    ['()', 'nothing inside "()"', 0],
+    ['x+()', 'nothing inside "()"', 2],
+    ['sin(x,)', 'unexpected ")"', 6],
+    ['x−1', 'use "-" instead of "−"', 1],
+    ['x–1', 'use "-" instead of "–"', 1],
+    ['2×x', 'use "*" instead of "×"', 1],
+    ['2·x', 'use "*" instead of "·"', 1],
+    ['x÷2', 'use "/" instead of "÷"', 1],
+    ['x²', 'use "^2" instead of "²"', 1],
+    ['x³', 'use "^3" instead of "³"', 1],
+    ['√x', 'use "sqrt(x)" instead of "√"', 0],
+    ['2π', 'use "pi" instead of "π"', 1],
+    ['x😀', '"😀" isn\'t allowed here', 1],
+    ['x 😀', '"😀" isn\'t allowed here', 2],
   ])('%j → %s', (input, message, position) => {
     expect(errorOf(input)).toEqual({ message, position });
   });
@@ -258,6 +276,10 @@ describe('parseEquation: LaTeX errors', () => {
     [String.raw`\cdot x`, String.raw`unexpected "\cdot"`, 0],
     [String.raw`\lfloor x`, String.raw`missing "\rfloor"`, 0],
     [String.raw`(x\rfloor`, String.raw`unexpected "\rfloor"`, 2],
+    [String.raw`\sqrt{}`, String.raw`"\sqrt" needs something inside, like \sqrt{x}`, 0],
+    [String.raw`\sin\left(\right)`, String.raw`"\sin" needs something inside, like \sin(x)`, 0],
+    [String.raw`\frac{}{x}`, 'nothing inside "{}"', 5],
+    ['{}', 'nothing inside "{}"', 0],
   ])('%j → %s', (input, message, position) => {
     expect(errorOf(input)).toEqual({ message, position });
   });

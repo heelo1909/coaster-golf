@@ -16,6 +16,10 @@ export const messages = {
   unknownCommand: (cmd: string) => `unknown command "${cmd}"`,
   leftRightNeedsBracket: (cmd: string) => `"${cmd}" needs "(", ")" or "|" right after it`,
   unknownSymbol: (ch: string) => `"${ch}" isn't allowed here`,
+  lookalike: (ch: string, use: string) => `use "${use}" instead of "${ch}"`,
+  emptyGroup: (brackets: string) => `nothing inside "${brackets}"`,
+  emptyCall: (fn: string, open: string, close: string) =>
+    `"${fn}" needs something inside, like ${fn}${open}x${close}`,
   unexpected: (text: string) => `unexpected "${text}"`,
   nothingAfter: (text: string) => `nothing after "${text}"`,
   missingParen: () => 'missing ")"',
