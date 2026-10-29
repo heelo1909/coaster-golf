@@ -11,6 +11,9 @@ export class EquationError extends Error {
 
 export const messages = {
   empty: () => 'type an equation',
+  tooLong: (max: number) => `equation is too long (max ${max} characters)`,
+  tooDeep: (max: number) => `too many brackets inside each other (max ${max})`,
+  tooBig: (max: number) => `equation has too many parts (max ${max})`,
   unknownWord: (word: string, at: number) => `unknown word "${word}" at ${at}`,
   uppercase: (ch: string) => `use lowercase letters, like "${ch.toLowerCase()}"`,
   unknownCommand: (cmd: string) => `unknown command "${cmd}"`,

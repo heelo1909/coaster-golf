@@ -17,14 +17,27 @@ export type ParseResult =
 
 const MULTI_ARG: readonly FuncName[] = ['min', 'max'];
 
+// Safety limits from equation/CLAUDE.md, so a huge input can't freeze the game or the server.
+export interface Limits {
+  maxLength: number; // characters typed, checked before tokenizing
+  maxDepth: number; // parens, braces, bars, \lfloor and function calls nested inside each other
+  maxNodes: number; // nodes in the finished tree
+}
+
+export const LIMITS: Limits = { maxLength: 200, maxDepth: 50, maxNodes: 500 };
+
 // Recursive descent over the grammar in equation/CLAUDE.md, one method per rule.
 class Parser {
   private i = 0;
   // Bars opened since the nearest "(" — only these can be closed by a "|". Parentheses reset
   // it, because a bar can never close across a parenthesis.
   private openBars = 0;
+  private depth = 0;
 
-  constructor(private readonly tokens: Token[]) {}
+  constructor(
+    private readonly tokens: Token[],
+    private readonly maxDepth: number,
+  ) {}
 
   equation(): Expr {
     const first = this.peek();
@@ -114,14 +127,14 @@ class Parser {
         }
         if (t.sym === '|') {
           this.openBars++;
-          const arg = this.sum();
+          const arg = this.nested(t, () => this.sum());
           this.openBars--;
           this.close(t, '|', messages.missingBar());
           return { type: 'call', fn: 'abs', args: [arg] };
         }
         if (t.sym === '⌊') {
           // \lfloor a \rfloor is floor(a), the way toLatex() writes it.
-          const arg = this.insideParens(() => this.sum());
+          const arg = this.insideParens(t, () => this.sum());
           this.close(t, '⌋', messages.missingFloor());
           return { type: 'call', fn: 'floor', args: [arg] };
         }
@@ -134,7 +147,7 @@ class Parser {
     if (this.closesRightAway(open)) {
       throw new EquationError(messages.emptyGroup(open.sym + closerOf(open)), open.pos);
     }
-    const expr = this.insideParens(() => this.sum());
+    const expr = this.insideParens(open, () => this.sum());
     this.closeGroup(open);
     return expr;
   }
@@ -168,7 +181,7 @@ class Parser {
         : messages.emptyCall(t.text, open.sym, closerOf(open));
       throw new EquationError(message, t.pos);
     }
-    const args = this.insideParens(() => {
+    const args = this.insideParens(open, () => {
       const list = [this.sum()];
       for (let c = this.peek(); c && isSym(c, ','); c = this.peek()) {
         this.i++;
@@ -185,13 +198,25 @@ class Parser {
     return { type: 'call', fn, args };
   }
 
-  private insideParens<T>(parse: () => T): T {
+  private insideParens<T>(open: Token, parse: () => T): T {
     const saved = this.openBars;
     this.openBars = 0;
     try {
-      return parse();
+      return this.nested(open, parse);
     } finally {
       this.openBars = saved;
+    }
+  }
+
+  // Parse one bracket level deeper; past the limit the error points at the opener.
+  private nested<T>(open: Token, parse: () => T): T {
+    if (++this.depth > this.maxDepth) {
+      throw new EquationError(messages.tooDeep(this.maxDepth), open.pos);
+    }
+    try {
+      return parse();
+    } finally {
+      this.depth--;
     }
   }
 
@@ -241,9 +266,37 @@ function closerOf(open: Token & { kind: 'sym' }): Sym {
   return open.sym === '{' ? '}' : ')';
 }
 
+function countNodes(e: Expr): number {
+  switch (e.type) {
+    case 'num':
+    case 'x':
+    case 'const':
+      return 1;
+    case 'neg':
+      return 1 + countNodes(e.arg);
+    case 'binary':
+      return 1 + countNodes(e.left) + countNodes(e.right);
+    case 'call':
+      return e.args.reduce((n, arg) => n + countNodes(arg), 1);
+  }
+}
+
 export function parseEquation(input: string): ParseResult {
+  return parseWithLimits(input, LIMITS);
+}
+
+// parseEquation() with the limits passed in. Only tests call this directly: within 200
+// characters a tree tops out near 400 nodes, so the node limit can't be reached through
+// parseEquation() today. It stays as a guard in case the length limit ever grows.
+export function parseWithLimits(input: string, limits: Limits): ParseResult {
   try {
-    const expr = new Parser(tokenize(input)).equation();
+    if (input.length > limits.maxLength) {
+      throw new EquationError(messages.tooLong(limits.maxLength), limits.maxLength);
+    }
+    const expr = new Parser(tokenize(input), limits.maxDepth).equation();
+    if (countNodes(expr) > limits.maxNodes) {
+      throw new EquationError(messages.tooBig(limits.maxNodes), 0);
+    }
     return { ok: true, expr, source: input };
   } catch (e) {
     if (e instanceof EquationError) {

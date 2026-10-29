@@ -5,8 +5,8 @@
 ## Current State
 
 - **Current section:** Section 2: Equation Engine
-- **Next task:** Hard limits: max 200 characters (`equation is too long (max 200 characters)`), max nesting depth 50, max 500 nodes (see `src/core/equation/CLAUDE.md` § Safety Limits).
-- **Overall:** Section 1 done and reviewed. Section 2 under way: the parser accepts plain math and the LaTeX subset with friendly errors, and `toLatex` renders the preview; no evaluator, scoring or safety limits yet.
+- **Next task:** Evaluator: `evaluate(expr, x)` in `src/core/equation/evaluate.ts`, returning `NaN` for undefined points like `sqrt(-1)` or division by zero.
+- **Overall:** Section 1 done and reviewed. Section 2 under way: the parser accepts plain math and the LaTeX subset with friendly errors, and `toLatex` renders the preview; safety limits are in; no evaluator or scoring yet.
 
 ## Section Status
 
@@ -46,6 +46,8 @@ Status key: ⬜ Not started · 🟨 In progress · 🔍 In review · ✅ Done
 - 2026-10-28: `toLatex` writes `\min`, `\max` and `\lfloor … \rfloor`, so the tokenizer now accepts those three as well, beyond the original LaTeX table (Claude's call; without them, previews of min/max/floor couldn't be parsed back). Rendering rules are in `src/core/equation/CLAUDE.md` § Pretty Display.
 - 2026-10-28: Parser details (Claude's call, recorded in `src/core/equation/CLAUDE.md` Gotchas): spaces are stripped before tokenizing, so `s in(x)` = `sin(x)`. `2|x|` and `|x||x|` work as implicit multiplication. `1e3` means 1·e·3. `3.` and `1.2.3` are errors. `|a|` is stored as `abs(a)` in the tree.
 
+- 2026-10-28: Safety limits (Claude's call, recorded in `src/core/equation/CLAUDE.md` Gotchas): the 200-character limit counts the raw input, spaces included, so a huge paste fails before any work; the error points at position 200. Depth 50 counts `()`, `{}`, bars, `\lfloor` and function calls (unary minus and `^` chains don't count). The 500-node limit can't be reached within 200 characters (densest is `xx…x` = 399 nodes), so it's tested through the internal `parseWithLimits()`.
+
 ## Blockers / Open Questions
 
 - Final game name and domain (needed by Section 9).
@@ -65,3 +67,4 @@ Status key: ⬜ Not started · 🟨 In progress · 🔍 In review · ✅ Done
 - 2026-10-28: Section 2 task 4 done: the LaTeX subset (`\frac`, `\sqrt`, `{}` grouping, `\sin`…`\exp`, `\left`/`\right`, `\cdot`, `\times`, `\pi`) in the tokenizer and parser, with friendly errors (`unknown command "\alpha"`, `missing "}"`, `"\frac" needs two parts…`). 45 new tests. Also removed the stray `ight)…` line that a carriage return in `\right` had left in Next task. Verified lint ✅, `npm test` (140) ✅, build ✅, coverage 99.1% ✅.
 - 2026-10-28: Section 2 task 5 done: `toLatex(expr)` in `src/core/equation/latex.ts`, exported from the equation index. It uses minimal brackets, `\frac`, `\sqrt`, `\left|…\right|` and `\lfloor…\rfloor`, juxtaposes after numbers, and writes big or tiny numbers as powers of ten. The tokenizer and parser now also read `\min`, `\max`, `\lfloor…\rfloor`. Added 95 latex tests (34 display strings, 57 round-trips proving parse(toLatex(tree)) is the identical tree, and edge cases) plus 7 parser tests. Verified lint ✅, `npm test` (242) ✅, build ✅, coverage 99.3% ✅. KaTeX rendering itself is untested until Section 5.
 - 2026-10-28: Section 2 task 6 done (error messages). Every harness message already had a positioned test except the 200-character one (that's the next task). Gaps filled: empty brackets (`()`, `{}`, `sin()`, `\sqrt{}`; `min()` uses the two-inputs message), look-alike symbols (`−`, `×`, `÷`, `²`, `√`, `π` and others) now say what to type instead, and unknown symbols are quoted as whole code points (emoji were split). Harness § Error Messages updated. 22 new tests. Verified lint ✅, `npm test` (264) ✅, build ✅, coverage 99.3% ✅.
+- 2026-10-28: Section 2 task 7 done (hard limits). `parseEquation` now rejects input over 200 characters before tokenizing (`equation is too long (max 200 characters)` at 200), brackets nested deeper than 50 (`too many brackets inside each other (max 50)` at the 51st opener) and trees over 500 nodes (`equation has too many parts (max 500)`). Limits live in `LIMITS` in `parser.ts`; `parseWithLimits` is internal (not in the index). 15 new tests, including a 1 MB paste rejected in under 50 ms. Verified lint ✅, `npm test` (279) ✅, build ✅, coverage 99.35% ✅.

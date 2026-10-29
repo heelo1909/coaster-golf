@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { parseEquation, type Expr } from './index';
+import { LIMITS, parseWithLimits } from './parser';
 
 // Fully bracketed view of the tree, so each test states exactly how an equation is read.
 function show(e: Expr): string {
@@ -284,3 +285,92 @@ describe('parseEquation: LaTeX errors', () => {
     expect(errorOf(input)).toEqual({ message, position });
   });
 });
+
+describe('parseEquation: safety limits stop huge inputs', () => {
+  const nest = (open: string, close: string, levels: number, inner = 'x') =>
+    open.repeat(levels) + inner + close.repeat(levels);
+
+  it('accepts exactly 200 characters, spaces included', () => {
+    expect(parseEquation('x'.repeat(200)).ok).toBe(true);
+    expect(parseEquation('x' + ' '.repeat(199)).ok).toBe(true);
+  });
+
+  it('rejects 201 characters, pointing where the extra starts', () => {
+    expect(errorOf('x'.repeat(201))).toEqual({
+      message: 'equation is too long (max 200 characters)',
+      position: 200,
+    });
+    expect(errorOf('x' + ' '.repeat(200)).message).toBe(
+      'equation is too long (max 200 characters)',
+    );
+  });
+
+  it('checks the length before reading anything, so a giant paste fails fast', () => {
+    const start = performance.now();
+    expect(errorOf('sin('.repeat(250_000)).position).toBe(200);
+    expect(performance.now() - start).toBeLessThan(50);
+  });
+
+  it('allows 50 brackets inside each other', () => {
+    expect(read(nest('(', ')', 50))).toBe('x');
+    expect(read(nest('{', '}', 50))).toBe('x');
+    expect(read(nest('sin(', ')', 39))).toMatch(/^sin\(sin\(/);
+  });
+
+  it.each([
+    ['parentheses', nest('(', ')', 51), 50],
+    ['braces', nest('{', '}', 51), 50],
+    ['bars', nest('|', '|', 51), 50],
+    ['function calls', nest('sin(', ')', 26, nest('(', ')', 25)), 26 * 4 + 24],
+    ['a mix', nest('|(', ')|', 20, nest(String.raw`\sqrt{`, '}', 11)), 40 + 10 * 6 + 5],
+    [String.raw`\lfloor`, String.raw`\lfloor` + nest('(', ')', 50) + String.raw`\rfloor`, 7 + 49],
+  ])('rejects 51 levels of %s at the 51st opener', (_kind, input, position) => {
+    expect(errorOf(input)).toEqual({
+      message: 'too many brackets inside each other (max 50)',
+      position,
+    });
+  });
+
+  it('counts depth, not total brackets: many side-by-side groups are fine', () => {
+    expect(parseEquation('(x)'.repeat(66)).ok).toBe(true);
+  });
+
+  it('keeps every tree under 500 nodes within 200 characters', () => {
+    // "xx…x" is the densest input: two nodes per character.
+    const r = parseEquation('x'.repeat(200));
+    expect(r.ok && countAll(r.expr)).toBe(399);
+  });
+});
+
+describe('parseWithLimits: the node limit', () => {
+  const roomy = { ...LIMITS, maxLength: 10_000 };
+
+  it('allows exactly 500 nodes', () => {
+    // 250 x's side by side: 250 leaves + 249 products = 499 nodes; "-" adds one.
+    expect(parseWithLimits('-' + 'x'.repeat(250), roomy).ok).toBe(true);
+  });
+
+  it('rejects 501 nodes with a friendly message', () => {
+    expect(parseWithLimits('x'.repeat(251), roomy)).toEqual({
+      ok: false,
+      error: { message: 'equation has too many parts (max 500)', position: 0 },
+    });
+  });
+
+  it('is the same check parseEquation uses', () => {
+    expect(parseWithLimits('x'.repeat(201), LIMITS)).toEqual(parseEquation('x'.repeat(201)));
+  });
+});
+
+function countAll(e: Expr): number {
+  switch (e.type) {
+    case 'neg':
+      return 1 + countAll(e.arg);
+    case 'binary':
+      return 1 + countAll(e.left) + countAll(e.right);
+    case 'call':
+      return e.args.reduce((n, a) => n + countAll(a), 1);
+    default:
+      return 1;
+  }
+}
