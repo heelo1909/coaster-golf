@@ -5,8 +5,8 @@
 ## Current State
 
 - **Current section:** Section 2: Equation Engine
-- **Next task:** `toLatex(expr)` for the pretty display, with round-trip tests. Rules are in `src/core/equation/CLAUDE.md` § Pretty Display.
-- **Overall:** Section 1 done and reviewed. Section 2 under way: the parser accepts plain math and the LaTeX subset; no evaluator or `toLatex` yet.
+- **Next task:** Clear error messages for bad input ("unknown word 'sinx' at position 3", "missing ')'"). Most already exist with tests; check the list in `src/core/equation/CLAUDE.md` § Error Messages and fill any gaps.
+- **Overall:** Section 1 done and reviewed. Section 2 under way: the parser accepts plain math and the LaTeX subset, and `toLatex` renders the preview; no evaluator, scoring or safety limits yet.
 
 ## Section Status
 
@@ -43,6 +43,7 @@ Status key: ⬜ Not started · 🟨 In progress · 🔍 In review · ✅ Done
 - 2026-10-28: The project's own agents (`section-reviewer`, `level-golfer`) and commands only load when Claude Code is opened **in `D:\Projects\CoasterGolf`**. Open sessions there.
 - 2026-10-28: Extra scripts kept even though Section 1 didn't list them (`preview`, `test:watch`, `format`); harmless conveniences, as the reviewer noted.
 - 2026-10-28: LaTeX details (Claude's call, recorded in `src/core/equation/CLAUDE.md` Gotchas): commands match longest-prefix because spaces are stripped, so `\sin x` is `\sin`·x (and needs parentheses) and `\pix` is π·x. Any function takes `()` or `{}`, plain names too (`sin{x}`). `\left(`/`\right)` are plain `(`/`)`, so mismatched pairs like `\left(x)` are accepted. `\frac{a}{b}` is one atom, so `\frac{x}{2}^2` = (x/2)². `\sqrt[n]` isn't supported.
+- 2026-10-28: `toLatex` writes `\min`, `\max` and `\lfloor … \rfloor`, so the tokenizer now accepts those three as well, beyond the original LaTeX table (Claude's call; without them, previews of min/max/floor couldn't be parsed back). Rendering rules are in `src/core/equation/CLAUDE.md` § Pretty Display.
 - 2026-10-28: Parser details (Claude's call, recorded in `src/core/equation/CLAUDE.md` Gotchas): spaces are stripped before tokenizing, so `s in(x)` = `sin(x)`. `2|x|` and `|x||x|` work as implicit multiplication. `1e3` means 1·e·3. `3.` and `1.2.3` are errors. `|a|` is stored as `abs(a)` in the tree.
 
 ## Blockers / Open Questions
@@ -62,3 +63,4 @@ Status key: ⬜ Not started · 🟨 In progress · 🔍 In review · ✅ Done
 - 2026-10-28: Section 2 task 1 done: `tokenizer.ts`, `parser.ts`, `errors.ts` and `index.ts` in `src/core/equation/`, exported from `src/core/index.ts`. The parser covers the full plain grammar, with positioned friendly errors and min/max arity checks. 94 parser tests. Verified lint ✅, `npm test` (95) ✅, build ✅, coverage 98.9% ✅. Also removed a stray garbled line from section.md.
 - 2026-10-28: Section 2 tasks 2 and 3 ticked (allowed tokens; optional leading `y=`). No code change needed: the existing parser tests already cover every allowed number form, operator, constant and function, the 21-case precedence table, implicit multiplication, `y=` equivalence and misplaced-`y` errors. Verified lint ✅, `npm test` (95) ✅, build ✅.
 - 2026-10-28: Section 2 task 4 done: the LaTeX subset (`\frac`, `\sqrt`, `{}` grouping, `\sin`…`\exp`, `\left`/`\right`, `\cdot`, `\times`, `\pi`) in the tokenizer and parser, with friendly errors (`unknown command "\alpha"`, `missing "}"`, `"\frac" needs two parts…`). 45 new tests. Also removed the stray `ight)…` line that a carriage return in `\right` had left in Next task. Verified lint ✅, `npm test` (140) ✅, build ✅, coverage 99.1% ✅.
+- 2026-10-28: Section 2 task 5 done: `toLatex(expr)` in `src/core/equation/latex.ts`, exported from the equation index. It uses minimal brackets, `\frac`, `\sqrt`, `\left|…\right|` and `\lfloor…\rfloor`, juxtaposes after numbers, and writes big or tiny numbers as powers of ten. The tokenizer and parser now also read `\min`, `\max`, `\lfloor…\rfloor`. Added 95 latex tests (34 display strings, 57 round-trips proving parse(toLatex(tree)) is the identical tree, and edge cases) plus 7 parser tests. Verified lint ✅, `npm test` (242) ✅, build ✅, coverage 99.3% ✅. KaTeX rendering itself is untested until Section 5.

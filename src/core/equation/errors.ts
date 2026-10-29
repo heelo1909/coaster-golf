@@ -21,6 +21,7 @@ export const messages = {
   missingParen: () => 'missing ")"',
   missingBar: () => 'missing closing "|"',
   missingBrace: () => 'missing "}"',
+  missingFloor: () => 'missing "\\rfloor"',
   needsBraces: (cmd: string) => `"${cmd}" needs braces, like ${cmd}{x}`,
   fracParts: () => '"\\frac" needs two parts in braces, like \\frac{x}{2}',
   needsParens: (fn: string) => `"${fn}" needs parentheses, like ${fn}(x)`,

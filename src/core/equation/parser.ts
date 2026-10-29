@@ -119,6 +119,12 @@ class Parser {
           this.close(t, '|', messages.missingBar());
           return { type: 'call', fn: 'abs', args: [arg] };
         }
+        if (t.sym === '⌊') {
+          // \lfloor a \rfloor is floor(a), the way toLatex() writes it.
+          const arg = this.insideParens(() => this.sum());
+          this.close(t, '⌋', messages.missingFloor());
+          return { type: 'call', fn: 'floor', args: [arg] };
+        }
         throw this.unexpected(t);
     }
   }
@@ -197,7 +203,9 @@ class Parser {
   // when no bar is waiting to be closed, so 2|x| works and |x|-1| closes where expected.
   private startsImplicitFactor(t: Token): boolean {
     if (t.kind === 'sym')
-      return t.sym === '(' || t.sym === '{' || (t.sym === '|' && this.openBars === 0);
+      return (
+        t.sym === '(' || t.sym === '{' || t.sym === '⌊' || (t.sym === '|' && this.openBars === 0)
+      );
     return t.kind !== 'y';
   }
 

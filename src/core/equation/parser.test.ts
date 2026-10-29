@@ -208,6 +208,11 @@ describe('parseEquation: LaTeX input reads the same as plain math', () => {
     [String.raw`\pi x`, 'pix'],
     [String.raw`2\pi`, '2pi'],
     [String.raw`y=\frac{x}{2}`, 'x/2'],
+    [String.raw`\min\left(x, 1\right)`, 'min(x,1)'],
+    [String.raw`\max(x,1,2)`, 'max(x,1,2)'],
+    [String.raw`\lfloor x\rfloor`, 'floor(x)'],
+    [String.raw`2\lfloor x/2\rfloor`, '2floor(x/2)'],
+    [String.raw`\left|\lfloor x\rfloor\right|`, '|floor(x)|'],
   ])('%s reads like %s', (latex, plain) => {
     expect(read(latex)).toBe(read(plain));
   });
@@ -251,6 +256,8 @@ describe('parseEquation: LaTeX errors', () => {
     [String.raw`(x}`, 'unexpected "}"', 2],
     [String.raw`{x)`, 'unexpected ")"', 2],
     [String.raw`\cdot x`, String.raw`unexpected "\cdot"`, 0],
+    [String.raw`\lfloor x`, String.raw`missing "\rfloor"`, 0],
+    [String.raw`(x\rfloor`, String.raw`unexpected "\rfloor"`, 2],
   ])('%j → %s', (input, message, position) => {
     expect(errorOf(input)).toEqual({ message, position });
   });

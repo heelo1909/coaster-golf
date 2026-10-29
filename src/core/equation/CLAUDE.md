@@ -9,6 +9,7 @@ tokenizer.ts   string → tokens
 parser.ts      tokens → Expr tree (recursive descent)
 evaluate.ts    Expr + x → number
 score.ts       scoreEquation()
+latex.ts       toLatex() for the preview
 errors.ts      friendly error messages
 index.ts       public exports only
 ```
@@ -48,6 +49,7 @@ Players may type LaTeX instead of plain math. The tokenizer recognizes this subs
 | `\left( … \right)`, `\left| … \right|` | plain parens / abs bars |
 | `\cdot`, `\times` | `*` |
 | `\pi` | `pi` |
+| `\min`, `\max`, `\lfloor … \rfloor` | `min`, `max`, `floor(…)`; added so `toLatex` output always reads back |
 
 - Plain and LaTeX can mix: `\frac{x}{2}+sin(x)` is fine.
 - An unknown command gives a friendly error: `unknown command "\alpha"`.
@@ -58,7 +60,11 @@ Players may type LaTeX instead of plain math. The tokenizer recognizes this subs
 
 `toLatex(expr: Expr): string` turns a parsed tree into LaTeX for **display only**. It's pure, with no dependencies; the UI renders the string (see `src/game/ui/CLAUDE.md`). So typing `sqrt(x)` previews as √x, `x^2` as x², and `(x-3)/2` as a stacked fraction.
 - Add only the parentheses that precedence needs, so the display looks clean.
-- Tests: round-trip sanity. For 30 sample equations, parse(input) and parse(toLatex(parse(input))) evaluate the same at several x values.
+- The output must parse back through `parseEquation()`. The tests check the stronger property that parse(toLatex(tree)) **is the same tree**, so it evaluates the same at every x. The one exception is a negated product: `-(2x)` shows as `-2x`, which reads back as `(-2)·x`. That's the same value, and a test pins it.
+- Brackets are kept where floating-point grouping would change: `x-(1-x)`, `2(3x)` and `(2^3)^2` keep theirs.
+- Juxtaposition only after a plain number (`2x`, `2\sin(x)`, `3\left(x+1\right)`). Before a bar or a `\frac` it writes `\cdot`, because `|x|x||` can't be read back and `2\frac{1}{3}` looks like a mixed number.
+- A command followed by a letter gets a space (`\pi\cdot x`, `\lfloor x\rfloor`), because KaTeX reads `\cdotx` as one unknown command.
+- Huge or tiny literals come out of `String()` as `1e+21`; they're written as `1\times10^{21}` because the grammar has no e-notation.
 
 ## Scoring Rule
 

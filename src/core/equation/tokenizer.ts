@@ -3,7 +3,8 @@ import { EquationError, messages } from './errors';
 export type FuncName =
   'sin' | 'cos' | 'tan' | 'abs' | 'sqrt' | 'log' | 'ln' | 'exp' | 'min' | 'max' | 'floor';
 export type ConstName = 'pi' | 'e';
-export type Sym = '+' | '-' | '*' | '/' | '^' | '(' | ')' | '{' | '}' | ',' | '|' | '=';
+// "⌊" and "⌋" only come from \lfloor and \rfloor; they aren't typeable as characters.
+export type Sym = '+' | '-' | '*' | '/' | '^' | '(' | ')' | '{' | '}' | '⌊' | '⌋' | ',' | '|' | '=';
 
 type TokenBody =
   | { kind: 'num'; value: number }
@@ -47,6 +48,11 @@ const COMMANDS: ReadonlyMap<string, TokenBody> = new Map<string, TokenBody>([
   ['\\ln', { kind: 'func', name: 'ln' }],
   ['\\log', { kind: 'func', name: 'log' }],
   ['\\exp', { kind: 'func', name: 'exp' }],
+  // Not in the original subset, but toLatex() writes them, so they must read back in.
+  ['\\min', { kind: 'func', name: 'min' }],
+  ['\\max', { kind: 'func', name: 'max' }],
+  ['\\lfloor', { kind: 'sym', sym: '⌊' }],
+  ['\\rfloor', { kind: 'sym', sym: '⌋' }],
   ['\\cdot', { kind: 'sym', sym: '*' }],
   ['\\times', { kind: 'sym', sym: '*' }],
   ['\\pi', { kind: 'const', name: 'pi' }],

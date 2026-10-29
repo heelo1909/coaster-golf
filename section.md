@@ -43,7 +43,7 @@ Work through the sections in order. Each one has a goal, tasks, and a "Done when
 - [x] Allowed: numbers (incl. decimals), `x`, `+ - * / ^`, parentheses, unary minus, implicit multiplication (`2x`, `3(x+1)`), constants `pi` and `e`, and functions `sin cos tan abs sqrt log ln exp min max floor`
 - [x] Input may start with `y=` or not; both mean the same thing
 - [x] LaTeX input subset (`\frac`, `\sqrt`, `^{}`, `\sin`…, `\left( \right)`, `\cdot`, `\pi`), mixed with plain math
-- [ ] `toLatex(expr)` for the pretty display, with round-trip tests
+- [x] `toLatex(expr)` for the pretty display, with round-trip tests
 - [ ] Clear error messages for bad input ("unknown word 'sinx' at position 3", "missing ')'")
 - [ ] Hard limits: max 200 characters, max nesting depth, so huge inputs can't freeze the game
 - [ ] Evaluator: tree + x → number (returns `NaN` for undefined points like `sqrt(-1)` or division by zero)
