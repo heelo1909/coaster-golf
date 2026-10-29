@@ -5,8 +5,8 @@
 ## Current State
 
 - **Current section:** Section 2: Equation Engine
-- **Next task:** Scoring rule: `scoreEquation(input)` in `src/core/equation/score.ts` (strip whitespace, drop a leading `y=`, count the rest).
-- **Overall:** Section 1 done and reviewed. Section 2 under way: the parser accepts plain math and the LaTeX subset with friendly errors, and `toLatex` renders the preview; safety limits and the evaluator are in; no scoring yet.
+- **Next task:** Tests task: fill any gaps (valid/invalid inputs, implicit multiplication, precedence, scoring), plus the Done-when fuzz test (10,000 random strings, nothing throws, each under 5 ms).
+- **Overall:** Section 1 done and reviewed. Section 2 nearly done: the parser accepts plain math and the LaTeX subset with friendly errors, `toLatex` renders the preview, and safety limits, the evaluator and `scoreEquation` are in. The fuzz test is still to do.
 
 ## Section Status
 
@@ -70,3 +70,4 @@ Status key: ⬜ Not started · 🟨 In progress · 🔍 In review · ✅ Done
 - 2026-10-28: Section 2 task 6 done (error messages). Every harness message already had a positioned test except the 200-character one (that's the next task). Gaps filled: empty brackets (`()`, `{}`, `sin()`, `\sqrt{}`; `min()` uses the two-inputs message), look-alike symbols (`−`, `×`, `÷`, `²`, `√`, `π` and others) now say what to type instead, and unknown symbols are quoted as whole code points (emoji were split). Harness § Error Messages updated. 22 new tests. Verified lint ✅, `npm test` (264) ✅, build ✅, coverage 99.3% ✅.
 - 2026-10-28: Section 2 task 7 done (hard limits). `parseEquation` now rejects input over 200 characters before tokenizing (`equation is too long (max 200 characters)` at 200), brackets nested deeper than 50 (`too many brackets inside each other (max 50)` at the 51st opener) and trees over 500 nodes (`equation has too many parts (max 500)`). Limits live in `LIMITS` in `parser.ts`; `parseWithLimits` is internal (not in the index). 15 new tests, including a 1 MB paste rejected in under 50 ms. Verified lint ✅, `npm test` (279) ✅, build ✅, coverage 99.35% ✅.
 - 2026-10-28: Section 2 task 8 done (evaluator). `evaluate(expr, x)` in `src/core/equation/evaluate.ts` is a plain recursive switch (no eval), exported from the equation index, and turns every non-finite step into `NaN`. 71 new tests cover each node type and function, 16 undefined points, NaN that stays NaN, LaTeX input, determinism, and a 24-case precedence table checked by value at 5 values of x. Verified lint ✅, `npm test` (350) ✅, build ✅, coverage 99.41% ✅.
+- 2026-10-28: Section 2 task 9 done (scoring rule). `scoreEquation(input)` in `src/core/equation/score.ts` strips whitespace with the same `/\s/` as the tokenizer, drops one leading `y=`, and returns `length`. It's exported from the equation index. 17 new tests cover whitespace, `y=`, LaTeX costing more, empty input, and agreement with `source`. Fixed a wrong example in the harness: `y = (x-3)^2/2` scores 9, not 11. Verified lint ✅, `npm test` (367) ✅, build ✅, coverage 99.41% ✅.

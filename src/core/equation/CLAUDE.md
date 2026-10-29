@@ -68,7 +68,7 @@ Players may type LaTeX instead of plain math. The tokenizer recognizes this subs
 
 ## Scoring Rule
 
-`scoreEquation(input)` = remove all whitespace, remove a leading `y=`, then count the remaining characters (`length` of the string). So `y = (x-3)^2/2` scores 11. This is the **only** scoring function; the UI and the server both use it through `judge()`.
+`scoreEquation(input)` = remove all whitespace, remove a leading `y=`, then count the remaining characters (`length` of the string). So `y = (x-3)^2/2` scores 9 (`(x-3)^2/2`). This is the **only** scoring function; the UI and the server both use it through `judge()`.
 
 The score counts **what the player typed**, not the pretty display. LaTeX is accepted for comfort but is usually longer (`\frac{x}{2}` = 11 vs `x/2` = 3), so it never gives an advantage.
 
