@@ -111,4 +111,5 @@ Short, friendly, with a 0-based `position` the UI can underline. Examples:
 - `\left(` and `\right)` are just `(` and `)` (same for `|`), so a mismatched pair like `\left(x)` is accepted. That's harmless, since scoring counts the typed characters anyway.
 - `\frac{a}{b}` is a single atom, so `\frac{x}{2}^2` is (x/2)² and `\frac{1}{2}x` is (1/2)·x.
 - Safety limits: the 200 characters are counted on the raw input, spaces included, so a giant paste is refused before tokenizing. Depth counts `()`, `{}`, bars, `\lfloor` and function calls; unary minus and `^` chains don't (200 characters already bounds them). Within 200 characters a tree tops out at 399 nodes (`xx…x`), so the 500-node check is only reachable through the internal `parseWithLimits()` that tests use.
+- The evaluator turns any step that isn't finite into `NaN`, so `1/0`, `ln(0)` and `exp(1000)` are gaps, never infinities, and a `NaN` stays `NaN` (`0*(1/x)` at 0). `x^(1/3)` is `NaN` for negative x because JavaScript has no real cube root through `**`, and `0^0` is 1.
 - Keep the original `source` string; the leaderboard shows exactly what the player typed (minus whitespace).

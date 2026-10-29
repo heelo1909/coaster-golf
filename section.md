@@ -46,7 +46,7 @@ Work through the sections in order. Each one has a goal, tasks, and a "Done when
 - [x] `toLatex(expr)` for the pretty display, with round-trip tests
 - [x] Clear error messages for bad input ("unknown word 'sinx' at position 3", "missing ')'")
 - [x] Hard limits: max 200 characters, max nesting depth, so huge inputs can't freeze the game
-- [ ] Evaluator: tree + x → number (returns `NaN` for undefined points like `sqrt(-1)` or division by zero)
+- [x] Evaluator: tree + x → number (returns `NaN` for undefined points like `sqrt(-1)` or division by zero)
 - [ ] **Scoring rule** (one function, used everywhere): strip all whitespace, drop a leading `y=`, then count the remaining characters. `pi` counts as 2, `sin` as 3, and so on.
 - [ ] Tests: valid inputs, invalid inputs, implicit multiplication, operator precedence (`-x^2` = `-(x^2)`), scoring examples
 
