@@ -29,6 +29,16 @@ describe('previewOf: what the live preview shows while typing', () => {
     expect(preview.kind === 'track' && preview.track(4)).toBe(2);
   });
 
+  it('the pretty preview turns sqrt into a root, ^ into an exponent and / into a fraction', () => {
+    const latexOf = (text: string): string | false => {
+      const preview = previewOf(text);
+      return preview.kind === 'track' && preview.latex;
+    };
+    expect(latexOf('sqrt(x)')).toBe('\\sqrt{x}');
+    expect(latexOf('x^2')).toBe('x^{2}');
+    expect(latexOf('x/2')).toBe('\\frac{x}{2}');
+  });
+
   it('a gap in the track is NaN, not a crash', () => {
     const preview = previewOf('1/(x-2)');
     expect(preview.kind === 'track' && preview.track(2)).toBeNaN();

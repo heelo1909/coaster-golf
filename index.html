@@ -77,6 +77,19 @@
       .eq-counter.under-par {
         color: var(--mark);
       }
+      .eq-math {
+        color: var(--ink);
+        font-size: 18px;
+        overflow-x: auto;
+        overflow-y: hidden;
+      }
+      .eq-math:not(:empty) {
+        margin-top: 8px;
+        padding: 2px 0;
+      }
+      .eq-math.faded {
+        opacity: 0.4;
+      }
       .eq-error {
         color: var(--error);
         font-size: 13px;

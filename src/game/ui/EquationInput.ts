@@ -1,18 +1,22 @@
 // The equation box: a plain text input with a live character counter, a debounced live
-// preview of the track, and parse errors shown inline with the bad character underlined.
-// It only parses for the preview; judging a ride is judge()'s job (see game/CLAUDE.md).
+// preview of the track and of the pretty maths (KaTeX), and parse errors shown inline with
+// the bad character underlined. It only parses for the preview; judging a ride is judge()'s
+// job (see game/CLAUDE.md).
 
-import { evaluate, parseEquation, scoreEquation } from '../../core';
+import katex from 'katex';
+import 'katex/dist/katex.min.css';
+import { evaluate, parseEquation, scoreEquation, toLatex } from '../../core';
 import type { Track } from '../render';
 import { messages } from './messages';
 
 export const PREVIEW_DEBOUNCE_MS = 150;
 
 // What the preview should show for the current text. On an error there's no new track to
-// draw, so the caller keeps the last good one, faded.
+// draw, so the caller keeps the last good one, faded. `latex` is what KaTeX renders under
+// the box; it comes from toLatex, never from the raw text.
 export type Preview =
   | { kind: 'empty' }
-  | { kind: 'track'; track: Track }
+  | { kind: 'track'; track: Track; latex: string }
   | { kind: 'error'; message: string; position: number };
 
 export function previewOf(text: string): Preview {
@@ -20,7 +24,7 @@ export function previewOf(text: string): Preview {
   const parsed = parseEquation(text);
   if (!parsed.ok) return { kind: 'error', ...parsed.error };
   const expr = parsed.expr;
-  return { kind: 'track', track: (x) => evaluate(expr, x) };
+  return { kind: 'track', track: (x) => evaluate(expr, x), latex: toLatex(expr) };
 }
 
 // Splits the text around the character at `position`, so the UI can underline it. The bad
@@ -82,6 +86,11 @@ export function createEquationInput(
   counter.className = 'eq-counter';
   counter.dataset.testid = 'char-counter';
 
+  // The pretty maths. KaTeX also writes a hidden MathML copy for screen readers.
+  const math = document.createElement('div');
+  math.className = 'eq-math';
+  math.dataset.testid = 'math-preview';
+
   const error = document.createElement('div');
   error.className = 'eq-error';
   error.dataset.testid = 'equation-error';
@@ -89,7 +98,7 @@ export function createEquationInput(
   input.setAttribute('aria-describedby', (error.id = 'eq-error'));
 
   row.append(input, counter);
-  root.append(row, error);
+  root.append(row, math, error);
 
   let currentPar = par;
   let parses = false;
@@ -112,12 +121,22 @@ export function createEquationInput(
     error.replaceChildren(text, where);
   }
 
+  // On an error the last good maths stays, faded, like the track on the canvas.
+  function showMath(preview: Preview): void {
+    if (preview.kind === 'empty') math.replaceChildren();
+    if (preview.kind === 'track') {
+      katex.render(preview.latex, math, { throwOnError: false, output: 'htmlAndMathml' });
+    }
+    math.classList.toggle('faded', preview.kind === 'error');
+  }
+
   function update(): void {
     const preview = previewOf(input.value);
     parses = preview.kind === 'track';
     input.toggleAttribute('aria-invalid', preview.kind === 'error');
     if (preview.kind === 'error') showError(preview.message, preview.position);
     else error.replaceChildren();
+    showMath(preview);
     showCounter();
     onPreview(preview);
   }
