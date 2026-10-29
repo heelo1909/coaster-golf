@@ -1,0 +1,23 @@
+{
+  "id": "c03",
+  "name": "Uphill Push",
+  "bounds": {
+    "xMin": -1,
+    "xMax": 7,
+    "yMin": -2,
+    "yMax": 4
+  },
+  "start": {
+    "x": 0,
+    "y": 0,
+    "speed": 8
+  },
+  "end": {
+    "x": 6,
+    "y": 2
+  },
+  "obstacles": [],
+  "par": 3,
+  "reference": "x/3",
+  "hint": "The cart's starting speed can carry it uphill."
+}

@@ -1,0 +1,49 @@
+{
+  "id": "c15",
+  "name": "Camel Back",
+  "bounds": {
+    "xMin": -1,
+    "xMax": 7.3,
+    "yMin": -2,
+    "yMax": 2.5
+  },
+  "start": {
+    "x": 0,
+    "y": 0,
+    "speed": 5
+  },
+  "end": {
+    "x": 6.28,
+    "y": 0
+  },
+  "obstacles": [
+    {
+      "kind": "circle",
+      "x": 1.57,
+      "y": 0.3,
+      "r": 0.4
+    },
+    {
+      "kind": "circle",
+      "x": 4.71,
+      "y": 0.3,
+      "r": 0.4
+    },
+    {
+      "kind": "circle",
+      "x": 4.71,
+      "y": -0.8,
+      "r": 0.3
+    },
+    {
+      "kind": "rect",
+      "x": 3.04,
+      "y": 0.8,
+      "w": 0.2,
+      "h": 1.7
+    }
+  ],
+  "par": 8,
+  "reference": "|sin(x)|",
+  "hint": "Two humps, and the cart never dips below the ground."
+}

@@ -1,0 +1,23 @@
+{
+  "id": "c01",
+  "name": "First Drop",
+  "bounds": {
+    "xMin": -1,
+    "xMax": 6,
+    "yMin": -7,
+    "yMax": 2
+  },
+  "start": {
+    "x": 0,
+    "y": 0,
+    "speed": 1
+  },
+  "end": {
+    "x": 5,
+    "y": -5
+  },
+  "obstacles": [],
+  "par": 2,
+  "reference": "-x",
+  "hint": "Try a line that goes down."
+}

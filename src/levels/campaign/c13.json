@@ -1,0 +1,31 @@
+{
+  "id": "c13",
+  "name": "Half Pipe",
+  "bounds": {
+    "xMin": -3,
+    "xMax": 3,
+    "yMin": -1,
+    "yMax": 6
+  },
+  "start": {
+    "x": -2,
+    "y": 4,
+    "speed": 3
+  },
+  "end": {
+    "x": 2,
+    "y": 4
+  },
+  "obstacles": [
+    {
+      "kind": "rect",
+      "x": -0.8,
+      "y": 0.8,
+      "w": 1.6,
+      "h": 4.2
+    }
+  ],
+  "par": 5,
+  "reference": "x^4/4",
+  "hint": "You need a flatter bottom than a parabola has."
+}

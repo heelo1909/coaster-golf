@@ -1,0 +1,54 @@
+{
+  "id": "c08",
+  "name": "Waves",
+  "bounds": {
+    "xMin": -1,
+    "xMax": 13.6,
+    "yMin": -3,
+    "yMax": 3
+  },
+  "start": {
+    "x": 0,
+    "y": 0,
+    "speed": 5
+  },
+  "end": {
+    "x": 12.57,
+    "y": 0
+  },
+  "obstacles": [
+    {
+      "kind": "circle",
+      "x": 1.57,
+      "y": 0,
+      "r": 0.4
+    },
+    {
+      "kind": "circle",
+      "x": 1.57,
+      "y": -0.9,
+      "r": 0.3
+    },
+    {
+      "kind": "circle",
+      "x": 4.71,
+      "y": 0,
+      "r": 0.4
+    },
+    {
+      "kind": "circle",
+      "x": 7.85,
+      "y": 0,
+      "r": 0.4
+    },
+    {
+      "kind": "circle",
+      "x": 11,
+      "y": 0,
+      "r": 0.4
+    }
+  ],
+  "par": 6,
+  "reference": "sin(x)",
+  "hint": "Up, down, up, down. Which function does that?"
+}

@@ -1,0 +1,31 @@
+{
+  "id": "c07",
+  "name": "Hurdle",
+  "bounds": {
+    "xMin": -1,
+    "xMax": 9,
+    "yMin": -6,
+    "yMax": 6
+  },
+  "start": {
+    "x": 0,
+    "y": 3,
+    "speed": 5
+  },
+  "end": {
+    "x": 8,
+    "y": -5
+  },
+  "obstacles": [
+    {
+      "kind": "rect",
+      "x": 1.5,
+      "y": -6,
+      "w": 1,
+      "h": 9.5
+    }
+  ],
+  "par": 11,
+  "reference": "4-(x-2)^2/4",
+  "hint": "Hop up over the wall before the long drop."
+}

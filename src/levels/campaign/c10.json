@@ -1,0 +1,37 @@
+{
+  "id": "c10",
+  "name": "Long Wave",
+  "bounds": {
+    "xMin": -1,
+    "xMax": 13.6,
+    "yMin": -3.5,
+    "yMax": 3.5
+  },
+  "start": {
+    "x": 0,
+    "y": 0,
+    "speed": 7.5
+  },
+  "end": {
+    "x": 12.57,
+    "y": 0
+  },
+  "obstacles": [
+    {
+      "kind": "circle",
+      "x": 3.14,
+      "y": 0.5,
+      "r": 0.8
+    },
+    {
+      "kind": "rect",
+      "x": 8.92,
+      "y": -1,
+      "w": 1,
+      "h": 4.5
+    }
+  ],
+  "par": 9,
+  "reference": "2sin(x/2)",
+  "hint": "A wave can be taller and wider."
+}

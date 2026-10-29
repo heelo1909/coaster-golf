@@ -1,0 +1,36 @@
+{
+  "id": "c11",
+  "name": "Rolling Hills",
+  "bounds": {
+    "xMin": -1,
+    "xMax": 13.6,
+    "yMin": -8,
+    "yMax": 2
+  },
+  "start": {
+    "x": 0,
+    "y": 0,
+    "speed": 4.5
+  },
+  "end": {
+    "x": 12.57,
+    "y": -6.28
+  },
+  "obstacles": [
+    {
+      "kind": "circle",
+      "x": 3.14,
+      "y": -1.2,
+      "r": 0.5
+    },
+    {
+      "kind": "circle",
+      "x": 9.42,
+      "y": -5,
+      "r": 0.5
+    }
+  ],
+  "par": 13,
+  "reference": "2sin(x/2)-x/2",
+  "hint": "Waves can roll downhill too."
+}

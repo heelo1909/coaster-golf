@@ -1,0 +1,31 @@
+{
+  "id": "c04",
+  "name": "The Dip",
+  "bounds": {
+    "xMin": -1,
+    "xMax": 9,
+    "yMin": -1,
+    "yMax": 7
+  },
+  "start": {
+    "x": 0,
+    "y": 4,
+    "speed": 4
+  },
+  "end": {
+    "x": 8,
+    "y": 4
+  },
+  "obstacles": [
+    {
+      "kind": "rect",
+      "x": 3.5,
+      "y": 2,
+      "w": 1,
+      "h": 4
+    }
+  ],
+  "par": 9,
+  "reference": "(x-4)^2/4",
+  "hint": "Try a curve that dips then rises."
+}

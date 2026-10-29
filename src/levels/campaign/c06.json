@@ -1,0 +1,31 @@
+{
+  "id": "c06",
+  "name": "Low Bridge",
+  "bounds": {
+    "xMin": -1,
+    "xMax": 11,
+    "yMin": -5,
+    "yMax": 8
+  },
+  "start": {
+    "x": 0,
+    "y": 6,
+    "speed": 1
+  },
+  "end": {
+    "x": 10,
+    "y": 1
+  },
+  "obstacles": [
+    {
+      "kind": "rect",
+      "x": 4,
+      "y": 0,
+      "w": 2,
+      "h": 8
+    }
+  ],
+  "par": 11,
+  "reference": "(x-6)^2/4-3",
+  "hint": "The lowest point doesn't have to be in the middle."
+}

@@ -87,7 +87,7 @@ Work through the sections in order. Each one has a goal, tasks, and a "Done when
 - [x] Level JSON format: id, name, x-range, y-limits, start station (position + starting speed), end station zone, obstacles (rectangles and circles to start), par score (character count to aim for)
 - [x] Validator: rejects malformed levels; checks that the stored **reference solution** beats the level
 - [x] A script `npm run check-levels` that validates every level and prints each one's reference score
-- [ ] **15 levels** with a smooth difficulty curve:
+- [x] **15 levels** with a smooth difficulty curve:
   - 1–3: straight lines and simple slopes (teaches the controls)
   - 4–7: parabolas, going over or under one obstacle
   - 8–11: sine waves, absolute value, multiple obstacles

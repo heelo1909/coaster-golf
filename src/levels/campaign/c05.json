@@ -1,0 +1,30 @@
+{
+  "id": "c05",
+  "name": "Over the Rock",
+  "bounds": {
+    "xMin": -1,
+    "xMax": 9,
+    "yMin": -1,
+    "yMax": 5
+  },
+  "start": {
+    "x": 0,
+    "y": 0,
+    "speed": 8
+  },
+  "end": {
+    "x": 8,
+    "y": 0
+  },
+  "obstacles": [
+    {
+      "kind": "circle",
+      "x": 4,
+      "y": 0,
+      "r": 1
+    }
+  ],
+  "par": 8,
+  "reference": "x(8-x)/8",
+  "hint": "This time, go up and come back down."
+}

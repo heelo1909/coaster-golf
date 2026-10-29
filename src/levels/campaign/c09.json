@@ -1,0 +1,43 @@
+{
+  "id": "c09",
+  "name": "Sharp Valley",
+  "bounds": {
+    "xMin": -1,
+    "xMax": 9,
+    "yMin": -1,
+    "yMax": 7
+  },
+  "start": {
+    "x": 0,
+    "y": 4,
+    "speed": 3
+  },
+  "end": {
+    "x": 8,
+    "y": 4
+  },
+  "obstacles": [
+    {
+      "kind": "rect",
+      "x": 3.5,
+      "y": 1.5,
+      "w": 1,
+      "h": 4.5
+    },
+    {
+      "kind": "circle",
+      "x": 2,
+      "y": 0.9,
+      "r": 0.5
+    },
+    {
+      "kind": "circle",
+      "x": 6,
+      "y": 0.9,
+      "r": 0.5
+    }
+  ],
+  "par": 5,
+  "reference": "|x-4|",
+  "hint": "Straight down, straight back up. A curve is too round here."
+}

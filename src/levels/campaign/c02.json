@@ -1,0 +1,23 @@
+{
+  "id": "c02",
+  "name": "Bunny Hill",
+  "bounds": {
+    "xMin": -1,
+    "xMax": 7,
+    "yMin": -2,
+    "yMax": 5
+  },
+  "start": {
+    "x": 0,
+    "y": 3,
+    "speed": 1
+  },
+  "end": {
+    "x": 6,
+    "y": 0
+  },
+  "obstacles": [],
+  "par": 5,
+  "reference": "3-x/2",
+  "hint": "A line can start higher up, and slope gently."
+}

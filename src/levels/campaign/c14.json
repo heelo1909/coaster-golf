@@ -1,0 +1,44 @@
+{
+  "id": "c14",
+  "name": "Gull Wings",
+  "bounds": {
+    "xMin": -4,
+    "xMax": 4,
+    "yMin": -1,
+    "yMax": 4
+  },
+  "start": {
+    "x": -3,
+    "y": 1.25,
+    "speed": 3
+  },
+  "end": {
+    "x": 3,
+    "y": 1.25
+  },
+  "obstacles": [
+    {
+      "kind": "rect",
+      "x": -2.1,
+      "y": 0.9,
+      "w": 0.2,
+      "h": 3.1
+    },
+    {
+      "kind": "rect",
+      "x": 1.9,
+      "y": 0.9,
+      "w": 0.2,
+      "h": 3.1
+    },
+    {
+      "kind": "circle",
+      "x": 0,
+      "y": 0,
+      "r": 0.5
+    }
+  ],
+  "par": 9,
+  "reference": "|x^2-4|/4",
+  "hint": "Two valleys with a hill between them."
+}
