@@ -1,21 +1,19 @@
+import { evaluate, parseEquation } from '../core';
+import { campaign } from '../levels';
+import { createRenderer } from './render';
+
 const canvas = document.querySelector<HTMLCanvasElement>('#game');
 if (!canvas) throw new Error('missing #game canvas');
-const ctx = canvas.getContext('2d');
-if (!ctx) throw new Error('2d canvas not supported');
+const level = campaign[0];
+if (!level) throw new Error('no campaign levels');
 
-function draw(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D): void {
-  const dpr = window.devicePixelRatio || 1;
-  const { clientWidth: w, clientHeight: h } = canvas;
-  canvas.width = Math.round(w * dpr);
-  canvas.height = Math.round(h * dpr);
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  ctx.clearRect(0, 0, w, h);
-  ctx.fillStyle = '#2b2b2b';
-  ctx.font = `bold ${Math.max(24, Math.min(w, h) / 10)}px system-ui, sans-serif`;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('Coaster Golf', w / 2, h / 2);
+const renderer = createRenderer(canvas, level);
+
+// A fixed demo track until the equation input arrives (next Section 5 task).
+const demo = parseEquation('(x-3)^2/9-1');
+if (demo.ok) {
+  const expr = demo.expr;
+  renderer.setTrack((x) => evaluate(expr, x));
 }
 
-draw(canvas, ctx);
-window.addEventListener('resize', () => draw(canvas, ctx));
+window.addEventListener('resize', () => renderer.resize());
