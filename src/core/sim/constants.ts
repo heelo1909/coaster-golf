@@ -15,3 +15,18 @@ export const DRAG = 0.02;
 
 // Fixed physics timestep in seconds. Never vary it: the result must not depend on frame rate.
 export const DT = 1 / 240;
+
+// A run that hasn't reached the end station after this many seconds is a TIMEOUT.
+export const MAX_TIME = 30;
+
+// How far, in y, the track may pass from a station and still count as passing through it.
+export const STATION_TOLERANCE = 0.25;
+
+// |f'(x)| above this is a vertical wall, which counts as BROKEN_TRACK.
+export const MAX_SLOPE = 20;
+
+// |Δy| between two neighboring samples above this is a gap in the track (BROKEN_TRACK).
+export const JUMP_THRESHOLD = 0.5;
+
+// The cart is a circle of this radius sitting on top of the track, used for obstacle hits.
+export const CART_RADIUS = 0.2;

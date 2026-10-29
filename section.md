@@ -62,7 +62,7 @@ Work through the sections in order. Each one has a goal, tasks, and a "Done when
 
 - [x] Sample `f(x)` across the level's x-range at a fixed step to build the track polyline
 - [x] Cart physics along the track: gravity along the slope, small friction, fixed timestep (e.g. 1/240 s), no randomness
-- [ ] **Fail conditions**, each with a reason code:
+- [x] **Fail conditions**, each with a reason code:
   - `FLEW_OFF`: the curve bends downward too sharply for the cart's speed (normal force < 0)
   - `STALLED`: speed reaches 0 before the end station (cart would roll back)
   - `HIT_OBSTACLE`: the track or cart touches an obstacle shape
@@ -70,7 +70,7 @@ Work through the sections in order. Each one has a goal, tasks, and a "Done when
   - `BROKEN_TRACK`: `NaN`/infinite values or a jump discontinuity in the range
   - `MISSED_START` / `MISSED_END`: the track doesn't pass through the station zones
   - `TIMEOUT`: the run exceeds the maximum sim time
-- [ ] Success = the cart reaches the end station zone
+- [x] Success = the cart reaches the end station zone
 - [ ] Output: result + reason + a recorded path (positions over time) for the renderer to replay
 - [ ] Tests: simple known-good and known-bad tracks for every fail reason, plus a determinism test (same input run 100 times → identical output)
 
