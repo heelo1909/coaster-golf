@@ -18,6 +18,7 @@ export const theme = {
   trackWidth: 3,
   trackFaintWidth: 1.5,
   trackFaintDash: [6, 6],
+  trackFadedAlpha: 0.3, // the last good track while the equation has an error
   obstacleWidth: 2,
   hatchGap: 7, // px between hatch lines
   stationWidth: 2.5,

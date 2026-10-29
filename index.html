@@ -5,23 +5,101 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Coaster Golf</title>
     <style>
+      /* Blueprint look (progress.md → Decisions); canvas colours live in render/theme.ts. */
+      :root {
+        --paper: #1e4a72;
+        --panel: #173b5c;
+        --line: rgba(169, 200, 230, 0.32);
+        --label: #a9c8e6;
+        --ink: #f2f6fa;
+        --mark: #ffd27a;
+        --error: #ffb4a2;
+        --mono: 'JetBrains Mono', 'Cascadia Mono', Consolas, 'Courier New', monospace;
+      }
       html,
       body {
         margin: 0;
         height: 100%;
-        background: #f4efe4;
-        color: #2b2b2b;
-        font-family: system-ui, sans-serif;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: var(--mono);
       }
-      #game {
-        display: block;
-        width: 100%;
+      #app {
+        display: flex;
+        flex-direction: column;
         height: 100%;
+        height: 100dvh;
+      }
+      .play-canvas {
+        display: block;
+        flex: 1;
+        min-height: 0;
+        width: 100%;
+      }
+      .play-panel {
+        background: var(--panel);
+        border-top: 1px solid var(--line);
+        padding: 12px 16px 16px;
+      }
+      .eq-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .eq-input {
+        flex: 1;
+        min-width: 0;
+        min-height: 44px;
+        box-sizing: border-box;
+        padding: 0 12px;
+        border: 1.5px solid var(--label);
+        border-radius: 2px;
+        background: var(--paper);
+        color: var(--ink);
+        font: 16px var(--mono);
+      }
+      .eq-input::placeholder {
+        color: var(--label);
+        opacity: 0.6;
+      }
+      .eq-input:focus {
+        outline: 2px solid var(--mark);
+        outline-offset: 1px;
+      }
+      .eq-input[aria-invalid] {
+        border-color: var(--error);
+      }
+      .eq-counter {
+        color: var(--label);
+        font-size: 13px;
+        white-space: nowrap;
+      }
+      .eq-counter.under-par {
+        color: var(--mark);
+      }
+      .eq-error {
+        color: var(--error);
+        font-size: 13px;
+        overflow-wrap: anywhere;
+      }
+      .eq-error:not(:empty) {
+        margin-top: 8px;
+      }
+      .eq-error code {
+        display: block;
+        margin-top: 4px;
+        color: var(--ink);
+        font: inherit;
+        white-space: pre-wrap;
+      }
+      .eq-error u {
+        text-decoration: underline var(--error) 2px;
+        text-underline-offset: 4px;
       }
     </style>
   </head>
   <body>
-    <canvas id="game" data-testid="game-canvas"></canvas>
+    <main id="app"></main>
     <script type="module" src="/src/game/main.ts"></script>
   </body>
 </html>

@@ -105,7 +105,7 @@ Work through the sections in order. Each one has a goal, tasks, and a "Done when
 **Goal:** a playable level in the browser.
 
 - [x] Canvas renderer: grid and axes, stations, obstacles, the track drawn from the equation
-- [ ] Equation input box with **live preview**: the track redraws as you type; errors show inline without crashing
+- [x] Equation input box with **live preview**: the track redraws as you type; errors show inline without crashing
 - [ ] Pretty math preview under the box via KaTeX (`sqrt` → √, `^` → exponent, `/` → fraction)
 - [ ] Pasting and drag-drop blocked in the equation box, with a friendly note
 - [ ] "Ride" button: replays the sim path as an animated cart (the visual uses the recorded path; it never re-simulates differently)

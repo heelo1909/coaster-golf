@@ -13,7 +13,9 @@ export type { Track } from './scene';
 
 export interface Renderer {
   setLevel(level: Level): void;
-  setTrack(f: Track | null): void; // null clears the track
+  // null clears the track; faded draws it dimmed (the last good track while the equation has
+  // an error).
+  setTrack(f: Track | null, faded?: boolean): void;
   resize(): void; // call when the canvas's CSS size or devicePixelRatio changes
 }
 
@@ -25,6 +27,7 @@ export function createRenderer(canvas: HTMLCanvasElement, level: Level): Rendere
 
   let current = level;
   let track: Track | null = null;
+  let trackFaded = false;
   let cam: Camera = layout();
 
   function layout(): Camera {
@@ -46,7 +49,9 @@ export function createRenderer(canvas: HTMLCanvasElement, level: Level): Rendere
     ctx!.drawImage(staticLayer, 0, 0);
     if (track) {
       ctx!.setTransform(cam.dpr, 0, 0, cam.dpr, 0, 0);
+      ctx!.globalAlpha = trackFaded ? theme.trackFadedAlpha : 1;
       drawTrack(ctx!, cam, current, track);
+      ctx!.globalAlpha = 1;
     }
   }
 
@@ -57,8 +62,9 @@ export function createRenderer(canvas: HTMLCanvasElement, level: Level): Rendere
       cam = layout();
       frame();
     },
-    setTrack(f) {
+    setTrack(f, faded = false) {
       track = f;
+      trackFaded = faded;
       frame();
     },
     resize() {

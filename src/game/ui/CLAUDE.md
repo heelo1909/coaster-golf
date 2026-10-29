@@ -23,9 +23,9 @@ Screens are a simple state machine with `show(screen, params)`. The URL hash mir
 ## Equation Input
 
 - Placeholder: `y = ` followed by a hint like `x/2`.
-- **Live preview:** on input, debounce 150 ms, call `judge()`, and redraw the track. Don't play the ride while typing.
+- **Live preview:** on input, debounce 150 ms, call `parseEquation()`, and redraw the track (`previewOf` in `EquationInput.ts`). Nothing is judged and no ride plays while typing; Ride calls `judge()`. On a parse error, the last good track stays on the canvas, faded.
 - **Errors** show under the box and underline the character at `error.position`. Never block typing.
-- A **character counter** sits next to the box (`11 chars · par 14`) and updates live using `scoreEquation`. It turns gold at or under par.
+- A **character counter** sits next to the box (`11 chars · par 14`) and updates live using `scoreEquation`. It turns gold at or under par, but only once the equation parses (so a half-typed `(x-` never looks like a winner).
 - **Pretty preview:** directly under the box, render `toLatex(expr)` with **KaTeX** (the only UI dependency allowed; load it from npm and bundle it). Typing `sqrt(x)` shows √x, `^` shows a raised exponent, `/` shows a fraction. On a parse error, keep the last good preview faded.
 - The box itself stays a **plain text input**, so the character count is always exactly what was typed. Don't swap it for a rich math editor without asking the user.
 - **No pasting** (to stop copying answers):

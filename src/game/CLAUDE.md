@@ -22,11 +22,11 @@ Everything the player sees and touches. It turns `src/core` results into pixels 
 ## Data Flow for One Ride
 
 ```
-player types ─► ui/EquationInput ─(debounced 150ms)─► core.judge(level, text)
+player types ─► ui/EquationInput ─(debounced 150ms)─► core.parseEquation(text)
                                                          │
                      ┌───────────── parse error ─────────┤
                      ▼                                    ▼ ok
-           show inline error                 render.drawTrack(preview)
+     show inline error, fade last track      render.drawTrack(preview)
                                                          │
 player taps Ride ─► core.judge() again ─► render.playRide(result.path)
                                                          │
@@ -36,6 +36,9 @@ player taps Ride ─► core.judge() again ─► render.playRide(result.path)
                                                          ▼
                                  storage.saveBest(levelId, score, equation)
 ```
+
+The live preview only parses (it needs the `Expr` to draw, and nothing is judged while
+typing). Every ride and every score goes through `judge()`.
 
 ## Art Direction
 
