@@ -61,7 +61,7 @@ Work through the sections in order. Each one has a goal, tasks, and a "Done when
 **Goal:** given a level and an equation, decide deterministically whether the cart makes it, and why not if it doesn't.
 
 - [x] Sample `f(x)` across the level's x-range at a fixed step to build the track polyline
-- [ ] Cart physics along the track: gravity along the slope, small friction, fixed timestep (e.g. 1/240 s), no randomness
+- [x] Cart physics along the track: gravity along the slope, small friction, fixed timestep (e.g. 1/240 s), no randomness
 - [ ] **Fail conditions**, each with a reason code:
   - `FLEW_OFF`: the curve bends downward too sharply for the cart's speed (normal force < 0)
   - `STALLED`: speed reaches 0 before the end station (cart would roll back)
