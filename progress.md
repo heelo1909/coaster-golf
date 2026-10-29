@@ -4,9 +4,9 @@
 
 ## Current State
 
-- **Current section:** Section 3: Track & Physics Simulation
-- **Next task:** Section review (`/review-section`): every Section 3 task is ticked.
-- **Overall:** Sections 1 and 2 done and reviewed. The equation engine parses plain math and the LaTeX subset with friendly errors, evaluates safely (NaN for gaps), scores length, renders a LaTeX preview, and survives a 10,000-string fuzz test. Simulation started: the track is sampled (`sampleTrack`) and the cart steps along it (`startCart`/`stepCart`), and `simulate(level, f)` returns success or one of the 8 fail reasons with a recorded 60 fps `path`. Every fail reason is tested, 100 repeat runs are identical, and the slowest ride takes about 2.4 ms. All Section 3 tasks are ticked; the section review is next.
+- **Current section:** Section 4: Levels & the Level Set
+- **Next task:** Level JSON format: id, name, x-range, y-limits, start station (position + starting speed), end station zone, obstacles (rectangles and circles to start), par score.
+- **Overall:** Sections 1 and 2 done and reviewed. The equation engine parses plain math and the LaTeX subset with friendly errors, evaluates safely (NaN for gaps), scores length, renders a LaTeX preview, and survives a 10,000-string fuzz test. Simulation started: the track is sampled (`sampleTrack`) and the cart steps along it (`startCart`/`stepCart`), and `simulate(level, f)` returns success or one of the 8 fail reasons with a recorded 60 fps `path`. Every fail reason is tested, 100 repeat runs are identical, and the slowest ride takes about 2.4 ms. Sections 1–3 are done and reviewed; Section 4 (levels) is next.
 
 ## Section Status
 
@@ -14,8 +14,8 @@
 |---|---------|--------|
 | 1 | Project Setup | ✅ Done |
 | 2 | Equation Engine | ✅ Done |
-| 3 | Track & Physics Simulation | 🔍 In review |
-| 4 | Levels & the Level Set | ⬜ Not started |
+| 3 | Track & Physics Simulation | ✅ Done |
+| 4 | Levels & the Level Set | 🟨 In progress |
 | 5 | Play Screen | ⬜ Not started |
 | 6 | Level Select & Local Progress | ⬜ Not started |
 | 7 | Daily Level | ⬜ Not started |
@@ -55,13 +55,15 @@ Status key: ⬜ Not started · 🟨 In progress · 🔍 In review · ✅ Done
 - 2026-10-28: Simulate input (Claude's call): `simulate(level: SimLevel, f)` in `src/core/sim/simulate.ts` takes `SimLevel` (`bounds`, `start`, `end`, `obstacles`), the subset of Section 4's `Level` the sim reads, so a full `Level` passes straight in. `Obstacle` is defined in `src/core/sim/collide.ts` for now; Section 4's `level/types.ts` should re-export it rather than define a second one (two `export *` of the same name in `src/core/index.ts` would clash). `FailReason`/`SimResult` match the shared contract exactly.
 - 2026-10-28: Fail-check details (Claude's call): checks run in the harness order. BROKEN_TRACK also covers a non-finite slope or curvature, so a curve whose domain starts exactly at a station (`sqrt(x)` with start.x = 0) is broken, because the slope probe at x−h is NaN. A jump is reported at the last sample before the gap; a NaN point's `failAt.y` is the last finite height (or start.y). HIT_OBSTACLE tests the cart circle (centre CART_RADIUS along the track's upward normal) at every sample, which also covers the track touching. In the ride, the order per step is FLEW_OFF, then the win (x ≥ end.x), then STALLED (v ≤ 0); TIMEOUT is counted in whole steps (30 s = 7200 steps).
 - 2026-10-28: Path recording (Claude's call): `path` gets the start point at t = 0, then a point every `PATH_EVERY = 4` steps (60 fps), plus the final step if the run ended between frames, so the last point is exactly `failAt` (or the win point, with `t = duration`). Fail-fast results (checks 1–5) have an empty path, since there's no ride to replay. The point type is exported as `PathPoint` (same shape as the shared contract).
+- 2026-10-28: FLEW_OFF at t = 0 (Claude's call, from the Section 3 review): `simulate` checks the normal force only after each step, so a hilltop right at the start station flies off one step (1/240 s) in, and FLEW_OFF's `failAt.t` is never 0. Kept as is: the player sees the same thing.
+- 2026-10-28: The 50 ms benchmark times a warm run, best of 3, so it catches real slowdowns but not a slow first (cold) run. That's deliberate, after Section 2's GC-pause flake.
 
 ## Blockers / Open Questions
 
 - Final game name and domain (needed by Section 9).
 - Art direction: propose 2–3 options to the user before Section 5's renderer work.
 - Contact email for the privacy page (needed by Section 9).
-- Sharp corners and fairness (for the Section 3 review or playtesting): curvature comes from f'' at sample points (h = 1e-4), so a kink like `-|x-5|` throws the cart off only when the corner lands within h of a sample. `-|x-5.005|` rides over it smoothly. A fix could estimate curvature from the slope change between neighbouring samples too. Not changed yet because it changes which tracks win.
+- Sharp corners and fairness (for the Section 3 review or playtesting): curvature comes from f'' at sample points (h = 1e-4), so a kink like `-|x-5|` throws the cart off only when the corner lands within h of a sample. `-|x-5.005|` rides over it smoothly. A fix could estimate curvature from the slope change between neighbouring samples too. Not changed yet because it changes which tracks win. If it is fixed, rewrite the sharp-peak FLEW_OFF test in `simulate.test.ts` (it relies on the corner landing on a sample, as the Section 3 review noted).
 
 ## Log
 
@@ -86,3 +88,4 @@ Status key: ⬜ Not started · 🟨 In progress · 🔍 In review · ✅ Done
 - 2026-10-28: Section 3 tasks 3 and 4 done (fail conditions, success). `simulate(level, f)` in `src/core/sim/simulate.ts` and `circleTouches` in `collide.ts`, plus `MAX_TIME`, `STATION_TOLERANCE`, `MAX_SLOPE`, `JUMP_THRESHOLD`, `CART_RADIUS` in `constants.ts`, all exported. Checks 1–5 fail fast at t = 0; the ride stops on FLEW_OFF, the win, STALLED or TIMEOUT. `path` is still empty (next task). 22 new tests: each of the 8 reasons with its `failAt`, success on a downhill line and a valley, the cos(x) hill at speed 2.5 (rides) vs 4 (flies off), a near-miss box and a cart-only circle hit, and check order (broken before missed station, start before end). Verified lint ✅, `npm test` (426) ✅, build ✅, coverage 99.35% ✅.
 - 2026-10-28: Section 3 task 5 done (path output). `simulate` now records `path` (start point, one point per 4 steps, and the final step), with `PATH_EVERY` in `constants.ts` and `PathPoint` exported. 6 new tests: a win starts at the start station and ends at end.x with t = duration, steady 1/60 s frames with x never going back, FLEW_OFF/STALLED/TIMEOUT paths end exactly at `failAt`, TIMEOUT has 1801 frames, and fail-fast results have an empty path. Verified lint ✅, `npm test` (432) ✅, build ✅, coverage 99.37% ✅.
 - 2026-10-28: Section 3 task 6 done (tests). Every fail reason already had a test; added the rest in `simulate.test.ts`. Determinism: six rides (two wins, fly-off, stall, timeout, missed start) each give a `toStrictEqual` result 100 times. Benchmark: a busy equation ridden for the full 30 s (7200 steps) must take under 50 ms, best of 3 after a warm-up so a GC pause can't fail it; it takes about 2.4 ms. Proved it can fail by temporarily setting the limit to 0.001 ms. Verified lint ✅, `npm test` (439, sim file 5/5 runs) ✅, build ✅, coverage 99.37% ✅. All Section 3 tasks ticked.
+- 2026-10-28: Section 3 review (independent reviewer): no must-fix. Should-fix done: two new tests pin the order of checks 3–5 (MISSED_END before OUT_OF_BOUNDS before HIT_OBSTACLE), proved by temporarily moving the obstacle check first (both failed), and the benchmark comment now says it skips cold runs. Recorded, not changed: FLEW_OFF is never at t = 0 (Decisions), and the sharp-peak test depends on the open curvature Blocker. Verified lint ✅, `npm test` (441) ✅, build ✅, coverage ✅. Section 3 ✅; on to Section 4.

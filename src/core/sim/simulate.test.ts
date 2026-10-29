@@ -182,6 +182,21 @@ describe('simulate: MISSED_START and MISSED_END', () => {
     const lvl = level({ start: { x: 0, y: 6, speed: 1 }, end: { x: 10, y: 1 } });
     expect(ride('5-x/2', lvl).reason).toBe('MISSED_START');
   });
+
+  it('missing the end is reported before leaving the level or hitting an obstacle', () => {
+    // 5-x touches this box at x = 2..3, drops below the floor after x = 7, and ends at -5.
+    const box: Obstacle = { kind: 'rect', x: 2, y: 2, w: 1, h: 1 };
+    const lvl = level({ bounds: { xMin: -1, xMax: 20, yMin: -2, yMax: 20 }, obstacles: [box] });
+    expect(ride('5-x', lvl).reason).toBe('MISSED_END');
+  });
+
+  it('leaving the level is reported before hitting an obstacle', () => {
+    // 5-x/2 reaches the end station, but runs through this box and dips under a floor of 0.5.
+    const box: Obstacle = { kind: 'rect', x: 4, y: 2.5, w: 1, h: 1 };
+    const lvl = level({ bounds: { xMin: -1, xMax: 20, yMin: 0.5, yMax: 20 }, obstacles: [box] });
+    expect(ride('5-x/2', lvl).reason).toBe('OUT_OF_BOUNDS');
+    expect(ride('5-x/2', level({ obstacles: [box] })).reason).toBe('HIT_OBSTACLE');
+  });
 });
 
 describe('simulate: TIMEOUT', () => {
@@ -298,7 +313,8 @@ describe('simulate: fast enough for live preview', () => {
     timeRide(); // warm up the JIT, as the game would after the first keystroke
     const { result } = timeRide();
     expect(result.reason).toBe('TIMEOUT');
-    // A single slow run can be a garbage-collection pause; take the best of 3.
+    // A single slow run can be a garbage-collection pause; take the best of 3. This catches a
+    // real slowdown, but not a cold first run (the player's first keystroke), by design.
     const best = Math.min(timeRide().ms, timeRide().ms, timeRide().ms);
     expect(best).toBeLessThan(50);
   });
