@@ -71,7 +71,7 @@ Work through the sections in order. Each one has a goal, tasks, and a "Done when
   - `MISSED_START` / `MISSED_END`: the track doesn't pass through the station zones
   - `TIMEOUT`: the run exceeds the maximum sim time
 - [x] Success = the cart reaches the end station zone
-- [ ] Output: result + reason + a recorded path (positions over time) for the renderer to replay
+- [x] Output: result + reason + a recorded path (positions over time) for the renderer to replay
 - [ ] Tests: simple known-good and known-bad tracks for every fail reason, plus a determinism test (same input run 100 times → identical output)
 
 **Done when:** every fail reason has a test, determinism test passes, and a full run takes under 50 ms on a normal laptop.

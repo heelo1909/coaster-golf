@@ -30,3 +30,7 @@ export const JUMP_THRESHOLD = 0.5;
 
 // The cart is a circle of this radius sitting on top of the track, used for obstacle hits.
 export const CART_RADIUS = 0.2;
+
+// The ride's path keeps one point every this many steps: 4 steps of 1/240 s is 60 frames per
+// second for the renderer's replay.
+export const PATH_EVERY = 4;

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { evaluate, parseEquation } from '../equation';
-import { CART_RADIUS, MAX_TIME, STATION_TOLERANCE, simulate } from './index';
+import { CART_RADIUS, DT, MAX_TIME, PATH_EVERY, STATION_TOLERANCE, simulate } from './index';
 import type { Obstacle, SimLevel, SimResult } from './index';
 
 // A small test level: a gentle slope from (0, 5) down to (10, 0), roomy bounds, no obstacles.
@@ -191,5 +191,74 @@ describe('simulate: TIMEOUT', () => {
     expect(result.failAt!.t).toBeCloseTo(MAX_TIME, 6);
     expect(result.duration).toBeCloseTo(MAX_TIME, 6);
     expect(result.failAt!.x).toBeLessThan(10);
+  });
+});
+
+describe('simulate: the path the renderer replays', () => {
+  // The path's points are 60 fps frames: one every PATH_EVERY steps of DT.
+  const frame = PATH_EVERY * DT;
+
+  function expectSteadyFrames(result: SimResult): void {
+    const { path } = result;
+    for (let i = 1; i < path.length; i++) {
+      const gap = path[i]!.t - path[i - 1]!.t;
+      expect(gap).toBeGreaterThan(0);
+      // Only the last point may come early, when the run ended between frames.
+      if (i < path.length - 1) expect(gap).toBeCloseTo(frame, 9);
+      else expect(gap).toBeLessThanOrEqual(frame + 1e-9);
+      expect(path[i]!.x).toBeGreaterThanOrEqual(path[i - 1]!.x);
+    }
+  }
+
+  it('a winning ride starts at the start station and ends at the end station', () => {
+    const result = ride('5-x/2', level());
+    const first = result.path[0]!;
+    const last = result.path[result.path.length - 1]!;
+    expect(first).toEqual({ t: 0, x: 0, y: 5, angle: expect.closeTo(Math.atan(-0.5), 9) });
+    expect(last.t).toBe(result.duration);
+    expect(last.x).toBe(10);
+    expect(last.y).toBeCloseTo(0, 9);
+    expectSteadyFrames(result);
+  });
+
+  it('the replay keeps 60 frames a second of the ride', () => {
+    const result = ride('(x-4)^2/4', valley);
+    const frames = Math.ceil(result.duration / frame - 1e-9);
+    expect(result.path.length).toBe(frames + 1);
+    expectSteadyFrames(result);
+  });
+
+  it('a cart that flies off is last seen where it left the track', () => {
+    const result = ride('cos(x)', cosHill(4));
+    const last = result.path[result.path.length - 1]!;
+    expect(result.reason).toBe('FLEW_OFF');
+    expect(result.path[0]!.t).toBe(0);
+    expect({ x: last.x, y: last.y, t: last.t }).toEqual(result.failAt);
+    expectSteadyFrames(result);
+  });
+
+  it('a cart that stalls is last seen where it stopped', () => {
+    const slow = level({ start: { x: 0, y: 4, speed: 0.5 }, end: { x: 8, y: 4 } });
+    const result = ride('(x-4)^2/4', slow);
+    const last = result.path[result.path.length - 1]!;
+    expect(result.reason).toBe('STALLED');
+    expect({ x: last.x, y: last.y, t: last.t }).toEqual(result.failAt);
+    expectSteadyFrames(result);
+  });
+
+  it('a ride that runs out of time has a frame for every sixtieth of the 30 seconds', () => {
+    const result = ride('0', level({ start: { x: 0, y: 0, speed: 0.1 }, end: { x: 10, y: 0 } }));
+    const last = result.path[result.path.length - 1]!;
+    expect(result.reason).toBe('TIMEOUT');
+    expect(result.path.length).toBe(MAX_TIME * 60 + 1);
+    expect({ x: last.x, y: last.y, t: last.t }).toEqual(result.failAt);
+    expectSteadyFrames(result);
+  });
+
+  it('a track that fails before the ride has nothing to replay', () => {
+    expect(ride('5-x/2', level({ start: { x: 0, y: 6, speed: 1 } })).path).toEqual([]);
+    expect(ride('(x-5)/(x-5)', level({ start: { x: 0, y: 1, speed: 1 } })).path).toEqual([]);
+    const box: Obstacle = { kind: 'rect', x: 4, y: 2, w: 1, h: 1 };
+    expect(ride('5-x/2', level({ obstacles: [box] })).path).toEqual([]);
   });
 });

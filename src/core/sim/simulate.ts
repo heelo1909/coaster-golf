@@ -6,9 +6,11 @@ import {
   JUMP_THRESHOLD,
   MAX_SLOPE,
   MAX_TIME,
+  PATH_EVERY,
   STATION_TOLERANCE,
 } from './constants';
 import { startCart, stepCart } from './physics';
+import type { Cart } from './physics';
 import { sampleTrack } from './track';
 import type { Track } from './track';
 
@@ -22,11 +24,18 @@ export type FailReason =
   | 'MISSED_END'
   | 'TIMEOUT';
 
+export interface PathPoint {
+  t: number;
+  x: number;
+  y: number;
+  angle: number;
+}
+
 export interface SimResult {
   success: boolean;
   reason?: FailReason;
   failAt?: { x: number; y: number; t: number };
-  path: Array<{ t: number; x: number; y: number; angle: number }>; // for the renderer
+  path: PathPoint[]; // for the renderer
   duration: number;
 }
 
@@ -44,7 +53,8 @@ const MAX_STEPS = Math.round(MAX_TIME / DT);
 
 // Rides the cart along y = f(x) from the start station to the end station, in the order of
 // checks in sim/CLAUDE.md: checks 1–5 look at the track alone and fail fast at t = 0; only a
-// track that passes them gets ridden.
+// track that passes them gets ridden. Those fail-fast results have an empty path: there's no
+// ride to replay, only the failure marker.
 export function simulate(level: SimLevel, f: (x: number) => number): SimResult {
   const { start, end, bounds } = level;
   const track = sampleTrack(f, start.x, end.x);
@@ -67,18 +77,45 @@ export function simulate(level: SimLevel, f: (x: number) => number): SimResult {
   const hit = findHit(track, level.obstacles);
   if (hit !== -1) return fail('HIT_OBSTACLE', track.x[hit]!, track.y[hit]!, 0);
 
+  // The path starts at the station and gets a point every PATH_EVERY steps. A run that ends
+  // between those gets its last point too, so the replay ends exactly where the run did.
   const cart = startCart(track, start.speed);
-  for (let n = 0; n < MAX_STEPS; n++) {
+  const path = [pointAt(cart)];
+  for (let n = 1; n <= MAX_STEPS; n++) {
     stepCart(track, cart);
-    if (cart.normal < 0) return fail('FLEW_OFF', cart.x, cart.y, cart.t);
-    if (cart.x >= end.x) return { success: true, path: [], duration: cart.t };
-    if (cart.v <= 0) return fail('STALLED', cart.x, cart.y, cart.t);
+    const recorded = n % PATH_EVERY === 0;
+    if (recorded) path.push(pointAt(cart));
+    const reason = rideOver(cart, end.x);
+    if (reason !== undefined) {
+      if (!recorded) path.push(pointAt(cart));
+      if (reason === 'WON') return { success: true, path, duration: cart.t };
+      return fail(reason, cart.x, cart.y, cart.t, path);
+    }
   }
-  return fail('TIMEOUT', cart.x, cart.y, cart.t);
+  return fail('TIMEOUT', cart.x, cart.y, cart.t, path);
 }
 
-function fail(reason: FailReason, x: number, y: number, t: number): SimResult {
-  return { success: false, reason, failAt: { x, y, t }, path: [], duration: t };
+// Why the ride stops after this step, in the order sim/CLAUDE.md gives; undefined while it
+// carries on.
+function rideOver(cart: Cart, endX: number): 'FLEW_OFF' | 'WON' | 'STALLED' | undefined {
+  if (cart.normal < 0) return 'FLEW_OFF';
+  if (cart.x >= endX) return 'WON';
+  if (cart.v <= 0) return 'STALLED';
+  return undefined;
+}
+
+function pointAt(cart: Cart): PathPoint {
+  return { t: cart.t, x: cart.x, y: cart.y, angle: cart.angle };
+}
+
+function fail(
+  reason: FailReason,
+  x: number,
+  y: number,
+  t: number,
+  path: PathPoint[] = [],
+): SimResult {
+  return { success: false, reason, failAt: { x, y, t }, path, duration: t };
 }
 
 // Index of the first sample where the track is broken, or -1. A sample is broken when its
