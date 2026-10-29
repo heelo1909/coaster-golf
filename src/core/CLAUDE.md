@@ -50,7 +50,7 @@ function dailyNumber(dateUtc: Date): number;           // #1 = launch day
 function dailyLevelIndex(dailyNumber: number, poolSize: number): number;
 ```
 
-`judge()` lives in `src/core/index.ts`. The UI and the Worker must both call `judge()`, never parse + simulate + score by hand, so they can't drift apart.
+`judge()` is exported from `src/core/index.ts` (defined in `src/core/judge.ts`, so `level/validate.ts` can import it without a circular import). The UI and the Worker must both call `judge()`, never parse + simulate + score by hand, so they can't drift apart.
 
 ## Folder Map
 

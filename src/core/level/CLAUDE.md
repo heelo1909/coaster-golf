@@ -39,6 +39,8 @@ Levels are stored as `.json` files and loaded through `validateLevel()`. Never c
 - Stations sit inside the bounds and **don't** overlap any obstacle
 - `par ≥ 1`, and `par ≤ scoreEquation(reference)`. Par can be shorter than the reference if a shorter known answer exists, but write that answer in a test.
 - `judge(level, reference)` succeeds. **A level whose reference fails is invalid.**
+- Also (added with the validator): numbers must be finite, strings non-empty, `start.speed ≥ 0`, every obstacle has a size above 0, `par` is a whole number, and "don't overlap" means no obstacle within `CART_RADIUS` of a station.
+- Errors come in three passes, each only once the one before is clean: the shape (all shape errors at once), then layout and par, then riding the reference. So a broken layout never reaches the sim.
 - Unique `id` across all level files (checked by the `check-levels` script, not by `validateLevel`)
 
 ## The `check-levels` Script

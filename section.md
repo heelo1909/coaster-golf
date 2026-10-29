@@ -85,7 +85,7 @@ Work through the sections in order. Each one has a goal, tasks, and a "Done when
 **Goal:** a level file format, a validator, and the first real campaign.
 
 - [x] Level JSON format: id, name, x-range, y-limits, start station (position + starting speed), end station zone, obstacles (rectangles and circles to start), par score (character count to aim for)
-- [ ] Validator: rejects malformed levels; checks that the stored **reference solution** beats the level
+- [x] Validator: rejects malformed levels; checks that the stored **reference solution** beats the level
 - [ ] A script `npm run check-levels` that validates every level and prints each one's reference score
 - [ ] **15 levels** with a smooth difficulty curve:
   - 1–3: straight lines and simple slopes (teaches the controls)
