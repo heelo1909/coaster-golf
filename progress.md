@@ -4,17 +4,17 @@
 
 ## Current State
 
-- **Current section:** Section 2: Equation Engine
-- **Next task:** Section review: run `/review-section` for Section 2, then fix what the reviewer finds.
-- **Overall:** Section 1 done and reviewed. Section 2 tasks all done: the parser accepts plain math and the LaTeX subset with friendly errors, `toLatex` renders the preview, safety limits, the evaluator and `scoreEquation` are in, and a fuzz test covers the whole engine. Waiting on the critic review.
+- **Current section:** Section 3: Track & Physics Simulation
+- **Next task:** Sample `f(x)` across the level's x-range at a fixed step to build the track polyline.
+- **Overall:** Sections 1 and 2 done and reviewed. The equation engine parses plain math and the LaTeX subset with friendly errors, evaluates safely (NaN for gaps), scores length, renders a LaTeX preview, and survives a 10,000-string fuzz test. Simulation not started.
 
 ## Section Status
 
 | # | Section | Status |
 |---|---------|--------|
 | 1 | Project Setup | ✅ Done |
-| 2 | Equation Engine | 🔍 In review |
-| 3 | Track & Physics Simulation | ⬜ Not started |
+| 2 | Equation Engine | ✅ Done |
+| 3 | Track & Physics Simulation | 🟨 In progress |
 | 4 | Levels & the Level Set | ⬜ Not started |
 | 5 | Play Screen | ⬜ Not started |
 | 6 | Level Select & Local Progress | ⬜ Not started |
@@ -73,3 +73,4 @@ Status key: ⬜ Not started · 🟨 In progress · 🔍 In review · ✅ Done
 - 2026-10-28: Section 2 task 8 done (evaluator). `evaluate(expr, x)` in `src/core/equation/evaluate.ts` is a plain recursive switch (no eval), exported from the equation index, and turns every non-finite step into `NaN`. 71 new tests cover each node type and function, 16 undefined points, NaN that stays NaN, LaTeX input, determinism, and a 24-case precedence table checked by value at 5 values of x. Verified lint ✅, `npm test` (350) ✅, build ✅, coverage 99.41% ✅.
 - 2026-10-28: Section 2 task 9 done (scoring rule). `scoreEquation(input)` in `src/core/equation/score.ts` strips whitespace with the same `/\s/` as the tokenizer, drops one leading `y=`, and returns `length`. It's exported from the equation index. 17 new tests cover whitespace, `y=`, LaTeX costing more, empty input, and agreement with `source`. Fixed a wrong example in the harness: `y = (x-3)^2/2` scores 9, not 11. Verified lint ✅, `npm test` (367) ✅, build ✅, coverage 99.41% ✅.
 - 2026-10-28: Section 2 task 10 done (tests). Every required case already had tests except the Done-when fuzz test, now in `src/core/equation/fuzz.test.ts`. 10,000 strings from a seeded generator (mulberry32, since `src/core` bans `Math.random`) are built from single characters, whole pieces and the grammar itself; 4,050 parse. It checks that nothing throws, evaluation is finite or `NaN` (never Infinity), errors have a valid position, the preview reads back, and each string takes under 5 ms (slowest 0.84 ms, stable over 5 runs). It found long previews passing 200 characters (see Decisions), which is now documented. All Section 2 tasks are ticked. Verified lint ✅, `npm test` (368) ✅, build ✅, coverage ✅.
+- 2026-10-28: Section 2 review (independent reviewer): one must-fix, no should-fix. The fuzz test's 5 ms check failed in 2 of 7 `npm test` runs (even `pi+e` measured ~6.5 ms, which is a garbage-collection pause, not slow parsing). Fixed without raising the limit: only the engine calls are timed (no `expect` inside), and any string over 5 ms is re-timed alone, best of 3, before it can fail. Proved the check still fails by temporarily setting the limit to 0.001 ms. Verified `npm test` 15/15 runs ✅, lint ✅, build ✅, coverage 99.41% ✅. Section 2 ✅; on to Section 3.

@@ -69,28 +69,47 @@ function randomString(next: () => number): string {
 
 const XS = [-3, -0.5, 0, 1, 2.5, 100];
 
+// Everything the game does with a typed string: parse, score, draw the track, show the preview.
+function runEngine(input: string) {
+  const r = parseEquation(input);
+  const score = scoreEquation(input);
+  if (!r.ok) return { r, score, ys: [], preview: '', back: r };
+  const preview = toLatex(r.expr);
+  return {
+    r,
+    score,
+    ys: XS.map((x) => evaluate(r.expr, x)),
+    preview,
+    back: parseEquation(preview),
+  };
+}
+
+// Wall-clock time of the engine alone, without the test's own expect() calls.
+function timeEngine(input: string): { ms: number; out: ReturnType<typeof runEngine> } {
+  const start = performance.now();
+  const out = runEngine(input);
+  return { ms: performance.now() - start, out };
+}
+
 describe('fuzz: no typed string can crash or freeze the equation engine', () => {
   it('10,000 random strings never throw, never give Infinity, and each takes under 5 ms', () => {
     const next = rng(20261028);
     let parsed = 0;
-    let slowest = { ms: 0, input: '' };
+    const slow: string[] = [];
 
     for (let i = 0; i < 10_000; i++) {
       const input = randomString(next);
-      const start = performance.now();
+      const { ms, out } = timeEngine(input);
+      if (ms >= 5) slow.push(input);
 
-      const r = parseEquation(input);
-      const score = scoreEquation(input);
+      const { r, score, ys, preview, back } = out;
       expect(score).toBeLessThanOrEqual(input.length);
       if (r.ok) {
         parsed++;
-        for (const x of XS) {
-          const y = evaluate(r.expr, x);
-          expect(Number.isNaN(y) || Number.isFinite(y), `${input} at x=${x} gave ${y}`).toBe(true);
+        for (const y of ys) {
+          expect(Number.isNaN(y) || Number.isFinite(y), `${input} gave ${y}`).toBe(true);
         }
         // The preview reads back, unless its \left| and \frac{} push it past 200 characters.
-        const preview = toLatex(r.expr);
-        const back = parseEquation(preview);
         if (preview.length <= 200) expect(back.ok, `preview of ${input}`).toBe(true);
         else expect(!back.ok && back.error.position).toBe(200);
       } else {
@@ -98,12 +117,14 @@ describe('fuzz: no typed string can crash or freeze the equation engine', () => 
         expect(r.error.position).toBeGreaterThanOrEqual(0);
         expect(r.error.position).toBeLessThanOrEqual(input.length);
       }
-
-      const ms = performance.now() - start;
-      if (ms > slowest.ms) slowest = { ms, input };
     }
 
-    expect(slowest.ms, `slowest input: ${JSON.stringify(slowest.input)}`).toBeLessThan(5);
+    // A garbage-collection pause can make even "pi+e" take a few ms once. A slow string is
+    // re-timed on its own, best of three: a truly slow input stays slow, a pause doesn't.
+    for (const input of slow) {
+      const best = Math.min(...[0, 1, 2].map(() => timeEngine(input).ms));
+      expect(best, `slow input: ${JSON.stringify(input)}`).toBeLessThan(5);
+    }
     // The fuzz must reach the evaluator, not only the error messages.
     expect(parsed).toBeGreaterThan(500);
   });
