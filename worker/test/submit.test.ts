@@ -116,4 +116,20 @@ describe('POST /submit re-runs the game and saves only winning runs', () => {
       expect(await res.json(), body).toEqual({ ok: false, error: 'bad_request' });
     }
   });
+
+  it('a nickname that breaks the rules is bad_nickname and nothing is saved', async () => {
+    for (const nickname of [
+      'ab',
+      'a'.repeat(17),
+      'ada@mail.com',
+      'ada lovelace',
+      'sh1t_head',
+      7,
+      null,
+    ]) {
+      const res = await post({ levelId: 'c03', equation: 'x/3', nickname });
+      expect(await res.json(), String(nickname)).toEqual({ ok: false, error: 'bad_nickname' });
+    }
+    expect(await rows()).toEqual([]);
+  });
 });

@@ -10,7 +10,7 @@ migrations/          D1 tables (0001_scores.sql is the schema below), applied by
 src/index.ts         router: POST /submit, GET /leaderboard
 src/submit.ts        validate → judge → save
 src/leaderboard.ts   query + hide-daily-equations rule
-src/nickname.ts      nickname rules + profanity filter
+src/nickname.ts      (lives in src/core/nickname/ instead, so the browser's prompt shares it)
 src/levels.ts        loads level data (imports src/levels from the game)
 test/                Vitest tests using Miniflare / @cloudflare/vitest-pool-workers
 ```
@@ -70,6 +70,7 @@ CREATE INDEX idx_board ON scores (level_id, score, created_at);
 - Reject bodies over 1 KB and equations over 200 characters **before** parsing.
 - Rate limit: 30 submissions per minute per IP, using Cloudflare's Rate Limiting binding. Don't store IPs in D1.
 - Nicknames: 3–16 characters, `[A-Za-z0-9_]`, checked against a small profanity list (with letter-swap variants like `0→o`). Ask the user before adding a third-party list.
+- Built: `checkNickname()` in `src/core/nickname/` (shared with the browser). Two in-house lists: roots blocked anywhere after undoing swaps (0→o, 1→i or l, 3→e, 4→a, 5→s, 7→t, 8→b, 9→g) and underscores, and short words blocked only as a whole name or a whole `_` part (so "classic" is fine). Known trade-off: a long root inside a real name (Hancock) is blocked. Nicknames aren't owned: with no accounts, two players typing the same nickname share its row.
 - `judge()` is fast (under 50 ms), but cap total work anyway: reject if parsing hits the node limit.
 
 ## Privacy

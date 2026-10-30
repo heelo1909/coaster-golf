@@ -6,5 +6,6 @@ export * from './equation';
 export * from './sim';
 export * from './level';
 export * from './daily';
+export * from './nickname';
 export { judge } from './judge';
 export type { JudgeResult } from './judge';
