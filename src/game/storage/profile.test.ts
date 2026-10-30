@@ -46,6 +46,15 @@ describe('profile: the chosen theme is remembered on this device', () => {
     expect(loadProfile(bad)).toEqual({});
   });
 
+  it('remembers a mute, keeping everything else; anything but true means sound on', () => {
+    const storage = fakeStorage();
+    saveProfile({ theme: 'paper', seenHowTo: true }, storage);
+    saveProfile({ ...loadProfile(storage), muted: true }, storage);
+    expect(loadProfile(storage)).toEqual({ theme: 'paper', seenHowTo: true, muted: true });
+    const odd = fakeStorage({ [PROFILE_KEY]: '{"version":1,"muted":"yes"}' });
+    expect(loadProfile(odd)).toEqual({});
+  });
+
   it('a first visit has no saved theme', () => {
     expect(loadProfile(fakeStorage())).toEqual({});
   });

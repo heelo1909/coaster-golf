@@ -7,7 +7,7 @@ Draws the level and plays back a ride. **Rendering only shows; it never decides.
 ```
 camera.ts      world ↔ screen transform, fit-to-bounds, devicePixelRatio, View (zoom/pan)
 scene.ts       drawGrid, drawStations, drawObstacles, drawTrack, drawCart
-ride.ts        pure playback maths: poseAt(path, t), failPose(path, reason, k)
+ride.ts        pure playback maths: poseAt(path, t), failPose(path, reason, k), speedAt(path, t)
 theme.ts       the four themes (palettes + style), sizes, setTheme, cssVars
 index.ts       createRenderer: setTrack, playRide → Promise, skipRide, zoomAt, panBy, resetView
 ```

@@ -84,6 +84,34 @@
         right: 8px;
         z-index: 1;
       }
+      /* Sound on/off, just left of the theme picker and as quiet. */
+      .mute-toggle {
+        position: fixed;
+        top: 8px;
+        right: 52px;
+        z-index: 1;
+        display: grid;
+        place-items: center;
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        border: 0;
+        border-radius: 50%;
+        background: transparent;
+        color: var(--label);
+        opacity: 0.7;
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+      .mute-toggle:hover,
+      .mute-toggle:focus-visible {
+        opacity: 1;
+        color: var(--mark);
+      }
+      .mute-toggle:focus-visible {
+        outline: 2px solid var(--mark);
+        outline-offset: -4px;
+      }
       .theme-toggle {
         display: grid;
         place-items: center;

@@ -86,9 +86,25 @@ export function failPose(
 
 // The cart's speed over the last recorded step, in world units per second.
 function lastSpeed(path: readonly PathPoint[]): number {
-  const a = path.at(-2);
-  const b = path.at(-1);
-  if (!a || !b || b.t <= a.t) return 0;
+  return speedAt(path, Infinity);
+}
+
+// The cart's speed at time t, in world units per second: the distance over the recorded step
+// around t. 0 before the path starts or with fewer than two points; after the end, the last
+// step's speed. The rolling sound follows it.
+export function speedAt(path: readonly PathPoint[], t: number): number {
+  if (path.length < 2 || t < path[0]!.t) return 0;
+  // Binary search for the first point at or after t (the last point when t is past it).
+  let lo = 1;
+  let hi = path.length - 1;
+  while (lo < hi) {
+    const mid = (lo + hi) >> 1;
+    if (path[mid]!.t < t) lo = mid + 1;
+    else hi = mid;
+  }
+  const a = path[lo - 1]!;
+  const b = path[lo]!;
+  if (b.t <= a.t) return 0;
   return Math.hypot(b.x - a.x, b.y - a.y) / (b.t - a.t);
 }
 

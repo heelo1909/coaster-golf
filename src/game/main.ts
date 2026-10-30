@@ -19,6 +19,7 @@ import type { PlayScreen } from './ui/PlayScreen';
 import { startRouter } from './ui/router';
 import type { Route, Router } from './ui/router';
 import { messages } from './ui/messages';
+import { createMuteToggle, gameSound } from './ui/sound';
 import { applyTheme, createThemePicker, savedTheme } from './ui/ThemePicker';
 
 const app = document.querySelector<HTMLElement>('#app');
@@ -130,4 +131,7 @@ function show(route: Route, router: Router): void {
 }
 
 startRouter(show);
-document.body.append(createThemePicker(() => screen?.redraw()));
+document.body.append(
+  createMuteToggle(gameSound()),
+  createThemePicker(() => screen?.redraw()),
+);

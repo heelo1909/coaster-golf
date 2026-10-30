@@ -176,7 +176,7 @@ Work through the sections in order. Each one has a goal, tasks, and a "Done when
 
 **Goal:** something you're proud to share.
 
-- [ ] Sound effects (cart rolling, success, fail) with a mute toggle
+- [x] Sound effects (cart rolling, success, fail) with a mute toggle
 - [ ] Small juice: cart wobble, a confetti burst at par or better
 - [ ] Landing/about section and a simple privacy page ("we store your nickname and equations, nothing else")
 - [ ] Privacy-friendly analytics with no cookies (Cloudflare Web Analytics)

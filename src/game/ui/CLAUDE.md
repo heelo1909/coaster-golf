@@ -14,6 +14,7 @@ DailyScreen.ts     today's daily, countdown, best today, streak, share
 HowTo.ts           first-visit explainer
 ThemePicker.ts     low-key theme menu (top-right), applyTheme, savedTheme
 CanvasGestures.ts  pinch, wheel, drag, tap and double-tap on the canvas (canvas has touch-action: none)
+sound.ts           Web Audio sound effects (rumble, win chime, fail sounds) and the mute toggle
 messages.ts        every player-facing string in one place
 index.ts
 ```
@@ -83,6 +84,14 @@ Screens are a simple state machine with `show(screen, params)`. The URL hash mir
   - `OUT_OF_BOUNDS` → "The track goes off the map"
   - `TIMEOUT` → "The ride took too long"
 - After 3 failed rides on a level, offer the level's `hint`, if it has one.
+
+## Sound
+
+- `ui/sound.ts` makes every sound on the spot with Web Audio: no audio files, no library. `gameSound()` is the one shared `Sound`; the audio context is made on the first unmuted sound, which always follows a tap on Ride (browsers allow that).
+- During a ride a looping band-passed noise rumble follows the cart's speed (`rollAt`). The renderer's `playRide(result, onFrame)` reports the speed each frame (`speedAt` in `render/ride.ts`, from the recorded path) and `ended` once the path is over.
+- When the path ends (or on Skip) the rumble stops and `cueFor(outcome)` plays: a rising C-E-G chime on a win, plus a high C at or under par; a crunch for `HIT_OBSTACLE`, a falling whistle for `FLEW_OFF`, a "wah-wah" for `STALLED`, and a short low buzz for the rest. A ride cancelled by editing makes no verdict sound.
+- Sound is **on** by default. The mute toggle (`mute-toggle`, a speaker icon left of the theme picker) has `aria-pressed` = muted and a label saying what a tap does; the choice is `profile.muted`. Muted means no audio context is ever made.
+- No Web Audio, or a browser that refuses it, means silence, never an error.
 
 ## Accessibility
 

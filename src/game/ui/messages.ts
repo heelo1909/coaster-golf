@@ -41,6 +41,8 @@ export const messages = {
   tryShorter: 'Try shorter',
   tryAgain: 'Try again',
   theme: 'Theme',
+  mute: 'Mute sound',
+  unmute: 'Turn sound on',
   levelsTitle: 'Levels',
   backToLevels: 'All levels',
   locked: 'Locked',

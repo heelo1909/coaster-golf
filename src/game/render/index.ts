@@ -6,7 +6,14 @@
 import type { Level, SimResult } from '../../core';
 import { clampView, fitView, lerpView, panView, viewCamera, zoomViewAt } from './camera';
 import type { Camera, View } from './camera';
-import { FAIL_EFFECT_SECONDS, REDUCED_MOTION_SPEED, failPose, hasFailEffect, poseAt } from './ride';
+import {
+  FAIL_EFFECT_SECONDS,
+  REDUCED_MOTION_SPEED,
+  failPose,
+  hasFailEffect,
+  poseAt,
+  speedAt,
+} from './ride';
 import type { CartPose } from './ride';
 import { drawCart, drawFailMarker, drawStatic, drawTrack } from './scene';
 import type { Track } from './scene';
@@ -43,7 +50,9 @@ export interface Renderer {
   // Plays a judged ride back from its recorded path, then the fail effect if it failed. The
   // promise resolves when it ends, is skipped, or is cancelled by setTrack/setLevel. The cart,
   // and on a failed ride a marker where it failed, stay drawn until the track changes.
-  playRide(result: SimResult): Promise<void>;
+  // `onFrame` hears the cart's speed (world units per second) every frame, and `ended` once
+  // the path is over (the fail effect may still be playing); the sound follows it.
+  playRide(result: SimResult, onFrame?: (speed: number, ended: boolean) => void): Promise<void>;
   skipRide(): void; // jumps straight to the end of the ride playing now
   // Zoom by `factor` about (sx, sy), and pan by (dx, dy), in CSS px within the canvas. Either
   // one during a ride hands the camera back to the player.
@@ -206,7 +215,7 @@ export function createRenderer(canvas: HTMLCanvasElement, level: Level, number?:
       applyView();
       frame();
     },
-    playRide(result) {
+    playRide(result, onFrame) {
       clearCart();
       if (result.path.length === 0) {
         // Failed before the cart moved: there's only the marker to show.
@@ -227,6 +236,7 @@ export function createRenderer(canvas: HTMLCanvasElement, level: Level, number?:
           if (!ride) return;
           started ??= now;
           const t = ((now - started) / 1000) * speed;
+          onFrame?.(t < end ? speedAt(result.path, t) : 0, t >= end);
           if (t < end) {
             cart = poseAt(result.path, t);
           } else if (effect && t < end + FAIL_EFFECT_SECONDS) {

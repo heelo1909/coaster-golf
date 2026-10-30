@@ -11,6 +11,8 @@ import { attachGestures } from './CanvasGestures';
 import { createEquationInput } from './EquationInput';
 import { messages } from './messages';
 import { createResultPanel, resultOf } from './ResultPanel';
+import { gameSound } from './sound';
+import type { Outcome } from './sound';
 import type { ResultView } from './ResultPanel';
 
 export interface PlayScreen {
@@ -138,7 +140,23 @@ export function mountPlayScreen(root: HTMLElement, level: Level, actions: PlayAc
     if (!judged.ok) return; // the inline error already shows what's wrong
     result.hide();
     setRiding(true);
-    await renderer.playRide(judged.result);
+    // The rumble follows the cart; the win or fail sound plays as the path ends, or on a skip.
+    const sound = gameSound();
+    const outcome: Outcome = judged.result.success
+      ? { win: true, star: judged.score <= level.par }
+      : { win: false, reason: judged.result.reason };
+    let sounded = false;
+    const finish = (): void => {
+      sound.stopRoll();
+      if (!sounded) sound.play(outcome);
+      sounded = true;
+    };
+    await renderer.playRide(judged.result, (speed, ended) => {
+      if (ended) finish();
+      else sound.roll(speed);
+    });
+    if (input.value() === text) finish();
+    else sound.stopRoll(); // cancelled by an edit: no verdict to sound
     setRiding(false);
     if (input.value() !== text) return; // edited mid-ride: that ride no longer counts
     if (judged.result.success) {
@@ -166,6 +184,7 @@ export function mountPlayScreen(root: HTMLElement, level: Level, actions: PlayAc
   window.addEventListener('resize', onResize);
   return {
     unmount: () => {
+      gameSound().stopRoll();
       observer.disconnect();
       window.removeEventListener('resize', onResize);
     },

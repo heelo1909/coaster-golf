@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { judge } from '../../core';
 import type { Level, PathPoint } from '../../core';
 import { campaign } from '../../levels';
-import { failPose, hasFailEffect, poseAt } from './ride';
+import { failPose, hasFailEffect, poseAt, speedAt } from './ride';
 
 const path: PathPoint[] = [
   { t: 0, x: 0, y: 0, angle: 0 },
@@ -93,5 +93,23 @@ describe('a crash on a real level replays the ride up to the rock', () => {
     const end = poseAt(result.path, Infinity)!;
     expect(end.x).toBeCloseTo(result.failAt!.x, 1);
     expect(failPose(result.path, result.reason, 1)).toMatchObject({ spark: 1 });
+  });
+});
+
+describe('speedAt: how fast the cart goes, for the rolling sound', () => {
+  it('is the distance over the recorded step around t', () => {
+    expect(speedAt(path, 0.5)).toBeCloseTo(Math.hypot(2, 1));
+    expect(speedAt(path, 1)).toBeCloseTo(Math.hypot(2, 1));
+    expect(speedAt(path, 1.5)).toBeCloseTo(2);
+  });
+
+  it('is 0 before the ride and keeps the last speed after it', () => {
+    expect(speedAt(path, -1)).toBe(0);
+    expect(speedAt(path, 99)).toBeCloseTo(2);
+  });
+
+  it('is 0 with too few points to tell', () => {
+    expect(speedAt([], 0)).toBe(0);
+    expect(speedAt([path[0]!], 0)).toBe(0);
   });
 });

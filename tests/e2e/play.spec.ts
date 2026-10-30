@@ -178,3 +178,48 @@ test.describe('desktop', () => {
     expect(await page.evaluate(() => window.scrollY)).toBe(0); // the page itself didn't scroll
   });
 });
+
+test('sound plays on a ride, and the mute toggle silences it and is remembered', async ({
+  page,
+}) => {
+  const errors = watchErrors(page);
+  // Count every sound the page starts, without needing speakers.
+  await page.addInitScript(() => {
+    const w = window as unknown as { sounds: number };
+    w.sounds = 0;
+    const proto = AudioContext.prototype;
+    for (const name of ['createOscillator', 'createBufferSource'] as const) {
+      const make = proto[name] as (this: AudioContext) => AudioScheduledSourceNode;
+      (proto as unknown as Record<string, unknown>)[name] = function (this: AudioContext) {
+        const node = make.call(this);
+        const start = node.start.bind(node);
+        node.start = (...args: Parameters<typeof start>) => {
+          w.sounds++;
+          start(...args);
+        };
+        return node;
+      };
+    }
+  });
+  await page.reload();
+  const sounds = (): Promise<number> =>
+    page.evaluate(() => (window as unknown as { sounds: number }).sounds);
+  const mute = page.getByTestId('mute-toggle');
+  await expect(mute).toHaveAttribute('aria-pressed', 'false');
+
+  await page.getByTestId('equation-input').fill('0');
+  await page.getByTestId('ride-button').click();
+  await expect(page.getByTestId('result-title')).toBeVisible();
+  await expect.poll(sounds).toBeGreaterThan(1); // the rumble and the chime
+
+  await mute.click();
+  await expect(mute).toHaveAttribute('aria-pressed', 'true');
+  await expect(mute).toHaveAccessibleName('Turn sound on');
+  await page.reload();
+  await expect(page.getByTestId('mute-toggle')).toHaveAttribute('aria-pressed', 'true');
+  await page.getByTestId('equation-input').fill('0');
+  await page.getByTestId('ride-button').click();
+  await expect(page.getByTestId('result-title')).toBeVisible();
+  expect(await sounds()).toBe(0);
+  expect(errors).toEqual([]);
+});
