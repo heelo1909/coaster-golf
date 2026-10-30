@@ -1,9 +1,14 @@
 // The screen state machine (see ui/CLAUDE.md). The URL hash mirrors the screen, so Back works
-// and a level can be linked: #/levels, #/play/c03, #/daily, #/howto. parseHash and hashOf are pure; the
-// listener in startRouter is the only part that touches the window.
+// and a level can be linked: #/levels, #/play/c03, #/daily, #/howto, #/about, #/privacy. parseHash
+// and hashOf are pure; the listener in startRouter is the only part that touches the window.
 
 export type Route =
-  { screen: 'levels' } | { screen: 'howto' } | { screen: 'daily' } | { screen: 'play'; id: string };
+  | { screen: 'levels' }
+  | { screen: 'howto' }
+  | { screen: 'daily' }
+  | { screen: 'about' }
+  | { screen: 'privacy' }
+  | { screen: 'play'; id: string };
 
 const PLAY = /^#\/play\/([a-z0-9]{1,16})$/;
 
@@ -13,6 +18,8 @@ export function parseHash(hash: string): Route {
   if (play) return { screen: 'play', id: play[1]! };
   if (hash === '#/howto') return { screen: 'howto' };
   if (hash === '#/daily') return { screen: 'daily' };
+  if (hash === '#/about') return { screen: 'about' };
+  if (hash === '#/privacy') return { screen: 'privacy' };
   return { screen: 'levels' };
 }
 

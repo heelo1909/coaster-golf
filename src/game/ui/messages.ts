@@ -98,6 +98,26 @@ export const messages = {
     ['Shorter wins.', ' Your score is how many characters you typed. Reach par for a ★.'],
   ] as const,
   howToDone: "Let's go",
+  aboutLink: 'About',
+  privacyLink: 'Privacy',
+  // The About screen, in the Markdown subset of ui/doc.ts. The privacy page's text is
+  // docs/launch/privacy.md, so it's kept with the launch docs that say what it must cover.
+  about: `# About Coaster Golf
+
+Type an equation and it becomes a rollercoaster track. A cart rides it with real physics. Any track that gets the cart from Start to End wins, but your score is how many characters you typed, so shorter is better.
+
+## Two ways to play
+
+- Levels: a set of puzzles that unlock one by one, played at your own pace.
+- Daily: one new level every day at midnight UTC, the same for everyone. Keep a streak, and share your score without giving away your equation.
+
+## Fair scores
+
+Every leaderboard entry is ridden again on the server before it's saved, so a score can't be faked.
+
+## Hello
+
+Coaster Golf is free, with no accounts and no tracking. Read the [privacy page](#/privacy), or say hi at [heelo1909@gmail.com](mailto:heelo1909@gmail.com).`,
   tileLabel: (num: number, name: string, locked: boolean, best: number | undefined, par: number) =>
     locked
       ? `Level ${num}, ${name}, locked`

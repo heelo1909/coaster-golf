@@ -5,13 +5,14 @@ Everything the player taps or types. Plain DOM + TypeScript, no framework.
 ## Files (target)
 
 ```
-router.ts          tiny screen state machine: home | levels | play | daily | howto
+router.ts          tiny screen state machine: levels | play | daily | howto | about | privacy
 EquationInput.ts   the input box, live preview, inline errors
 ResultPanel.ts     win/fail panel after a ride
 PlayScreen.ts      canvas + input + Ride button + result (campaign and daily share it)
 LevelSelect.ts     15 level tiles: locked/unlocked, best score, par star
 DailyScreen.ts     today's daily, countdown, best today, streak, share
 HowTo.ts           first-visit explainer
+doc.ts             About and Privacy: a safe Markdown subset (parseDoc) and mountDoc
 ThemePicker.ts     low-key theme menu (top-right), applyTheme, savedTheme
 CanvasGestures.ts  pinch, wheel, drag, tap and double-tap on the canvas (canvas has touch-action: none)
 sound.ts           Web Audio sound effects (rumble, win chime, fail sounds) and the mute toggle
@@ -26,6 +27,13 @@ Screens are a simple state machine with `show(screen, params)`. The URL hash mir
 - `parseHash`/`hashOf` are pure and unit-tested; `startRouter(onRoute)` is the only part that touches `window`. `router.show` adds a history entry, `router.replace` swaps it (for redirects).
 - So far the routes are `#/levels` and `#/play/<id>`; a screen joins the `Route` type in the section that builds it. Anything unknown (no hash, a typo) shows level select, which is where the site opens.
 - `main.ts` owns the redirect rule: an unknown or locked level id replaces the hash with `#/levels`.
+
+## About & Privacy
+
+- `#/about` shows `messages.about`; `#/privacy` shows `docs/launch/privacy.md` (imported with `?raw`, so the launch doc and the page are one text). Both go through `ui/doc.ts`: `#`/`##` headings, `- ` lists, paragraphs and `[text](link)` links, built with `textContent` only, and only `mailto:`, `https://` and `#/` links become links.
+- Both open on a first visit without the how-to (a privacy link must just work). Back (`doc-back`) goes to level select.
+- Level select ends with quiet links: How to play (`how-to-link`), About (`about-link`), Privacy (`privacy-link`).
+- `doc.test.ts` checks the privacy page names every column of the leaderboard table; a new column fails it until the page says so.
 
 ## Daily
 

@@ -17,6 +17,12 @@ describe('router: the URL hash mirrors the screen', () => {
     expect(parseHash('#/howto/')).toEqual({ screen: 'levels' });
   });
 
+  it('the about and privacy pages have their own hashes', () => {
+    expect(parseHash('#/about')).toEqual({ screen: 'about' });
+    expect(parseHash('#/privacy')).toEqual({ screen: 'privacy' });
+    expect(hashOf({ screen: 'privacy' })).toBe('#/privacy');
+  });
+
   it('no hash, the levels hash, or anything unknown shows level select', () => {
     for (const hash of [
       '',

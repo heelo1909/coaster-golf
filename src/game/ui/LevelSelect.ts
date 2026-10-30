@@ -68,12 +68,14 @@ export interface LevelSelectOptions {
   onPick: (id: string) => void;
   onDaily: () => void;
   onHowTo: () => void;
+  onAbout: () => void;
+  onPrivacy: () => void;
 }
 
 export function mountLevelSelect(
   root: HTMLElement,
   levels: readonly Level[],
-  { progress, daily, notSaving, onPick, onDaily, onHowTo }: LevelSelectOptions,
+  { progress, daily, notSaving, onPick, onDaily, onHowTo, onAbout, onPrivacy }: LevelSelectOptions,
 ): void {
   const screen = document.createElement('section');
   screen.className = 'levels';
@@ -156,13 +158,23 @@ export function mountLevelSelect(
     note.textContent = messages.notSaving;
     screen.append(note);
   }
-  const howTo = document.createElement('button');
-  howTo.type = 'button';
-  howTo.className = 'levels-howto';
-  howTo.dataset.testid = 'how-to-link';
-  howTo.textContent = messages.howToLink;
-  howTo.addEventListener('click', onHowTo);
+  // Quiet links under the grid: how to play, about, privacy.
+  const footer = document.createElement('nav');
+  footer.className = 'levels-footer';
+  for (const [testid, text, onClick] of [
+    ['how-to-link', messages.howToLink, onHowTo],
+    ['about-link', messages.aboutLink, onAbout],
+    ['privacy-link', messages.privacyLink, onPrivacy],
+  ] as const) {
+    const link = document.createElement('button');
+    link.type = 'button';
+    link.className = 'levels-howto';
+    link.dataset.testid = testid;
+    link.textContent = text;
+    link.addEventListener('click', onClick);
+    footer.append(link);
+  }
 
-  screen.append(card, grid, howTo);
+  screen.append(card, grid, footer);
   root.replaceChildren(screen);
 }

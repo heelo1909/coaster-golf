@@ -10,7 +10,9 @@ import {
   storageWorks,
 } from './storage';
 import { apiBase } from './ui/api';
+import privacy from '../../docs/launch/privacy.md?raw';
 import { mountDailyScreen } from './ui/DailyScreen';
+import { mountDoc } from './ui/doc';
 import { openLeaderboard } from './ui/LeaderboardDialog';
 import { mountHowTo } from './ui/HowTo';
 import { isUnlocked, mountLevelSelect } from './ui/LevelSelect';
@@ -63,6 +65,14 @@ let nickname: string | undefined; // kept for the visit when storage is blocked
 function show(route: Route, router: Router): void {
   screen?.unmount();
   screen = undefined;
+  // About and Privacy are open to anyone, first visit or not (a privacy link must just work).
+  if (route.screen === 'about' || route.screen === 'privacy') {
+    const md = route.screen === 'about' ? messages.about : privacy;
+    mountDoc(app!, md, route.screen, messages.backToLevels, () =>
+      router.show({ screen: 'levels' }),
+    );
+    return;
+  }
   if (!seenHowTo && route.screen !== 'howto') {
     // Straight into level 1 afterwards, or the level a link pointed at.
     afterHowTo = route.screen === 'play' ? route : { screen: 'play', id: first.id };
@@ -96,6 +106,8 @@ function show(route: Route, router: Router): void {
       onPick: (id) => router.show({ screen: 'play', id }),
       onDaily: () => router.show({ screen: 'daily' }),
       onHowTo: () => router.show({ screen: 'howto' }),
+      onAbout: () => router.show({ screen: 'about' }),
+      onPrivacy: () => router.show({ screen: 'privacy' }),
     });
     noteNotSaving = false;
     return;

@@ -247,6 +247,52 @@
         color: var(--mark);
         outline: none;
       }
+      .levels-footer {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0 12px;
+        margin-top: 16px;
+      }
+      .levels-footer .levels-howto {
+        margin-top: 0;
+      }
+      /* About and Privacy: plain text in one narrow column, like the how-to. */
+      .doc {
+        flex: 1;
+        overflow-y: auto;
+        box-sizing: border-box;
+        width: 100%;
+        max-width: 560px;
+        margin: 0 auto;
+        padding: 56px 16px 40px;
+        line-height: 1.55;
+        overflow-wrap: anywhere;
+      }
+      .doc h1 {
+        margin: 0 0 16px;
+        font: 600 24px var(--ui);
+        letter-spacing: -0.01em;
+      }
+      .doc h2 {
+        margin: 28px 0 8px;
+        font: 600 16px var(--ui);
+      }
+      .doc p,
+      .doc ul {
+        margin: 0 0 12px;
+        color: var(--label);
+      }
+      .doc ul {
+        padding-left: 1.2em;
+      }
+      .doc a {
+        color: var(--ink);
+        text-underline-offset: 3px;
+      }
+      .doc a:hover,
+      .doc a:focus-visible {
+        color: var(--mark);
+      }
       /* The how-to: one narrow column, centred. */
       .howto {
         flex: 1;
