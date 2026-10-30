@@ -14,9 +14,9 @@ checklist.md      the final go/no-go list below, ticked
 ## Deploy Steps (write the real commands into deploy.md as you go)
 
 1. 👤 The user creates or logs into a Cloudflare account. Never handle their password; they run `wrangler login` themselves.
-2. Create the production D1 database and apply `worker/schema.sql`.
+2. Create the production D1 database and apply `worker/migrations/` (`--remote`).
 3. Deploy the Worker; note its URL.
-4. Build the site with the production API URL and deploy it to Cloudflare Pages.
+4. Build the site with the production API URL and deploy it. Cloudflare Pages now deploys as a Worker with static assets: the root `wrangler.jsonc` serves `dist/` with `npx wrangler deploy`. Never run `wrangler pages project create` again; its auto-setup rewrites the build (see deploy.md).
 5. 👤 Pick the final game name and domain; the user buys it. Connect it in Cloudflare.
 6. Set `LAUNCH_DATE` and the share URL in `src/core/daily/` and redeploy.
 7. Turn on Cloudflare Web Analytics, which is cookie-free: add the site in the dashboard (manual JS snippet, not the automatic injection, so the page has exactly one beacon), then build with `VITE_CF_BEACON_TOKEN=<its 32-hex token>`. `scripts/analytics.ts` adds the beacon only when that token is set, and a malformed token stops the build. The privacy page already says what it sees.

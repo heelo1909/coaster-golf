@@ -1,0 +1,13 @@
+// The site itself: the built game in dist/ served as static files (docs/launch/deploy.md).
+// The leaderboard API is a separate Worker with its own config, worker/wrangler.toml.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "coaster-golf",
+  "compatibility_date": "2026-10-23",
+  // No request logs: the privacy page promises no IP addresses are kept.
+  "observability": { "enabled": false },
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application",
+  },
+}

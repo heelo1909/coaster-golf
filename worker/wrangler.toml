@@ -8,13 +8,13 @@ compatibility_date = "2026-10-01"
 [[d1_databases]]
 binding = "DB"
 database_name = "coaster-golf"
-# Set when the real database is created at launch (Section 9); local dev ignores it.
-database_id = "00000000-0000-0000-0000-000000000000"
+# The production database (created 2026-10-30, docs/launch/deploy.md); local dev ignores it.
+database_id = "37aee9ea-1e0d-48d9-b7b2-b597e6622547"
 migrations_dir = "migrations"
 
-# The game's own origin, allowed by CORS besides localhost. Set at launch (Section 9).
+# The game's own origin, allowed by CORS besides localhost (the site Worker, wrangler.jsonc).
 [vars]
-ALLOWED_ORIGIN = ""
+ALLOWED_ORIGIN = "https://coaster-golf.coaster-golf.workers.dev"
 
 # 30 submissions per minute per IP (worker/CLAUDE.md). IPs are only the limiter's key; they're
 # never stored.
