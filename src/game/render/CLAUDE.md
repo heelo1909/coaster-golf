@@ -5,11 +5,11 @@ Draws the level and plays back a ride. **Rendering only shows; it never decides.
 ## Files (target)
 
 ```
-camera.ts      world ↔ screen transform, fit-to-bounds, devicePixelRatio
+camera.ts      world ↔ screen transform, fit-to-bounds, devicePixelRatio, View (zoom/pan)
 scene.ts       drawGrid, drawStations, drawObstacles, drawTrack, drawCart
 ride.ts        pure playback maths: poseAt(path, t), failPose(path, reason, k)
 theme.ts       the four themes (palettes + style), sizes, setTheme, cssVars
-index.ts       createRenderer: setTrack, playRide(result) → Promise, skipRide
+index.ts       createRenderer: setTrack, playRide → Promise, skipRide, zoomAt, panBy, resetView
 ```
 
 ## Rules
@@ -20,6 +20,9 @@ index.ts       createRenderer: setTrack, playRide(result) → Promise, skipRide
 - **Track drawing:** sample the curve at the visible pixel resolution. Draw only the part between the stations solid, and show the rest faintly so players see where their curve goes. Break the line at `NaN` or big jumps; never draw a vertical line across a gap.
 - **Ride playback:** step through `path` by time with `requestAnimationFrame`. Interpolate between points. Rotate the cart by `angle`. On failure, finish at `failAt` and play the fail effect: a spark for `HIT_OBSTACLE`, a tumbling cart for `FLEW_OFF`, a slow roll-back wobble for `STALLED`.
 - A skip button (or tap) jumps straight to the end of the ride.
+- **Zoom and pan:** the camera is a `View` (zoom relative to the fitted camera, plus the world point at the canvas centre), from 1× (the whole level) to 8×, with the centre kept inside the level. Zooming keeps the point under the finger or cursor in place. The view maths is pure in `camera.ts` and unit-tested.
+- **Follow camera:** during a ride the view eases toward the cart at `FOLLOW_ZOOM` (2.5×, or the player's zoom if higher), then eases back to the player's own view over 600 ms. If the player zooms or pans mid-ride, the camera is theirs and stops following. No following with `prefers-reduced-motion`.
+- `resize()` is cheap when nothing changed; the play screen calls it whenever the canvas may have changed size (mount, result panel open or close, a `ResizeObserver`). After a theme change, call `restyle()`.
 - `playRide` lives on the renderer (it owns the canvas and the frame loop); `ride.ts` stays pure so it can be tested. A new track or level cancels a ride in progress, and the cart stays at its last pose until the track changes. A ride with an empty `path` (failed before the cart moved) draws no cart.
 - The cart is drawn the size of the sim's collision circle (`CART_RADIUS`, sitting on the track along its upward normal), never smaller than `theme.cartMinRadius` px.
 - `prefers-reduced-motion`: the ride plays at `REDUCED_MOTION_SPEED`× and the fail effect jumps to its last frame.
@@ -29,7 +32,7 @@ index.ts       createRenderer: setTrack, playRide(result) → Promise, skipRide
 ## Performance
 
 - Redraw the static layer (grid, stations, obstacles) only on resize or level change. Cache it to an offscreen canvas.
-- During a ride, redraw only the track and the cart.
+- During a ride, redraw only the track and the cart, except while the follow camera moves: then the static layer is redrawn each frame too (it depends on the view).
 - Live preview must stay smooth while typing: about 60 fps on a mid-range phone.
 
 ## Testing

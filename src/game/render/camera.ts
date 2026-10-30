@@ -56,12 +56,102 @@ export function toWorldY(cam: Camera, sy: number): number {
   return (cam.originY - sy) / cam.scale;
 }
 
-// The world rectangle the whole canvas shows, which is at least the level's bounds.
+// The world rectangle the whole canvas shows: at least the level's bounds when fitted, less
+// when zoomed in.
 export function visibleWorld(cam: Camera): Level['bounds'] {
   return {
     xMin: toWorldX(cam, 0),
     xMax: toWorldX(cam, cam.width),
     yMin: toWorldY(cam, cam.height),
     yMax: toWorldY(cam, 0),
+  };
+}
+
+// ── Zoom and pan ────────────────────────────────────────────────────────────────────────────
+// A View is where the player is looking: a zoom relative to the fitted camera (1 = the whole
+// level fits) and the world point at the centre of the canvas. The camera is rebuilt from it.
+
+export interface View {
+  zoom: number;
+  cx: number;
+  cy: number;
+}
+
+export const MIN_ZOOM = 1; // never smaller than the whole level
+export const MAX_ZOOM = 8;
+
+// The view that shows the whole level, as fitCamera does.
+export function fitView(bounds: Level['bounds']): View {
+  return { zoom: 1, cx: (bounds.xMin + bounds.xMax) / 2, cy: (bounds.yMin + bounds.yMax) / 2 };
+}
+
+// The camera for `view`: the fitted scale times the zoom, with (cx, cy) at the canvas centre.
+export function viewCamera(
+  bounds: Level['bounds'],
+  width: number,
+  height: number,
+  padding: number,
+  dpr: number,
+  view: View,
+): Camera {
+  const fit = fitCamera(bounds, width, height, padding, dpr);
+  const scale = fit.scale * view.zoom;
+  return {
+    scale,
+    originX: width / 2 - view.cx * scale,
+    originY: height / 2 + view.cy * scale,
+    width,
+    height,
+    dpr,
+  };
+}
+
+// Keeps the zoom within its limits and the centre inside the level, so the level can't be
+// lost off-screen.
+export function clampView(view: View, bounds: Level['bounds']): View {
+  return {
+    zoom: Math.min(Math.max(view.zoom, MIN_ZOOM), MAX_ZOOM),
+    cx: Math.min(Math.max(view.cx, bounds.xMin), bounds.xMax),
+    cy: Math.min(Math.max(view.cy, bounds.yMin), bounds.yMax),
+  };
+}
+
+// Zooms by `factor` about the screen point (sx, sy): the world point under it stays put, so
+// pinching or scrolling zooms toward the finger or cursor.
+export function zoomViewAt(
+  view: View,
+  cam: Camera,
+  bounds: Level['bounds'],
+  factor: number,
+  sx: number,
+  sy: number,
+): View {
+  const zoom = Math.min(Math.max(view.zoom * factor, MIN_ZOOM), MAX_ZOOM);
+  const scale = (cam.scale / view.zoom) * zoom;
+  const wx = toWorldX(cam, sx);
+  const wy = toWorldY(cam, sy);
+  return clampView(
+    { zoom, cx: wx - (sx - cam.width / 2) / scale, cy: wy + (sy - cam.height / 2) / scale },
+    bounds,
+  );
+}
+
+// Moves the view so the world follows a drag of (dx, dy) screen px.
+export function panView(
+  view: View,
+  cam: Camera,
+  bounds: Level['bounds'],
+  dx: number,
+  dy: number,
+): View {
+  return clampView({ ...view, cx: view.cx - dx / cam.scale, cy: view.cy + dy / cam.scale }, bounds);
+}
+
+// Part of the way (k, 0–1) from a to b. Zoom moves in log space so it feels even.
+export function lerpView(a: View, b: View, k: number): View {
+  return {
+    zoom: a.zoom * (b.zoom / a.zoom) ** k,
+    cx: a.cx + (b.cx - a.cx) * k,
+    cy: a.cy + (b.cy - a.cy) * k,
   };
 }

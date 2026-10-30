@@ -1,5 +1,20 @@
 import { describe, expect, it } from 'vitest';
-import { fitCamera, toScreenX, toScreenY, toWorldX, toWorldY, visibleWorld } from './camera';
+import {
+  MAX_ZOOM,
+  MIN_ZOOM,
+  fitCamera,
+  fitView,
+  lerpView,
+  panView,
+  toScreenX,
+  toScreenY,
+  toWorldX,
+  toWorldY,
+  viewCamera,
+  visibleWorld,
+  zoomViewAt,
+} from './camera';
+import type { View } from './camera';
 
 const bounds = { xMin: -1, xMax: 9, yMin: -1, yMax: 7 }; // 10 wide, 8 tall
 
@@ -85,5 +100,59 @@ describe('world ↔ screen', () => {
       expect(view.yMin).toBeLessThan(bounds.yMin);
       expect(view.yMax).toBeGreaterThan(bounds.yMax);
     }
+  });
+});
+
+describe('zoom and pan: where the player is looking', () => {
+  const W = 375;
+  const H = 600;
+  const cam = (v: View) => viewCamera(bounds, W, H, 24, 1, v);
+
+  it('the fitted view is exactly the fitted camera', () => {
+    const fitted = fitCamera(bounds, W, H, 24);
+    const viewed = cam(fitView(bounds));
+    expect(viewed.scale).toBeCloseTo(fitted.scale);
+    expect(viewed.originX).toBeCloseTo(fitted.originX);
+    expect(viewed.originY).toBeCloseTo(fitted.originY);
+  });
+
+  it('zooming toward a finger keeps the point under the finger in place', () => {
+    const v0 = fitView(bounds);
+    const c0 = cam(v0);
+    const [sx, sy] = [100, 250];
+    const wx = toWorldX(c0, sx);
+    const wy = toWorldY(c0, sy);
+    const v1 = zoomViewAt(v0, c0, bounds, 2, sx, sy);
+    const c1 = cam(v1);
+    expect(v1.zoom).toBe(2);
+    expect(c1.scale).toBeCloseTo(c0.scale * 2);
+    expect(toScreenX(c1, wx)).toBeCloseTo(sx);
+    expect(toScreenY(c1, wy)).toBeCloseTo(sy);
+  });
+
+  it('zoom stops at the whole level and at 8×', () => {
+    const v0 = fitView(bounds);
+    expect(zoomViewAt(v0, cam(v0), bounds, 0.25, 200, 300).zoom).toBe(MIN_ZOOM);
+    expect(zoomViewAt(v0, cam(v0), bounds, 100, 200, 300).zoom).toBe(MAX_ZOOM);
+  });
+
+  it('dragging moves the world with the finger, but never loses the level', () => {
+    const v = { zoom: 2, cx: 4, cy: 3 };
+    const c = cam(v);
+    const moved = panView(v, c, bounds, 30, -15);
+    expect(moved.cx).toBeCloseTo(4 - 30 / c.scale);
+    expect(moved.cy).toBeCloseTo(3 - 15 / c.scale);
+    const far = panView(v, c, bounds, -1e6, 1e6);
+    expect(far.cx).toBe(bounds.xMax);
+    expect(far.cy).toBe(bounds.yMax); // dragging down moves the view up
+  });
+
+  it('easing between views starts and ends exactly on them, zooming evenly', () => {
+    const a = { zoom: 1, cx: 0, cy: 0 };
+    const b = { zoom: 4, cx: 8, cy: 2 };
+    expect(lerpView(a, b, 0)).toEqual(a);
+    expect(lerpView(a, b, 1)).toEqual(b);
+    expect(lerpView(a, b, 0.5).zoom).toBeCloseTo(2);
+    expect(lerpView(a, b, 0.5).cx).toBeCloseTo(4);
   });
 });

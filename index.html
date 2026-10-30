@@ -43,6 +43,11 @@
         flex: 1;
         min-height: 0;
         width: 100%;
+        touch-action: none; /* pinch and drag move the track, not the page */
+        cursor: grab;
+      }
+      .play-canvas:active {
+        cursor: grabbing;
       }
       /* Minimal themes: a solid accent Ride button, sentence case. */
       :root[data-style='minimal'] .ride-btn {
