@@ -19,7 +19,7 @@ checklist.md      the final go/no-go list below, ticked
 4. Build the site with the production API URL and deploy it to Cloudflare Pages.
 5. 👤 Pick the final game name and domain; the user buys it. Connect it in Cloudflare.
 6. Set `LAUNCH_DATE` and the share URL in `src/core/daily/` and redeploy.
-7. Turn on Cloudflare Web Analytics, which is cookie-free.
+7. Turn on Cloudflare Web Analytics, which is cookie-free: add the site in the dashboard (manual JS snippet, not the automatic injection, so the page has exactly one beacon), then build with `VITE_CF_BEACON_TOKEN=<its 32-hex token>`. `scripts/analytics.ts` adds the beacon only when that token is set, and a malformed token stops the build. The privacy page already says what it sees.
 
 ## Privacy Page (must match what the code does)
 

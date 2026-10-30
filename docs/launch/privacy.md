@@ -16,6 +16,10 @@ Leaderboards are public, so anyone can see your nickname, score and equation. To
 
 Your progress, best scores, daily streak, nickname, theme and sound setting are saved in your browser's storage. They never leave your device unless you submit to a leaderboard. Clearing your browser's site data deletes them.
 
+## Visit counts
+
+We count visits with Cloudflare Web Analytics. It uses no cookies and doesn't follow you to other sites. It sees which page was opened, the site you came from, your browser and device type, and your country, and we only ever see totals.
+
 ## What we don't collect
 
 - no accounts, emails or passwords

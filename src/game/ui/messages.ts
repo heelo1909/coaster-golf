@@ -117,7 +117,7 @@ Every leaderboard entry is ridden again on the server before it's saved, so a sc
 
 ## Hello
 
-Coaster Golf is free, with no accounts and no tracking. Read the [privacy page](#/privacy), or say hi at [heelo1909@gmail.com](mailto:heelo1909@gmail.com).`,
+Coaster Golf is free, with no accounts and no cookies. Read the [privacy page](#/privacy), or say hi at [heelo1909@gmail.com](mailto:heelo1909@gmail.com).`,
   tileLabel: (num: number, name: string, locked: boolean, best: number | undefined, par: number) =>
     locked
       ? `Level ${num}, ${name}, locked`

@@ -1,6 +1,20 @@
+import { loadEnv } from 'vite';
 import { defineConfig } from 'vitest/config';
+import { beaconTag } from './scripts/analytics';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
+  plugins: [
+    {
+      // Cookie-free analytics in the built page, only when a token is set (scripts/analytics.ts).
+      name: 'cf-web-analytics',
+      apply: 'build',
+      transformIndexHtml: (html: string) =>
+        html.replace(
+          '</head>',
+          `${beaconTag(loadEnv(mode, process.cwd(), 'VITE_').VITE_CF_BEACON_TOKEN)}</head>`,
+        ),
+    },
+  ],
   test: {
     include: ['src/**/*.test.ts', 'tests/**/*.test.ts', 'worker/test/**/*.test.ts'],
     exclude: ['tests/e2e/**', 'node_modules/**'],
@@ -11,4 +25,4 @@ export default defineConfig({
       thresholds: { lines: 80, functions: 80, branches: 80, statements: 80 },
     },
   },
-});
+}));
