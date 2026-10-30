@@ -33,7 +33,7 @@ export async function handle(request: Request, env: Env, now = Date.now()): Prom
   if (url.pathname === '/leaderboard' && request.method === 'GET') {
     const board = findBoard(url.searchParams.get('level'), now);
     if (!board) return Response.json({ ok: false, error: 'unknown_level' }, { status: 400 });
-    return Response.json(await leaderboard(env, board, url.searchParams.get('nickname')));
+    return Response.json(await leaderboard(env, board, url.searchParams.get('nickname'), now));
   }
   return Response.json({ ok: false, error: 'not_found' }, { status: 404 });
 }

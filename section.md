@@ -162,7 +162,7 @@ Work through the sections in order. Each one has a goal, tasks, and a "Done when
 - [x] `GET /leaderboard?level=…`: top 50 by score, with ties broken by earliest submission
 - [x] Nickname rules: 3–16 characters, letters/numbers/underscore, basic profanity filter; no other personal data
 - [x] Rate limiting per IP (e.g. 30 submissions per minute); reject over-long equations early
-- [ ] Hide equations on the daily board until that day ends (so people can't copy the winner); show them after
+- [x] Hide equations on the daily board until that day ends (so people can't copy the winner); show them after
 - [ ] Frontend: leaderboard panel on the result screen and the daily screen; a one-time nickname prompt saved locally
 - [ ] Tests: a valid submission is saved; a failing equation is rejected; a fake score field is ignored; rate limit works
 

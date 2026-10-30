@@ -1,6 +1,8 @@
 // GET /leaderboard?level=…: the top 50 on a board, shortest first, earliest first among ties,
-// plus the asking nickname's own place when it's given.
+// plus the asking nickname's own place when it's given. While a daily is live its equations
+// are hidden, so nobody can copy the winner; once the day ends they're shown.
 
+import { dailyNumber } from '../../src/core';
 import type { Env } from './env';
 
 export const BOARD_SIZE = 50;
@@ -25,11 +27,18 @@ interface Row {
   created_at: number;
 }
 
+// True while `boardId` is today's daily.
+export function isLiveDaily(boardId: string, now: number): boolean {
+  return boardId === `daily:${dailyNumber(new Date(now))}`;
+}
+
 export async function leaderboard(
   env: Env,
   boardId: string,
   nickname: string | null,
+  now: number,
 ): Promise<Board> {
+  const hide = isLiveDaily(boardId, now);
   const { results } = await env.DB.prepare(
     `SELECT nickname, score, equation, created_at FROM scores
      WHERE level_id = ? ORDER BY score, created_at LIMIT ?`,
@@ -40,7 +49,7 @@ export async function leaderboard(
     rank: i + 1,
     nickname: r.nickname,
     score: r.score,
-    equation: r.equation,
+    equation: hide ? null : r.equation,
     at: r.created_at,
   }));
   if (nickname === null) return { entries };

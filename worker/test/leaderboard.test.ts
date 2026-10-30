@@ -63,4 +63,32 @@ describe('GET /leaderboard', () => {
       expect(body, q).toEqual({ ok: false, error: 'unknown_level' });
     }
   });
+
+  it("hides equations on today's daily board, and shows them once the day is over", async () => {
+    const n = dailyNumber(new Date(NOW));
+    await insert(`daily:${n}`, 'ada', 'xx/8', 4, NOW - 1000);
+    await insert(`daily:${n - 1}`, 'bob', 'x/2', 3, NOW - 86_400_000);
+    const live = await get(`level=daily:${n}`);
+    expect(live.body.entries).toEqual([
+      { rank: 1, nickname: 'ada', score: 4, equation: null, at: NOW - 1000 },
+    ]);
+    expect(JSON.stringify(live.body)).not.toContain('xx/8');
+    const past = await get(`level=daily:${n - 1}`);
+    expect(past.body.entries).toMatchObject([{ nickname: 'bob', equation: 'x/2' }]);
+
+    // The next UTC day, the same board shows its equations.
+    const tomorrow = await handle(
+      new Request(`http://localhost/leaderboard?level=daily:${n}`),
+      t.env,
+      NOW + 86_400_000,
+    );
+    expect(((await tomorrow.json()) as { entries: unknown[] }).entries).toMatchObject([
+      { nickname: 'ada', equation: 'xx/8' },
+    ]);
+  });
+
+  it('campaign boards always show equations', async () => {
+    await insert('c03', 'ada', 'x/3', 3, 1);
+    expect((await get('level=c03')).body.entries).toMatchObject([{ equation: 'x/3' }]);
+  });
 });
