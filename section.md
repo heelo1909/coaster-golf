@@ -157,7 +157,7 @@ Work through the sections in order. Each one has a goal, tasks, and a "Done when
 **Goal:** global "shortest equation" boards that can't be faked by sending a fake score.
 
 - [x] Cloudflare Worker + D1 project with Wrangler; local dev works
-- [ ] Table: level id (or daily date), nickname, equation, score, created time
+- [x] Table: level id (or daily date), nickname, equation, score, created time
 - [ ] `POST /submit`: takes level + equation + nickname. **The Worker re-parses and re-simulates using `src/core`**, computes the score itself, and saves it only if the run succeeds
 - [ ] `GET /leaderboard?level=…`: top 50 by score, with ties broken by earliest submission
 - [ ] Nickname rules: 3–16 characters, letters/numbers/underscore, basic profanity filter; no other personal data

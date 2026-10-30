@@ -6,7 +6,7 @@ A Cloudflare Worker with a D1 (SQLite) database. Its only job is to accept leade
 
 ```
 wrangler.toml        Worker + D1 binding + rate-limit binding
-schema.sql           D1 tables
+migrations/          D1 tables (0001_scores.sql is the schema below), applied by `npm run worker:db`
 src/index.ts         router: POST /submit, GET /leaderboard
 src/submit.ts        validate → judge → save
 src/leaderboard.ts   query + hide-daily-equations rule
