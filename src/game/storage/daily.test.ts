@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { liveStreak } from '../../core';
 import { DAILY_KEY, loadDaily, saveDailyWin } from './daily';
 import type { DailySave } from './daily';
 
@@ -50,6 +51,17 @@ describe('daily saves: bests and the streak are remembered on this device', () =
     expect(save.streak).toEqual({ current: 2, best: 2, lastPlayed: 13 });
     expect(loadDaily(storage).streak).toEqual({ current: 2, best: 2, lastPlayed: 13 });
     expect(loadDaily(storage).best[13]).toEqual({ score: 4, equation: 'c' });
+  });
+
+  it('a missed day breaks the shown streak; the next solve starts again from 1, best kept', () => {
+    const storage = fakeStorage();
+    let save = fresh();
+    for (const n of [10, 11, 12]) save = saveDailyWin(save, n, 5, 'x', storage);
+    expect(liveStreak(loadDaily(storage).streak, 13)).toBe(3); // 13 not solved yet: still alive
+    expect(liveStreak(loadDaily(storage).streak, 14)).toBe(0); // 13 was missed
+    save = saveDailyWin(loadDaily(storage), 14, 5, 'x', storage);
+    expect(loadDaily(storage).streak).toEqual({ current: 1, best: 3, lastPlayed: 14 });
+    expect(liveStreak(save.streak, 14)).toBe(1);
   });
 
   it('keeps the shorter score for a day; a longer or equal one is ignored', () => {
