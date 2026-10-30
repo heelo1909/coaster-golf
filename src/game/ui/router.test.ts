@@ -7,6 +7,11 @@ describe('router: the URL hash mirrors the screen', () => {
     expect(parseHash('#/play/c15')).toEqual({ screen: 'play', id: 'c15' });
   });
 
+  it('the how-to has its own hash', () => {
+    expect(parseHash('#/howto')).toEqual({ screen: 'howto' });
+    expect(parseHash('#/howto/')).toEqual({ screen: 'levels' });
+  });
+
   it('no hash, the levels hash, or anything unknown shows level select', () => {
     for (const hash of [
       '',
@@ -25,7 +30,12 @@ describe('router: the URL hash mirrors the screen', () => {
   it('every screen reads back from its own hash', () => {
     expect(hashOf({ screen: 'levels' })).toBe('#/levels');
     expect(hashOf({ screen: 'play', id: 'c07' })).toBe('#/play/c07');
-    for (const route of [{ screen: 'levels' } as const, { screen: 'play', id: 'c07' } as const]) {
+    expect(hashOf({ screen: 'howto' })).toBe('#/howto');
+    for (const route of [
+      { screen: 'levels' } as const,
+      { screen: 'howto' } as const,
+      { screen: 'play', id: 'c07' } as const,
+    ]) {
       expect(parseHash(hashOf(route))).toEqual(route);
     }
   });

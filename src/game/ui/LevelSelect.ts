@@ -58,6 +58,7 @@ export function mountLevelSelect(
   progress: Progress,
   notSaving: boolean, // storage is blocked: say so, quietly
   onPick: (id: string) => void,
+  onHowTo: () => void,
 ): void {
   const screen = document.createElement('section');
   screen.className = 'levels';
@@ -114,6 +115,13 @@ export function mountLevelSelect(
     note.textContent = messages.notSaving;
     screen.append(note);
   }
-  screen.append(grid);
+  const howTo = document.createElement('button');
+  howTo.type = 'button';
+  howTo.className = 'levels-howto';
+  howTo.dataset.testid = 'how-to-link';
+  howTo.textContent = messages.howToLink;
+  howTo.addEventListener('click', onHowTo);
+
+  screen.append(grid, howTo);
   root.replaceChildren(screen);
 }

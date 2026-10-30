@@ -3,6 +3,11 @@
 
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
+import { skipHowTo } from './helpers';
+
+test.beforeEach(async ({ page }) => {
+  await skipHowTo(page);
+});
 
 async function win(page: Page, equation: string): Promise<void> {
   await page.getByTestId('equation-input').fill(equation);
@@ -81,6 +86,9 @@ test('with storage blocked the game still plays, unlocks for the visit and says 
     });
   });
   await page.goto('/');
+  // Nothing can be saved, so the how-to comes first again; it leads to level 1.
+  await page.getByTestId('how-to-done').click();
+  await page.getByTestId('back-to-levels').click();
   await expect(page.getByTestId('not-saving')).toHaveText(
     "Progress won't be saved in this browser.",
   );

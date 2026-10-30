@@ -26,6 +26,12 @@ Screens are a simple state machine with `show(screen, params)`. The URL hash mir
 - So far the routes are `#/levels` and `#/play/<id>`; a screen joins the `Route` type in the section that builds it. Anything unknown (no hash, a typo) shows level select, which is where the site opens.
 - `main.ts` owns the redirect rule: an unknown or locked level id replaces the hash with `#/levels`.
 
+## How To
+
+- On a first visit (`profile.seenHowTo` not set) every route is replaced by `#/howto` first. Its one button ("Let's go") goes to level 1, or to the level a link pointed at, and saves `seenHowTo`. With storage blocked it shows once per visit.
+- Level select has a "How to play" link to reopen it; then the button returns to level select.
+- Three numbered steps (type, ride, shorter wins) under a small SVG of a track drawn in the colour tokens. Backticks in the step strings in `messages.ts` mark equations, shown in monospace.
+
 ## Level Select
 
 - One tile per campaign level (`tilesOf` is pure): the number, the name, then `Par N` (open), `Best N` with a ★ at or under par (beaten) or `Locked`. Locked tiles are disabled buttons. Each tile's `aria-label` says it all in words, star included.

@@ -3,6 +3,7 @@
 
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
+import { skipHowTo } from './helpers';
 
 const isPhone = (name: string): boolean => name === 'phone';
 
@@ -30,6 +31,7 @@ async function accentPixels(page: Page): Promise<number> {
 }
 
 test.beforeEach(async ({ page }) => {
+  await skipHowTo(page);
   await page.goto('/#/play/c01');
   await expect(page.getByTestId('game-canvas')).toBeVisible();
 });

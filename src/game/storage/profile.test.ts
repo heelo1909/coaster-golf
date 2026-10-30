@@ -31,6 +31,13 @@ describe('profile: the chosen theme is remembered on this device', () => {
     expect(JSON.parse(storage.getItem(PROFILE_KEY)!)).toEqual({ version: 1, theme: 'paper' });
   });
 
+  it('remembers that the how-to was seen, keeping the theme', () => {
+    const storage = fakeStorage();
+    saveProfile({ theme: 'paper' }, storage);
+    saveProfile({ ...loadProfile(storage), seenHowTo: true }, storage);
+    expect(loadProfile(storage)).toEqual({ theme: 'paper', seenHowTo: true });
+  });
+
   it('a first visit has no saved theme', () => {
     expect(loadProfile(fakeStorage())).toEqual({});
   });
@@ -49,5 +56,10 @@ describe('profile: the chosen theme is remembered on this device', () => {
     );
     expect(loadProfile(fakeStorage({ [PROFILE_KEY]: '"paper"' }))).toEqual({});
     expect(loadProfile(fakeStorage({ [PROFILE_KEY]: '{"version":1,"theme":7}' }))).toEqual({});
+    expect(
+      loadProfile(
+        fakeStorage({ [PROFILE_KEY]: '{"version":1,"theme":"paper","seenHowTo":"yes"}' }),
+      ),
+    ).toEqual({ theme: 'paper' });
   });
 });

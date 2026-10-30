@@ -49,6 +49,17 @@ export const messages = {
   yourBest: 'Your best: ',
   bestChars: (n: number) => ` · ${chars(n)}`,
   notSaving: "Progress won't be saved in this browser.",
+  howToTitle: 'How to play',
+  howToLink: 'How to play',
+  howToPicture: 'A curved track carrying the cart from Start to End',
+  start: 'Start',
+  end: 'End',
+  howToSteps: [
+    ['Type an equation.', ' It becomes the track: `x/2` is a gentle slope, `0` is flat ground.'],
+    ['Ride.', ' The cart has to get from Start to End without flying off, stalling or crashing.'],
+    ['Shorter wins.', ' Your score is how many characters you typed. Reach par for a ★.'],
+  ] as const,
+  howToDone: "Let's go",
   tileLabel: (num: number, name: string, locked: boolean, best: number | undefined, par: number) =>
     locked
       ? `Level ${num}, ${name}, locked`

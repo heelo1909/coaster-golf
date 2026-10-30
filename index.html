@@ -202,6 +202,62 @@
         color: var(--label);
         font-size: 13px;
       }
+      .levels-howto {
+        min-height: 44px;
+        margin-top: 16px;
+        padding: 0 4px;
+        border: 0;
+        background: transparent;
+        color: var(--label);
+        font: 14px var(--ui);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+        cursor: pointer;
+      }
+      .levels-howto:hover,
+      .levels-howto:focus-visible {
+        color: var(--mark);
+        outline: none;
+      }
+      /* The how-to: one narrow column, centred. */
+      .howto {
+        flex: 1;
+        overflow-y: auto;
+        box-sizing: border-box;
+        width: 100%;
+        max-width: 440px;
+        margin: 0 auto;
+        padding: 56px 16px 32px;
+      }
+      .howto-title {
+        margin: 0 0 16px;
+        font: 600 24px var(--ui);
+        letter-spacing: -0.01em;
+      }
+      .howto-picture svg {
+        display: block;
+        width: 100%;
+        height: auto;
+        font-family: var(--ui);
+      }
+      .howto-steps {
+        display: grid;
+        gap: 14px;
+        margin: 20px 0 24px;
+        padding-left: 1.4em;
+        line-height: 1.45;
+      }
+      .howto-steps li::marker {
+        color: var(--label);
+        font-family: var(--mono);
+      }
+      .howto-steps span {
+        color: var(--label);
+      }
+      .howto-steps code {
+        color: var(--ink);
+        font: 0.95em var(--mono);
+      }
       .levels-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
