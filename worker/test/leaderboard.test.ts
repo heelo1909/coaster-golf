@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { dailyNumber } from '../../src/core';
-import { handle } from '../src/index';
+import { handle } from '../src/app';
 import { testEnv } from './env';
 import type { TestEnv } from './env';
 

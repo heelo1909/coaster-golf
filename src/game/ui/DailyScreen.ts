@@ -22,6 +22,8 @@ export interface DailyActions {
   onWin: (score: number, equation: string) => DailySave; // saves, returns the new state
   onBack: () => void;
   onNewDay: () => void; // the player taps "New daily" after the rollover
+  // Shows the board; with an equation, submits that win first. Left out when there's no API.
+  onLeaderboard?: ((equation?: string) => void) | undefined;
   now?: () => Date; // the clock; tests and the e2e pass their own
 }
 
@@ -57,6 +59,15 @@ export function mountDailyScreen(
   const words = { copied: messages.copied, failed: messages.copyFailed };
   const share = shareButton(messages.share, 'daily-share', 'daily-share', text, words);
   bar.append(title, countdown, streak, share);
+  if (actions.onLeaderboard) {
+    const board = document.createElement('button');
+    board.type = 'button';
+    board.className = 'daily-share';
+    board.dataset.testid = 'daily-board';
+    board.textContent = messages.board;
+    board.addEventListener('click', () => actions.onLeaderboard?.());
+    bar.append(board);
+  }
 
   function showStreak(): void {
     const days = liveStreak(save.streak, n);
@@ -96,6 +107,7 @@ export function mountDailyScreen(
     },
     onBack: actions.onBack,
     shareText: text,
+    onLeaderboard: actions.onLeaderboard && ((equation) => actions.onLeaderboard?.(equation)),
   });
   return {
     unmount: () => {

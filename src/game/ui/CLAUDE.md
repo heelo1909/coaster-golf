@@ -34,6 +34,12 @@ Screens are a simple state machine with `show(screen, params)`. The URL hash mir
 - **Share** (`ui/share.ts`): a Share button on the daily's win panel (`share-button`) and in its bar (`daily-share`, so "not yet!" can be shared too). On touch screens it opens the share sheet (`navigator.share`), else it copies with `navigator.clipboard`, falling back to a hidden textarea and `execCommand('copy')`; the button then reads "Copied!" or "Couldn't copy" for 2 s. Closing the share sheet counts as done.
 - Level select opens with a "Today's daily · #12" card (`daily-card`) above the grid: name, par or best with ★, and the streak. `mountLevelSelect` takes an options object.
 
+## Leaderboard
+
+- `ui/api.ts` talks to the Worker at `VITE_API_URL`, or `http://localhost:8787` in dev; with neither (a production build before launch) the Leaderboard buttons don't appear. Requests time out after 8 s; any failure reads as "offline" in plain words.
+- A win panel has **Leaderboard** (`leaderboard-button`): it opens `ui/LeaderboardDialog.ts` (a native `<dialog>`), submits that win, then lists the top 50 with your row marked and your place added under the list when you're further down. Today's daily shows "hidden until tomorrow" for equations. The daily bar also has **Board** (`daily-board`) to look without submitting.
+- The nickname is asked **once**, inside the dialog, checked live with `checkNickname` from core, and saved as `profile.nickname` (kept in memory for the visit when storage is blocked).
+
 ## How To
 
 - On a first visit (`profile.seenHowTo` not set) every route is replaced by `#/howto` first. Its one button ("Let's go") goes to level 1, or to the level a link pointed at, and saves `seenHowTo`. That level still goes through the normal unlock check, so a link to a locked level ends on level select. With storage blocked it shows once per visit.

@@ -23,6 +23,7 @@ export interface PlayActions {
   number?: string; // replaces the level's number in the canvas title (the daily's "#12")
   bar?: HTMLElement; // an info line at the top of the panel (the daily's countdown)
   shareText?: () => string; // the daily: Share on the win panel
+  onLeaderboard?: ((equation: string) => void) | undefined; // after a win, with its equation
   // Before the panel shows, to save the win; returns the best as it now stands.
   onWin: (score: number, equation: string) => Best | undefined;
   onBack: () => void; // to level select
@@ -53,6 +54,7 @@ export function mountPlayScreen(root: HTMLElement, level: Level, actions: PlayAc
   const panelView = createResultPanel({
     onNext: actions.onNext,
     shareText: actions.shareText,
+    onLeaderboard: actions.onLeaderboard && (() => actions.onLeaderboard?.(lastWin)),
     onTryShorter: editAgain,
     onTryAgain: editAgain,
   });
@@ -80,6 +82,7 @@ export function mountPlayScreen(root: HTMLElement, level: Level, actions: PlayAc
   };
 
   let lastGood: Track | null = null;
+  let lastWin = ''; // the equation of the latest win, for the leaderboard
   let riding = false;
   let failedRides = 0;
   const input = createEquationInput(
@@ -138,8 +141,10 @@ export function mountPlayScreen(root: HTMLElement, level: Level, actions: PlayAc
     await renderer.playRide(judged.result);
     setRiding(false);
     if (input.value() !== text) return; // edited mid-ride: that ride no longer counts
-    if (judged.result.success) showBest(actions.onWin(judged.score, text));
-    else failedRides++;
+    if (judged.result.success) {
+      lastWin = text;
+      showBest(actions.onWin(judged.score, text));
+    } else failedRides++;
     result.show(resultOf(judged.result, judged.score, level, failedRides));
   }
 

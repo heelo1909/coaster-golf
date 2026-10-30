@@ -9,7 +9,7 @@ export default tseslint.config(
       'dist/',
       'coverage/',
       'node_modules/',
-      '.wrangler/',
+      '**/.wrangler/',
       'playwright-report/',
       'test-results/',
     ],

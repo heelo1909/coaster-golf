@@ -42,6 +42,7 @@ export function createResultPanel(actions: {
   onTryShorter: () => void;
   onTryAgain: () => void; // after a fail: close the panel, keep the equation to edit
   shareText?: (() => string) | undefined; // the daily: a Share button after a win
+  onLeaderboard?: (() => void) | undefined; // submit this win and show the board
 }): ResultPanel {
   // The live region stays in the page so screen readers announce each new result.
   const root = document.createElement('div');
@@ -87,6 +88,9 @@ export function createResultPanel(actions: {
           );
         }
         row.append(button(messages.tryShorter, 'try-shorter', actions.onTryShorter));
+        if (actions.onLeaderboard) {
+          row.append(button(messages.leaderboard, 'leaderboard-button', actions.onLeaderboard));
+        }
         parts.push(row);
       } else {
         if (view.hint) {

@@ -12,6 +12,10 @@ database_name = "coaster-golf"
 database_id = "00000000-0000-0000-0000-000000000000"
 migrations_dir = "migrations"
 
+# The game's own origin, allowed by CORS besides localhost. Set at launch (Section 9).
+[vars]
+ALLOWED_ORIGIN = ""
+
 # 30 submissions per minute per IP (worker/CLAUDE.md). IPs are only the limiter's key; they're
 # never stored.
 [[ratelimits]]

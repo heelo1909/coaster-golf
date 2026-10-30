@@ -36,5 +36,9 @@ export async function testEnv(): Promise<TestEnv> {
       return { success: !limited.blocked };
     },
   };
-  return { env: { DB: db, SUBMIT_LIMIT }, limited, dispose: () => mf.dispose() };
+  return {
+    env: { DB: db, SUBMIT_LIMIT, ALLOWED_ORIGIN: 'https://coastergolf.example' },
+    limited,
+    dispose: () => mf.dispose(),
+  };
 }

@@ -38,6 +38,14 @@ describe('profile: the chosen theme is remembered on this device', () => {
     expect(loadProfile(storage)).toEqual({ theme: 'paper', seenHowTo: true });
   });
 
+  it('remembers the nickname, and drops one that breaks the rules', () => {
+    const storage = fakeStorage();
+    saveProfile({ theme: 'paper', nickname: 'ada_99' }, storage);
+    expect(loadProfile(storage)).toEqual({ theme: 'paper', nickname: 'ada_99' });
+    const bad = fakeStorage({ [PROFILE_KEY]: '{"version":1,"nickname":"a b"}' });
+    expect(loadProfile(bad)).toEqual({});
+  });
+
   it('a first visit has no saved theme', () => {
     expect(loadProfile(fakeStorage())).toEqual({});
   });

@@ -9,13 +9,16 @@ import {
   saveProfile,
   storageWorks,
 } from './storage';
+import { apiBase } from './ui/api';
 import { mountDailyScreen } from './ui/DailyScreen';
+import { openLeaderboard } from './ui/LeaderboardDialog';
 import { mountHowTo } from './ui/HowTo';
 import { isUnlocked, mountLevelSelect } from './ui/LevelSelect';
 import { mountPlayScreen } from './ui/PlayScreen';
 import type { PlayScreen } from './ui/PlayScreen';
 import { startRouter } from './ui/router';
 import type { Route, Router } from './ui/router';
+import { messages } from './ui/messages';
 import { applyTheme, createThemePicker, savedTheme } from './ui/ThemePicker';
 
 const app = document.querySelector<HTMLElement>('#app');
@@ -38,6 +41,23 @@ let noteNotSaving = !storageWorks();
 // blocked). `afterHowTo` is where its button goes.
 let seenHowTo = loadProfile().seenHowTo === true;
 let afterHowTo: Route = { screen: 'levels' };
+
+// The leaderboard, when there's a Worker to talk to (ui/api.ts). The nickname is asked once
+// and kept in the profile.
+const boards = apiBase() !== '';
+function board(boardId: string, name: string, run?: string): void {
+  openLeaderboard({
+    boardId,
+    title: messages.boardTitle(name),
+    ...(run === undefined ? {} : { run }),
+    nickname: () => loadProfile().nickname ?? nickname,
+    saveNickname: (value) => {
+      nickname = value;
+      saveProfile({ ...loadProfile(), nickname: value });
+    },
+  });
+}
+let nickname: string | undefined; // kept for the visit when storage is blocked
 
 function show(route: Route, router: Router): void {
   screen?.unmount();
@@ -85,6 +105,7 @@ function show(route: Route, router: Router): void {
       onWin: (score, equation) => (dailySave = saveDailyWin(dailySave, n, score, equation)),
       onBack: () => router.show({ screen: 'levels' }),
       onNewDay: () => router.replace({ screen: 'daily' }),
+      onLeaderboard: boards ? (run) => board(`daily:${n}`, today.name, run) : undefined,
     });
     return;
   }
@@ -104,6 +125,7 @@ function show(route: Route, router: Router): void {
     },
     onBack: () => router.show({ screen: 'levels' }),
     onNext: next && (() => router.show({ screen: 'play', id: next.id })),
+    onLeaderboard: boards ? (run) => board(level.id, level.name, run) : undefined,
   });
 }
 

@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { dailyLevelIndex, dailyNumber } from '../../src/core';
 import { daily } from '../../src/levels';
-import { handle } from '../src/index';
+import { handle } from '../src/app';
 import { testEnv } from './env';
 import type { TestEnv } from './env';
 

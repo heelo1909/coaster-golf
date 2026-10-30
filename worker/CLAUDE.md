@@ -18,7 +18,7 @@ test/                Vitest tests using Miniflare / @cloudflare/vitest-pool-work
 ## How It's Set Up (Section 8)
 
 - `npm run worker:db` applies `migrations/*.sql` to the local D1 (in `.wrangler/`, git-ignored); `npm run worker:dev` serves the API on http://localhost:8787. No Cloudflare account is needed locally. `database_id` in `wrangler.toml` is a placeholder until launch.
-- `src/index.ts` exports `handle(request, env)` (plain, testable) and the default `fetch` handler. `src/env.ts` types the bindings: `DB` (D1) and `SUBMIT_LIMIT` (the rate-limit binding).
+- `src/app.ts` has `handle(request, env, now)` (plain, testable). `src/index.ts` holds **only** the default `fetch` export: workerd treats every export of the entry module as an entrypoint, so a named `const` there stops `wrangler dev` from starting (found by the e2e; Node unit tests can't see it). `src/env.ts` types the bindings: `DB` (D1) and `SUBMIT_LIMIT` (the rate-limit binding).
 - **Tests use Miniflare directly, not `@cloudflare/vitest-pool-workers`**: the pool needs Vitest 4 and the project is on Vitest 5. `test/env.ts` makes a real D1 through `new Miniflare({ d1Databases: ['DB'] })` (the same SQLite engine as `wrangler dev`), applies every migration, and passes a rate limiter the test controls. Tests call `handle()` in Node and run with `npm test` (`worker/test/**/*.test.ts`).
 - Types: `worker/tsconfig.json` uses `@cloudflare/workers-types` instead of the DOM; `npm run build` type-checks it with `tsc -p worker`. Node and Worker `URL` types clash in tests, so pass paths as strings (`fileURLToPath`).
 
@@ -83,6 +83,7 @@ Store nickname, equation, score and timestamp only. **No IPs, emails, user agent
 ## Other Rules
 
 - CORS: allow only the game's own origin (and `localhost` in dev).
+- Built: `ALLOWED_ORIGIN` in `wrangler.toml` `[vars]` (empty until launch) plus `http://localhost:*` and `http://127.0.0.1:*`; `OPTIONS` preflight answers 204.
 - All SQL uses bound parameters (`.bind()`); never build SQL from strings.
 - Wrangler config stays in this folder. Secrets (if any ever exist) go in `wrangler secret`, never in git.
 
