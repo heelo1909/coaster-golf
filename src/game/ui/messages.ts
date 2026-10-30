@@ -41,4 +41,15 @@ export const messages = {
   tryShorter: 'Try shorter',
   tryAgain: 'Try again',
   theme: 'Theme',
+  levelsTitle: 'Levels',
+  backToLevels: 'All levels',
+  locked: 'Locked',
+  tileBest: (n: number) => `Best ${n}`,
+  tilePar: (par: number) => `Par ${par}`,
+  tileLabel: (num: number, name: string, locked: boolean, best: number | undefined, par: number) =>
+    locked
+      ? `Level ${num}, ${name}, locked`
+      : best === undefined
+        ? `Level ${num}, ${name}, par ${par}`
+        : `Level ${num}, ${name}, best ${chars(best)}, par ${par}${best <= par ? ', at or under par' : ''}`,
 };

@@ -1,6 +1,10 @@
 import { campaign } from '../levels';
+import { loadProgress, saveBest } from './storage';
+import { isUnlocked, mountLevelSelect } from './ui/LevelSelect';
 import { mountPlayScreen } from './ui/PlayScreen';
 import type { PlayScreen } from './ui/PlayScreen';
+import { startRouter } from './ui/router';
+import type { Route, Router } from './ui/router';
 import { applyTheme, createThemePicker, savedTheme } from './ui/ThemePicker';
 
 const app = document.querySelector<HTMLElement>('#app');
@@ -10,13 +14,34 @@ if (campaign.length === 0) throw new Error('no campaign levels');
 // The saved theme goes on before anything is drawn, so the page never flashes another one.
 applyTheme(savedTheme());
 
-// Plays the campaign in order until the level select screen arrives in Section 6.
+// Kept in memory as well as saved, so wins still unlock levels for this visit when storage
+// is blocked.
+let progress = loadProgress();
 let screen: PlayScreen | undefined;
-function play(index: number): void {
+
+function show(route: Route, router: Router): void {
   screen?.unmount();
-  const next = index + 1 < campaign.length ? () => play(index + 1) : undefined;
-  screen = mountPlayScreen(app!, campaign[index]!, next);
+  screen = undefined;
+  if (route.screen === 'levels') {
+    mountLevelSelect(app!, campaign, progress, (id) => router.show({ screen: 'play', id }));
+    return;
+  }
+  const index = campaign.findIndex((l) => l.id === route.id);
+  // Unknown and locked levels go back to level select (see ui/CLAUDE.md).
+  if (index < 0 || !isUnlocked(campaign, progress, index)) {
+    router.replace({ screen: 'levels' });
+    return;
+  }
+  const level = campaign[index]!;
+  const next = campaign[index + 1];
+  screen = mountPlayScreen(app!, level, {
+    onWin: (score, equation) => {
+      progress = saveBest(progress, level.id, score, equation);
+    },
+    onBack: () => router.show({ screen: 'levels' }),
+    onNext: next && (() => router.show({ screen: 'play', id: next.id })),
+  });
 }
 
-play(0);
+startRouter(show);
 document.body.append(createThemePicker(() => screen?.redraw()));

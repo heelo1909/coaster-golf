@@ -143,7 +143,11 @@ function gridLine(
   ctx.stroke();
 }
 
-// The level's number and name. Minimal: "04  The dip" in the top-left corner. Blueprint:
+// Where the minimal title's text starts: the back button (ui/PlayScreen.ts) sits left of it,
+// on the same block of paper.
+const TITLE_LEFT = 56;
+
+// The level's number and name. Minimal: "04  The dip" near the top-left corner. Blueprint:
 // "FIG. 4 — THE DIP" along the bottom edge, like a drawing's title block.
 function drawTitle(ctx: CanvasRenderingContext2D, cam: Camera, level: Level): void {
   const fig = Number.parseInt(level.id.slice(1), 10);
@@ -155,11 +159,11 @@ function drawTitle(ctx: CanvasRenderingContext2D, cam: Camera, level: Level): vo
     const text = `${String(num).padStart(2, '0')}  ${level.name}`;
     const w = ctx.measureText(text).width;
     ctx.fillStyle = theme.paper;
-    ctx.fillRect(8, 8, w + 16, theme.titleSize + 14);
+    ctx.fillRect(8, 8, TITLE_LEFT + w, theme.titleSize + 14);
     ctx.fillStyle = theme.label;
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
-    ctx.fillText(text, 16, 15);
+    ctx.fillText(text, TITLE_LEFT, 15);
     return;
   }
   ctx.textAlign = 'center';

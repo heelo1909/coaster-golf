@@ -30,7 +30,7 @@ async function accentPixels(page: Page): Promise<number> {
 }
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/#/play/c01');
   await expect(page.getByTestId('game-canvas')).toBeVisible();
 });
 

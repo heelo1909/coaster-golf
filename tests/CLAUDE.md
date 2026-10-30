@@ -39,4 +39,4 @@ Keep these few and stable. Run each at **375×812** and **1280×800**:
 
 Select elements with `data-testid`, never CSS classes.
 
-Done so far (`tests/e2e/play.spec.ts`, Section 5): 2, 3 and 7, plus Enter and Next level, no sideways scroll with a sharp canvas, and phone-only touch checks (quick keys, a real two-finger pinch through CDP touch events, tap to skip) and a desktop-only wheel zoom. Phone-only and desktop-only tests skip on the `isMobile` fixture. Chromium for Playwright is installed with `npx playwright install chromium`.
+Done so far: 4 in `tests/e2e/levels.spec.ts` (Section 6, with level select opening first, the best score and star on the tile, and a locked-level link redirecting). Play-screen tests open `#/play/c01` directly. From `tests/e2e/play.spec.ts` (Section 5): 2, 3 and 7, plus Enter and Next level, no sideways scroll with a sharp canvas, and phone-only touch checks (quick keys, a real two-finger pinch through CDP touch events, tap to skip) and a desktop-only wheel zoom. Phone-only and desktop-only tests skip on the `isMobile` fixture. Chromium for Playwright is installed with `npx playwright install chromium`.

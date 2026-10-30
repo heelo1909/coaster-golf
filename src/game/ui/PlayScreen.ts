@@ -17,8 +17,13 @@ export interface PlayScreen {
   redraw(): void; // after a theme change
 }
 
-// `onNext` is left out on the last level.
-export function mountPlayScreen(root: HTMLElement, level: Level, onNext?: () => void): PlayScreen {
+export interface PlayActions {
+  onWin: (score: number, equation: string) => void; // before the panel shows, to save it
+  onBack: () => void; // to level select
+  onNext?: (() => void) | undefined; // left out on the last level
+}
+
+export function mountPlayScreen(root: HTMLElement, level: Level, actions: PlayActions): PlayScreen {
   const canvas = document.createElement('canvas');
   canvas.className = 'play-canvas';
   canvas.dataset.testid = 'game-canvas';
@@ -26,11 +31,21 @@ export function mountPlayScreen(root: HTMLElement, level: Level, onNext?: () => 
   const panel = document.createElement('div');
   panel.className = 'play-panel';
 
-  root.replaceChildren(canvas, panel);
+  // Top-left, mirroring the theme picker top-right; the canvas keeps that corner clear.
+  const back = document.createElement('button');
+  back.type = 'button';
+  back.className = 'back-btn';
+  back.dataset.testid = 'back-to-levels';
+  back.setAttribute('aria-label', messages.backToLevels);
+  back.innerHTML =
+    '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  back.addEventListener('click', () => actions.onBack());
+
+  root.replaceChildren(canvas, back, panel);
   const renderer = createRenderer(canvas, level);
 
   const panelView = createResultPanel({
-    onNext,
+    onNext: actions.onNext,
     onTryShorter: editAgain,
     onTryAgain: editAgain,
   });
@@ -102,7 +117,8 @@ export function mountPlayScreen(root: HTMLElement, level: Level, onNext?: () => 
     await renderer.playRide(judged.result);
     setRiding(false);
     if (input.value() !== text) return; // edited mid-ride: that ride no longer counts
-    if (!judged.result.success) failedRides++;
+    if (judged.result.success) actions.onWin(judged.score, text);
+    else failedRides++;
     result.show(resultOf(judged.result, judged.score, level, failedRides));
   }
 
