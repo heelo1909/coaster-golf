@@ -159,7 +159,7 @@ Work through the sections in order. Each one has a goal, tasks, and a "Done when
 - [x] Cloudflare Worker + D1 project with Wrangler; local dev works
 - [x] Table: level id (or daily date), nickname, equation, score, created time
 - [x] `POST /submit`: takes level + equation + nickname. **The Worker re-parses and re-simulates using `src/core`**, computes the score itself, and saves it only if the run succeeds
-- [ ] `GET /leaderboard?level=…`: top 50 by score, with ties broken by earliest submission
+- [x] `GET /leaderboard?level=…`: top 50 by score, with ties broken by earliest submission
 - [ ] Nickname rules: 3–16 characters, letters/numbers/underscore, basic profanity filter; no other personal data
 - [ ] Rate limiting per IP (e.g. 30 submissions per minute); reject over-long equations early
 - [ ] Hide equations on the daily board until that day ends (so people can't copy the winner); show them after

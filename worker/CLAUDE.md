@@ -48,6 +48,7 @@ GET /leaderboard?level=daily:42     top 50 for a daily (equations hidden until i
 - Daily submissions are accepted only **while that daily is live**, from its UTC start to its end.
 - Built: `src/levels.ts` `findLevel(levelId, now)` looks the level up in the bundled `src/levels` (`daily:N` only when `N` is today's `dailyNumber`). `src/submit.ts` saves with one `INSERT … ON CONFLICT DO UPDATE … WHERE excluded.score < scores.score`, then reads the best back to rank it. `handle(request, env, now)` takes `now` for tests. `bad_request` covers a body that isn't a JSON object.
 - Each nickname keeps only its **best** entry per level; a worse score isn't saved.
+- Built: `GET /leaderboard` also takes `&nickname=…` for `you`. Past and today's daily boards can be read; a future daily or unknown id is `400 unknown_level`. Ranks are unique (ties go to the earlier run), from `placeOf()` in `src/leaderboard.ts`, which `/submit` shares.
 - Ties go to whoever got there first.
 
 ## Schema (starting point)

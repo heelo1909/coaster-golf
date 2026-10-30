@@ -5,6 +5,7 @@
 
 import { judge } from '../../src/core';
 import type { Env } from './env';
+import { placeOf } from './leaderboard';
 import { findLevel } from './levels';
 
 export type SubmitError =
@@ -38,17 +39,7 @@ export async function submit(body: unknown, env: Env, now: number): Promise<Subm
     .bind(found.boardId, nickname, equation, score, now)
     .run();
 
-  const best = await env.DB.prepare(
-    'SELECT score, created_at FROM scores WHERE level_id = ? AND nickname = ?',
-  )
-    .bind(found.boardId, nickname)
-    .first<{ score: number; created_at: number }>();
-  if (!best) throw new Error('the saved score is missing');
-  const ahead = await env.DB.prepare(
-    `SELECT COUNT(*) AS n FROM scores
-     WHERE level_id = ? AND (score < ? OR (score = ? AND created_at < ?))`,
-  )
-    .bind(found.boardId, best.score, best.score, best.created_at)
-    .first<{ n: number }>();
-  return { ok: true, score, best: best.score, rank: (ahead?.n ?? 0) + 1 };
+  const place = await placeOf(env, found.boardId, nickname);
+  if (!place) throw new Error('the saved score is missing');
+  return { ok: true, score, best: place.score, rank: place.rank };
 }

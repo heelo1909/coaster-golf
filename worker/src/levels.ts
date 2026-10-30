@@ -28,3 +28,13 @@ export function findLevel(levelId: unknown, now: number): LevelLookup {
     daily: n,
   };
 }
+
+// Which board `level` names, for reading: a campaign id, or any daily that has started (past
+// boards stay readable). Undefined for anything else.
+export function findBoard(level: string | null, now: number): string | undefined {
+  if (level === null) return undefined;
+  if (campaign.some((l) => l.id === level)) return level;
+  const match = DAILY.exec(level);
+  if (!match || Number(match[1]) > dailyNumber(new Date(now))) return undefined;
+  return `daily:${Number(match[1])}`;
+}
