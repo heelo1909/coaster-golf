@@ -45,6 +45,7 @@ coastergolf.example
 - **Never include the equation.** That would spoil the puzzle.
 - If not solved: `Coaster Golf #42 🎢 — not yet! 💥`
 - The URL is a constant, set at launch.
+- Built (Section 7): `buildShareText({ daily, par, score?, streak, url? })` in `share.ts`; `SHARE_URL` is the placeholder `coastergolf.example`. The equation is not an input at all, so it can't leak. The "not yet" text keeps the URL line, so even an unsolved share brings people in. The streak line is left out at 0, and a score of 1 reads "1 char".
 
 ## Tests Required
 

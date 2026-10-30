@@ -307,8 +307,26 @@
       .daily-streak:empty {
         display: none;
       }
+      .daily-share {
+        min-height: 44px;
+        margin-left: auto;
+        padding: 0 10px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: transparent;
+        color: var(--ink);
+        font: 13px var(--ui);
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+      .daily-share:hover,
+      .daily-share:focus-visible {
+        border-color: var(--mark);
+        color: var(--mark);
+        outline: none;
+      }
       .daily-new {
-        min-height: 32px;
+        min-height: 44px;
         padding: 0 10px;
         border: 1px solid var(--mark);
         border-radius: var(--radius);

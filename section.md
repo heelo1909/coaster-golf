@@ -143,7 +143,7 @@ Work through the sections in order. Each one has a goal, tasks, and a "Done when
 - [x] A pool of daily levels (start with 30, kept separate from the Level Set), each validated by `check-levels`
 - [x] Date → level picked deterministically, rolling over at 00:00 UTC; everyone gets the same level
 - [x] Daily screen: today's level, a countdown to the next one, your best today, and your streak (stored locally)
-- [ ] **Share button:** copies the share text defined in `src/core/daily/CLAUDE.md`, **never** revealing the equation
+- [x] **Share button:** copies the share text defined in `src/core/daily/CLAUDE.md`, **never** revealing the equation
 - [ ] Tests: date → level mapping, streak counting across days and a missed day
 
 **Done when:** the daily level is the same on two different devices, sharing works on mobile and desktop, and streaks count correctly.

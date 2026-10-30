@@ -31,6 +31,7 @@ Screens are a simple state machine with `show(screen, params)`. The URL hash mir
 - `#/daily` plays today's level: `daily[dailyLevelIndex(dailyNumber(now), daily.length)]`, worked out in `main.ts` on every route. It reuses `PlayScreen` with an info bar on top (`Daily #12 · Next in 05:12:09 · 🔥 3-day streak`, `daily-bar`) and the canvas title `#12 Name` (the renderer's `number` option). No Next level on a win.
 - The countdown ticks every second (`formatCountdown`, rounded up). When midnight UTC passes mid-game, it becomes a "New daily is out →" button rather than swapping the level under the player.
 - The streak shown is `liveStreak` (alive if solved today or yesterday, else 0, hidden). Wins go through `storage/daily.ts` `saveDailyWin`, which moves the streak once per day.
+- **Share** (`ui/share.ts`): a Share button on the daily's win panel (`share-button`) and in its bar (`daily-share`, so "not yet!" can be shared too). On touch screens it opens the share sheet (`navigator.share`), else it copies with `navigator.clipboard`, falling back to a hidden textarea and `execCommand('copy')`; the button then reads "Copied!" or "Couldn't copy" for 2 s. Closing the share sheet counts as done.
 - Level select opens with a "Today's daily · #12" card (`daily-card`) above the grid: name, par or best with ★, and the streak. `mountLevelSelect` takes an options object.
 
 ## How To

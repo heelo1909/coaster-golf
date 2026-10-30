@@ -22,6 +22,7 @@ export interface PlayActions {
   best?: Best | undefined; // this level's saved best, shown under the box
   number?: string; // replaces the level's number in the canvas title (the daily's "#12")
   bar?: HTMLElement; // an info line at the top of the panel (the daily's countdown)
+  shareText?: () => string; // the daily: Share on the win panel
   // Before the panel shows, to save the win; returns the best as it now stands.
   onWin: (score: number, equation: string) => Best | undefined;
   onBack: () => void; // to level select
@@ -51,6 +52,7 @@ export function mountPlayScreen(root: HTMLElement, level: Level, actions: PlayAc
 
   const panelView = createResultPanel({
     onNext: actions.onNext,
+    shareText: actions.shareText,
     onTryShorter: editAgain,
     onTryAgain: editAgain,
   });

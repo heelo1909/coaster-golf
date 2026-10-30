@@ -2,12 +2,13 @@
 // is, how long until the next one, and the streak. When the day rolls over mid-game, the line
 // offers the new daily instead of swapping the level out from under the player.
 
-import { dailyNumber, liveStreak, msUntilNextDaily } from '../../core';
+import { buildShareText, dailyNumber, liveStreak, msUntilNextDaily } from '../../core';
 import type { Level } from '../../core';
 import type { DailySave } from '../storage';
 import { messages } from './messages';
 import { mountPlayScreen } from './PlayScreen';
 import type { PlayScreen } from './PlayScreen';
+import { shareButton } from './share';
 
 // "05:12:09": hours, minutes and seconds left, rounded up so it never shows 00:00:00 early.
 export function formatCountdown(ms: number): string {
@@ -45,7 +46,17 @@ export function mountDailyScreen(
   const streak = document.createElement('span');
   streak.className = 'daily-streak';
   streak.dataset.testid = 'daily-streak';
-  bar.append(title, countdown, streak);
+  // How today went, never the equation (core/daily/share.ts).
+  const text = (): string =>
+    buildShareText({
+      daily: n,
+      par: level.par,
+      score: save.best[n]?.score,
+      streak: liveStreak(save.streak, n),
+    });
+  const words = { copied: messages.copied, failed: messages.copyFailed };
+  const share = shareButton(messages.share, 'daily-share', 'daily-share', text, words);
+  bar.append(title, countdown, streak, share);
 
   function showStreak(): void {
     const days = liveStreak(save.streak, n);
@@ -84,6 +95,7 @@ export function mountDailyScreen(
       return save.best[n];
     },
     onBack: actions.onBack,
+    shareText: text,
   });
   return {
     unmount: () => {

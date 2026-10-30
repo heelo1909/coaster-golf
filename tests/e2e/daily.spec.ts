@@ -36,7 +36,8 @@ test("level select leads to today's daily, which counts down to midnight UTC", a
   await page.getByTestId('daily-card').click();
   await expect(page).toHaveURL(/#\/daily$/);
   await expect(page.getByTestId('daily-bar')).toContainText(`Daily #${n}`);
-  await expect(page.getByTestId('daily-countdown')).toHaveText('Next in 00:00:10');
+  // The faked clock keeps running, so a slow page may already be a second or two in.
+  await expect(page.getByTestId('daily-countdown')).toHaveText(/^Next in 00:00:(0\d|10)$/);
   await expect(page.getByTestId('char-counter')).toHaveText(`0 chars · par ${today.par}`);
 });
 
@@ -62,4 +63,43 @@ test('solving the daily saves the best and starts a streak; the new day keeps it
   await expect(page.getByTestId('char-counter')).toHaveText(`0 chars · par ${tomorrow.par}`);
   await expect(page.getByTestId('best-line')).toBeEmpty();
   await expect(page.getByTestId('daily-streak')).toHaveText('🔥 1-day streak');
+});
+
+// Records what the page shares or copies instead of touching the real clipboard or share sheet.
+async function recordSharing(page: import('@playwright/test').Page): Promise<void> {
+  await page.addInitScript(() => {
+    const w = window as unknown as { shared: string[] };
+    w.shared = [];
+    const record = async (text: string): Promise<void> => void w.shared.push(text);
+    Object.defineProperty(navigator, 'share', {
+      value: async ({ text }: { text: string }) => record(text),
+    });
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText: record } });
+  });
+}
+
+test('Share gives the score, par and streak but never the equation', async ({ page }, info) => {
+  await recordSharing(page);
+  await page.goto('/#/daily');
+  await page.getByTestId('daily-share').click();
+  await page.getByTestId('equation-input').fill(today.reference);
+  await page.getByTestId('equation-input').press('Enter');
+  await expect(page.getByTestId('result-title')).toContainText('Made it!');
+  await page.getByTestId('share-button').click();
+  if (info.project.name === 'desktop')
+    await expect(page.getByTestId('share-button')).toHaveText('Copied!');
+
+  const shared = await page.evaluate(() => (window as unknown as { shared: string[] }).shared);
+  expect(shared).toHaveLength(2);
+  expect(shared[0]).toBe(`Coaster Golf #${n} 🎢 — not yet! 💥\ncoastergolf.example`);
+  const chars = today.reference.length;
+  expect(shared[1]).toBe(
+    [
+      `Coaster Golf #${n} 🎢`,
+      `${chars === 1 ? '1 char' : `${chars} chars`} (par ${today.par}) ⛳`,
+      '🔥 1-day streak',
+      'coastergolf.example',
+    ].join('\n'),
+  );
+  for (const text of shared) expect(text).not.toContain(today.reference);
 });

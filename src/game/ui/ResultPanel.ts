@@ -4,6 +4,7 @@
 
 import type { Level, SimResult } from '../../core';
 import { messages } from './messages';
+import { shareButton } from './share';
 
 // After this many failed rides on a level, the panel offers the level's hint.
 export const HINT_AFTER_FAILS = 3;
@@ -40,6 +41,7 @@ export function createResultPanel(actions: {
   onNext?: (() => void) | undefined;
   onTryShorter: () => void;
   onTryAgain: () => void; // after a fail: close the panel, keep the equation to edit
+  shareText?: (() => string) | undefined; // the daily: a Share button after a win
 }): ResultPanel {
   // The live region stays in the page so screen readers announce each new result.
   const root = document.createElement('div');
@@ -78,6 +80,12 @@ export function createResultPanel(actions: {
         const row = document.createElement('div');
         row.className = 'result-actions';
         if (actions.onNext) row.append(button(messages.nextLevel, 'next-level', actions.onNext));
+        if (actions.shareText) {
+          const words = { copied: messages.copied, failed: messages.copyFailed };
+          row.append(
+            shareButton(messages.share, 'share-button', 'result-btn', actions.shareText, words),
+          );
+        }
         row.append(button(messages.tryShorter, 'try-shorter', actions.onTryShorter));
         parts.push(row);
       } else {
