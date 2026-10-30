@@ -180,7 +180,7 @@ Work through the sections in order. Each one has a goal, tasks, and a "Done when
 - [x] Small juice: cart wobble, a confetti burst at par or better
 - [x] Landing/about section and a simple privacy page ("we store your nickname and equations, nothing else")
 - [x] Privacy-friendly analytics with no cookies (Cloudflare Web Analytics)
-- [ ] Deploy: Cloudflare Pages + Worker + D1 in production; pick and connect a domain (ask the user)
+- [x] Deploy: Cloudflare Pages + Worker + D1 in production; pick and connect a domain (ask the user)
 - [ ] Final check on a real phone and a desktop browser
 - [ ] A short launch checklist in `progress.md`: where to post (r/math, r/WebGames, Discord servers, friends)
 

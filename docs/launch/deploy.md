@@ -72,11 +72,11 @@ curl -s -X POST -H "Content-Type: application/json" -d '{"levelId":"c01","equati
 
 ## 6. Domain
 
-_(after the name and domain are picked: connect it to the `coaster-golf` Worker as a custom domain, set `ALLOWED_ORIGIN`, redeploy both)_
+None for now (the owner's call, 2026-10-30): the game stays on the workers.dev address. To add one later, connect it to the `coaster-golf` Worker as a custom domain, change `ALLOWED_ORIGIN` in `worker/wrangler.toml` and `SHARE_URL` in `src/core/daily/share.ts`, then redeploy both (steps 3 and 4).
 
 ## 7. Launch date and share URL
 
-_(after the domain: `src/core/daily/`, then rebuild and redeploy the site)_
+`LAUNCH_DATE` in `src/core/daily/schedule.ts` is 2026-10-30 (daily #1). `SHARE_URL` in `src/core/daily/share.ts` is the live address. After changing either, rebuild and redeploy (step 4). Never move `LAUNCH_DATE` after launch: it renumbers every daily and its leaderboard.
 
 ## 8. Web Analytics
 

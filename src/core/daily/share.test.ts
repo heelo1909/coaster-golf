@@ -29,7 +29,13 @@ describe('the share text says how you did, never how', () => {
     const equation = '|x-14|/11';
     const text = buildShareText({ daily: 42, par: 14, score: equation.length, streak: 3 });
     expect(text).not.toContain(equation);
-    for (const piece of ['|', '/', '^', '(x', 'x-']) expect(text).not.toContain(piece);
+    // The URL line is fixed (and has its own slashes); everything above it comes from the run.
+    expect(
+      text.endsWith(`
+${SHARE_URL}`),
+    ).toBe(true);
+    const fromRun = text.slice(0, -SHARE_URL.length);
+    for (const piece of ['|', '/', '^', '(x', 'x-']) expect(fromRun).not.toContain(piece);
   });
 
   it('uses the link it is given', () => {

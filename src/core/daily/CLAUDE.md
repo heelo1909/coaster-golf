@@ -17,7 +17,7 @@ index.ts
 - `LAUNCH_DATE` is a constant (set it in Section 9). `dailyNumber(date)` = whole UTC days since launch + 1, so launch day is **#1**.
 - `dailyLevelIndex(n, poolSize)` = `(n - 1) % poolSize` for now. Once the pool wraps, players get repeats, so `check-levels` should warn when fewer than 14 future days are left.
 - Functions take the date as a parameter. They **never** call `new Date()` themselves, which keeps them testable and server-safe.
-- Built (Section 7): `LAUNCH_DATE` is a placeholder (2026-10-30) until Section 9. `dailyNumber(date, launch = LAUNCH_DATE)` takes the launch only so tests pin their own and don't change when the real date is set. Before launch it returns 0 or less, and `dailyLevelIndex` still maps that into the pool. `msUntilNextDaily(date)` counts to the next 00:00 UTC. `daysLeftInPool(n, poolSize)` = `poolSize - n`; `npm run check-levels` prints a warning (not a failure) below 14 (`poolWarning` in `scripts/level-check.ts`).
+- Built (Section 7): `LAUNCH_DATE` is 2026-10-30, the day the site went live (confirmed at the Section 9 deploy, so daily #1 is that day). `dailyNumber(date, launch = LAUNCH_DATE)` takes the launch only so tests pin their own and don't change when the real date is set. Before launch it returns 0 or less, and `dailyLevelIndex` still maps that into the pool. `msUntilNextDaily(date)` counts to the next 00:00 UTC. `daysLeftInPool(n, poolSize)` = `poolSize - n`; `npm run check-levels` prints a warning (not a failure) below 14 (`poolWarning` in `scripts/level-check.ts`).
 
 ## Streaks
 
@@ -39,13 +39,13 @@ function updateStreak(prev: StreakState, solvedDaily: number): StreakState;
 Coaster Golf #42 🎢
 11 chars (par 14) ⛳
 🔥 3-day streak
-coastergolf.example
+https://coaster-golf.coaster-golf.workers.dev
 ```
 
 - **Never include the equation.** That would spoil the puzzle.
 - If not solved: `Coaster Golf #42 🎢 — not yet! 💥`
 - The URL is a constant, set at launch.
-- Built (Section 7): `buildShareText({ daily, par, score?, streak, url? })` in `share.ts`; `SHARE_URL` is the placeholder `coastergolf.example`. The equation is not an input at all, so it can't leak. The "not yet" text keeps the URL line, so even an unsolved share brings people in. The streak line is left out at 0, and a score of 1 reads "1 char".
+- Built (Section 7): `buildShareText({ daily, par, score?, streak, url? })` in `share.ts`; `SHARE_URL` is the live address `https://coaster-golf.coaster-golf.workers.dev` (set at launch in Section 9; the user chose to keep the workers.dev address). The equation is not an input at all, so it can't leak. The "not yet" text keeps the URL line, so even an unsolved share brings people in. The streak line is left out at 0, and a score of 1 reads "1 char".
 
 ## Tests Required
 

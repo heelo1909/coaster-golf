@@ -91,14 +91,16 @@ test('Share gives the score, par and streak but never the equation', async ({ pa
 
   const shared = await page.evaluate(() => (window as unknown as { shared: string[] }).shared);
   expect(shared).toHaveLength(2);
-  expect(shared[0]).toBe(`Coaster Golf #${n} 🎢 — not yet! 💥\ncoastergolf.example`);
+  expect(shared[0]).toBe(
+    `Coaster Golf #${n} 🎢 — not yet! 💥\nhttps://coaster-golf.coaster-golf.workers.dev`,
+  );
   const chars = today.reference.length;
   expect(shared[1]).toBe(
     [
       `Coaster Golf #${n} 🎢`,
       `${chars === 1 ? '1 char' : `${chars} chars`} (par ${today.par}) ⛳`,
       '🔥 1-day streak',
-      'coastergolf.example',
+      'https://coaster-golf.coaster-golf.workers.dev',
     ].join('\n'),
   );
   for (const text of shared) expect(text).not.toContain(today.reference);

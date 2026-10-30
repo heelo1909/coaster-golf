@@ -3,7 +3,7 @@
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-// Day #1. A placeholder until launch: Section 9 sets the real date (docs/launch/CLAUDE.md).
+// Day #1: the day the game went live (Section 9 deploy, docs/launch/deploy.md).
 export const LAUNCH_DATE = Date.UTC(2026, 9, 30); // 2026-10-30, months count from 0
 
 // Whole UTC days since launch, plus one, so launch day is #1. Before launch it's 0 or less.

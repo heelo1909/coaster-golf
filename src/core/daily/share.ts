@@ -1,8 +1,8 @@
 // The daily's share text (see daily/CLAUDE.md). It says how you did, never how: the equation
 // is not an input, so it can't leak into the text.
 
-// Where the shared text points. A placeholder until launch (Section 9 sets the real one).
-export const SHARE_URL = 'coastergolf.example';
+// Where the shared text points: the live game, with https:// so chat apps make it a link.
+export const SHARE_URL = 'https://coaster-golf.coaster-golf.workers.dev';
 
 export interface ShareInput {
   daily: number; // the daily number, #42
