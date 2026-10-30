@@ -13,6 +13,7 @@ The context is cleared between sessions. These files are the only memory of the 
    - set "Current section" and "Next task"
    - add a dated line to the log describing what changed and what was verified
    - record any decision made, and any blocker with what's needed to clear it
+   - commit, then push to GitHub (`origin`, the private repo `heelo1909/coaster-golf`); never force-push
 6. If a task turns out to be wrong or too big, don't improvise silently. Write the problem in `progress.md` under Blockers and ask the user.
 
 Shortcut: `/next` runs steps 1–4, `/checkpoint` runs step 5, and `/review-section` runs the end-of-section critic.
