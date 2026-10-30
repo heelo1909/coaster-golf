@@ -19,12 +19,12 @@ export async function submit(body: unknown, env: Env, now: number): Promise<Subm
     return { ok: false, error: 'bad_request' };
   }
   const { levelId, equation, nickname } = body as Record<string, unknown>;
-  if (typeof nickname !== 'string' || checkNickname(nickname) !== undefined) {
-    return { ok: false, error: 'bad_nickname' };
-  }
-  // Over-long equations are refused before any parsing.
+  // Over-long equations are refused first, before any other work.
   if (typeof equation !== 'string' || equation.length > LIMITS.maxLength) {
     return { ok: false, error: 'bad_equation' };
+  }
+  if (typeof nickname !== 'string' || checkNickname(nickname) !== undefined) {
+    return { ok: false, error: 'bad_nickname' };
   }
   const found = findLevel(levelId, now);
   if (!found.ok) return found;

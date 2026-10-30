@@ -58,6 +58,7 @@ export const messages = {
   boardTitle: (name: string) => `Leaderboard · ${name}`,
   boardLoading: 'Loading…',
   boardEmpty: 'No runs yet. Be the first!',
+  boardListFailed: "Couldn't load the board right now.",
   boardHidden: 'hidden until tomorrow',
   boardSaved: (rank: number, keptBest: boolean) =>
     keptBest ? `Your best still stands: you're #${rank}` : `Saved! You're #${rank}`,

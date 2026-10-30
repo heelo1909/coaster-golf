@@ -58,6 +58,13 @@ describe('abuse protection on POST /submit', () => {
     expect(res.status).toBe(413);
   });
 
+  it('checks the equation length before anything else, even a bad nickname', async () => {
+    const res = await post(
+      JSON.stringify({ levelId: 'c03', equation: 'x'.repeat(201), nickname: 'a b' }),
+    );
+    expect(await res.json()).toEqual({ ok: false, error: 'bad_equation' });
+  });
+
   it('refuses an equation over 200 characters as bad_equation', async () => {
     const res = await post(
       JSON.stringify({ levelId: 'c03', equation: 'x/3' + '+0'.repeat(99), nickname: 'ada' }),

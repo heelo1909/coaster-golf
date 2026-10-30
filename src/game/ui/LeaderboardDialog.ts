@@ -140,15 +140,21 @@ export function openLeaderboard(options: BoardOptions): void {
 
   async function load(nickname: string | undefined): Promise<void> {
     status.textContent = messages.boardLoading;
+    let saved: string | undefined; // what a successful submission said
     if (options.run !== undefined && nickname !== undefined) {
       const reply = await submitRun(options.boardId, options.run, nickname);
       status.textContent = submitMessage(reply);
+      if (reply.ok) saved = status.textContent;
+      else if (reply.error === 'offline') return; // no point asking for the list too
     } else {
       status.textContent = '';
     }
     const board = await fetchBoard(options.boardId, nickname);
     if (!board) {
-      status.textContent = messages.boardErrors['offline']!;
+      // Keep the submission's news; only the list couldn't be loaded.
+      status.textContent = saved
+        ? `${saved}. ${messages.boardListFailed}`
+        : messages.boardErrors['offline']!;
       return;
     }
     body.replaceChildren(table(rowsOf(board, nickname)));
