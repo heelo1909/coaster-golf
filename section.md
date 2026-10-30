@@ -113,7 +113,7 @@ Work through the sections in order. Each one has a goal, tasks, and a "Done when
 - [x] Retry keeps the equation; a "show where it failed" marker on the track
 - [x] A new minimal, professional look (not neon Geometry Dash, not Desmos): a strict 60-30-10 colour split (60% base, 30% secondary, 10% one accent). Show the user 2–3 minimal directions first and record the pick in `progress.md` under Decisions; all values stay in `theme.ts` and the CSS tokens. The user picked all of them: a low-key theme picker with Graphite (default), Paper, Midnight and the original Blueprint, remembered on the device
 - [x] Zoom: pinch (touch) and scroll wheel/trackpad zoom toward the finger or cursor, with drag to pan; during a ride the camera zooms in and follows the cart, then eases back
-- [ ] Works with touch (including pinch zoom) and at 375px width; the canvas scales to the screen
+- [x] Works with touch (including pinch zoom) and at 375px width; the canvas scales to the screen
 
 **Done when:** level 1 can be played start to finish on a phone-sized screen and a desktop, and a Playwright smoke test types a winning equation and sees the success panel.
 

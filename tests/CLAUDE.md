@@ -38,3 +38,5 @@ Keep these few and stable. Run each at **375×812** and **1280×800**:
 7. Pasting into the equation box does nothing and shows the "no pasting" note; typing `sqrt(x)` shows a rendered √ in the preview
 
 Select elements with `data-testid`, never CSS classes.
+
+Done so far (`tests/e2e/play.spec.ts`, Section 5): 2, 3 and 7, plus Enter and Next level, no sideways scroll with a sharp canvas, and phone-only touch checks (quick keys, a real two-finger pinch through CDP touch events, tap to skip) and a desktop-only wheel zoom. Phone-only and desktop-only tests skip on the `isMobile` fixture. Chromium for Playwright is installed with `npx playwright install chromium`.

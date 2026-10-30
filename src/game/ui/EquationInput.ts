@@ -64,6 +64,32 @@ export function isBlockedInput(inputType: string): boolean {
   return BLOCKED_INPUT_TYPES.has(inputType);
 }
 
+// The quick keys under the box on touch screens, for the symbols phone keyboards hide.
+// `insert` is what a tap types; sin and cos bring their opening bracket.
+export const QUICK_KEYS: readonly { label: string; insert: string }[] = [
+  { label: 'x', insert: 'x' },
+  { label: '^', insert: '^' },
+  { label: '(', insert: '(' },
+  { label: ')', insert: ')' },
+  { label: '|', insert: '|' },
+  { label: 'sin', insert: 'sin(' },
+  { label: 'cos', insert: 'cos(' },
+  { label: 'π', insert: 'pi' },
+];
+
+// Replaces the selection [start, end) with `text`, returning the new value and where the
+// cursor goes (just after the inserted text).
+export function insertAt(
+  value: string,
+  start: number,
+  end: number,
+  text: string,
+): { value: string; caret: number } {
+  const a = Math.min(Math.max(0, start), value.length);
+  const b = Math.min(Math.max(a, end), value.length);
+  return { value: value.slice(0, a) + text + value.slice(b), caret: a + text.length };
+}
+
 export interface EquationInput {
   readonly element: HTMLElement;
   value(): string;
@@ -95,6 +121,7 @@ export function createEquationInput(
   input.setAttribute('autocorrect', 'off');
   input.setAttribute('autocapitalize', 'off');
   input.spellcheck = false;
+  input.enterKeyHint = 'go'; // the phone keyboard's Enter key reads "Go": it rides
 
   const counter = document.createElement('span');
   counter.className = 'eq-counter';
@@ -117,8 +144,24 @@ export function createEquationInput(
   note.dataset.testid = 'paste-note';
   note.setAttribute('aria-live', 'polite');
 
+  // Quick keys type by script, so the no-pasting rule doesn't block them. Pressing one keeps
+  // the focus (and the phone keyboard) in the box.
+  const keys = document.createElement('div');
+  keys.className = 'eq-keys';
+  keys.dataset.testid = 'quick-keys';
+  for (const key of QUICK_KEYS) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'eq-key';
+    b.textContent = key.label;
+    b.setAttribute('aria-label', `Type ${key.insert}`);
+    b.addEventListener('pointerdown', (event) => event.preventDefault());
+    b.addEventListener('click', () => type(key.insert));
+    keys.append(b);
+  }
+
   row.append(input, counter);
-  root.append(row, math, error, note);
+  root.append(row, keys, math, error, note);
 
   let currentPar = par;
   let parses = false;
@@ -159,6 +202,16 @@ export function createEquationInput(
     showMath(preview);
     showCounter();
     onPreview(preview);
+  }
+
+  function type(text: string): void {
+    const focused = document.activeElement === input;
+    const start = focused ? (input.selectionStart ?? input.value.length) : input.value.length;
+    const end = focused ? (input.selectionEnd ?? start) : start;
+    const next = insertAt(input.value, start, end, text);
+    input.value = next.value;
+    input.setSelectionRange(next.caret, next.caret);
+    input.dispatchEvent(new Event('input', { bubbles: true }));
   }
 
   function blockPaste(event: Event): void {

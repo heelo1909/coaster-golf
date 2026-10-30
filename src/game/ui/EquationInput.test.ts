@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { counterOf, isBlockedInput, previewOf, splitAtError } from './EquationInput';
+import {
+  QUICK_KEYS,
+  counterOf,
+  insertAt,
+  isBlockedInput,
+  previewOf,
+  splitAtError,
+} from './EquationInput';
 
 describe('previewOf: what the live preview shows while typing', () => {
   it('an empty box shows no track and no error', () => {
@@ -98,5 +105,27 @@ describe('isBlockedInput: text the player did not type is kept out of the box', 
     ]) {
       expect(isBlockedInput(type)).toBe(false);
     }
+  });
+});
+
+describe('quick keys: symbols phone keyboards hide', () => {
+  it('a key types at the cursor, and the cursor lands after it', () => {
+    expect(insertAt('x-4', 0, 0, '(')).toEqual({ value: '(x-4', caret: 1 });
+    expect(insertAt('(x-4', 4, 4, ')')).toEqual({ value: '(x-4)', caret: 5 });
+  });
+
+  it('a key replaces selected text', () => {
+    expect(insertAt('2*x', 0, 2, 'sin(')).toEqual({ value: 'sin(x', caret: 4 });
+  });
+
+  it('a cursor out of range types at the nearest end', () => {
+    expect(insertAt('x', 9, 9, '^')).toEqual({ value: 'x^', caret: 2 });
+    expect(insertAt('x', -3, -1, '|')).toEqual({ value: '|x', caret: 1 });
+  });
+
+  it('every key types something the parser understands', () => {
+    expect(QUICK_KEYS.map((k) => k.label)).toEqual(['x', '^', '(', ')', '|', 'sin', 'cos', 'π']);
+    expect(previewOf(QUICK_KEYS.map((k) => k.insert).join('') + 'x))').kind).not.toBe('empty');
+    expect(previewOf('sin(x)+cos(x)^2+|x|+pi').kind).toBe('track');
   });
 });

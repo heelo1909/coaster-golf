@@ -199,6 +199,34 @@
       .eq-counter.under-par {
         color: var(--mark);
       }
+      /* Quick keys, on touch screens only: eight 44px keys fit a 375px phone in one row. */
+      .eq-keys {
+        display: none;
+        gap: 1px;
+        margin: 8px -8px 0;
+      }
+      @media (pointer: coarse) {
+        .eq-keys {
+          display: flex;
+        }
+      }
+      .eq-key {
+        flex: 1;
+        min-width: 44px;
+        min-height: 44px;
+        padding: 0;
+        border: 0;
+        border-radius: calc(var(--radius) - 4px);
+        background: var(--line);
+        color: var(--ink);
+        font: 16px var(--mono);
+        touch-action: manipulation;
+        cursor: pointer;
+      }
+      .eq-key:active {
+        background: var(--mark);
+        color: var(--on-mark);
+      }
       .eq-math {
         color: var(--ink);
         font-size: 18px;
