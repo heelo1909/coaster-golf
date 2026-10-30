@@ -39,6 +39,7 @@ export interface ResultPanel {
 export function createResultPanel(actions: {
   onNext?: (() => void) | undefined;
   onTryShorter: () => void;
+  onTryAgain: () => void; // after a fail: close the panel, keep the equation to edit
 }): ResultPanel {
   // The live region stays in the page so screen readers announce each new result.
   const root = document.createElement('div');
@@ -79,12 +80,18 @@ export function createResultPanel(actions: {
         if (actions.onNext) row.append(button(messages.nextLevel, 'next-level', actions.onNext));
         row.append(button(messages.tryShorter, 'try-shorter', actions.onTryShorter));
         parts.push(row);
-      } else if (view.hint) {
-        const hint = document.createElement('div');
-        hint.className = 'result-hint';
-        hint.dataset.testid = 'result-hint';
-        hint.textContent = view.hint;
-        parts.push(hint);
+      } else {
+        if (view.hint) {
+          const hint = document.createElement('div');
+          hint.className = 'result-hint';
+          hint.dataset.testid = 'result-hint';
+          hint.textContent = view.hint;
+          parts.push(hint);
+        }
+        const row = document.createElement('div');
+        row.className = 'result-actions';
+        row.append(button(messages.tryAgain, 'try-again', actions.onTryAgain));
+        parts.push(row);
       }
       root.replaceChildren(...parts);
     },

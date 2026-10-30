@@ -110,7 +110,7 @@ Work through the sections in order. Each one has a goal, tasks, and a "Done when
 - [x] Pasting and drag-drop blocked in the equation box, with a friendly note
 - [x] "Ride" button: replays the sim path as an animated cart (the visual uses the recorded path; it never re-simulates differently)
 - [x] Result panel: success with the character count vs par, or the fail reason in plain words ("Too steep: the cart flew off at x = 4.2")
-- [ ] Retry keeps the equation; a "show where it failed" marker on the track
+- [x] Retry keeps the equation; a "show where it failed" marker on the track
 - [ ] Works with touch and at 375px width; the canvas scales to the screen
 - [ ] A distinct look of its own (not neon Geometry Dash, not Desmos). Pick one style and write it down in `progress.md` under Decisions.
 

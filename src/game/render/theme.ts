@@ -26,6 +26,9 @@ export const theme = {
   cartMinRadius: 6, // px, so the cart stays visible when the level is zoomed far out
   sparkRays: 8,
   sparkLength: 18, // px, at full size
+  failMark: '#ffb4a2', // the marker where a ride failed
+  failMarkSize: 7, // px, half the width of the ✕
+  failMarkWidth: 2.5,
 
   font: '"JetBrains Mono", "Cascadia Mono", Consolas, "Courier New", monospace',
   labelSize: 11, // px

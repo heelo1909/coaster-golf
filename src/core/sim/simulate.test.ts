@@ -95,12 +95,40 @@ describe('simulate: STALLED', () => {
 });
 
 describe('simulate: HIT_OBSTACLE', () => {
-  it('a box sitting on the track stops the ride before it starts', () => {
+  it('a box sitting on the track crashes the cart when it rides into it', () => {
     const box: Obstacle = { kind: 'rect', x: 4, y: 2, w: 1, h: 1 };
     const result = ride('5-x/2', level({ obstacles: [box] }));
     expect(result.reason).toBe('HIT_OBSTACLE');
-    expect(result.failAt).toEqual({ x: expect.closeTo(3.96, 6), y: expect.closeTo(3.02, 6), t: 0 });
-    expect(result.duration).toBe(0);
+    expect(result.failAt).toEqual({
+      x: expect.closeTo(3.96, 6),
+      y: expect.closeTo(3.02, 6),
+      t: expect.any(Number),
+    });
+    // The replay rides from the station up to the box and stops there.
+    expect(result.failAt!.t).toBeGreaterThan(0);
+    expect(result.duration).toBe(result.failAt!.t);
+    const last = result.path.at(-1)!;
+    expect(result.path[0]!.x).toBe(0);
+    expect(last.t).toBe(result.failAt!.t);
+    expect(last.x).toBeGreaterThanOrEqual(result.failAt!.x);
+    expect(last.x - result.failAt!.x).toBeLessThan(0.05);
+  });
+
+  it('a box past where the cart would stall still says crash, with nothing to replay', () => {
+    // The cart can't climb back to the end station's height, so it stalls first. The crash
+    // still decides the result (the track checks come before the ride), but a replay that
+    // stalls short of the box would contradict it, so there's no path.
+    const lvl = level({ start: { x: 0, y: 4, speed: 0.5 }, end: { x: 8, y: 4 } });
+    const stall = ride('(x-4)^2/4', lvl);
+    expect(stall.reason).toBe('STALLED');
+    const bx = (stall.failAt!.x + 8) / 2;
+    const by = (bx - 4) ** 2 / 4;
+    const box: Obstacle = { kind: 'rect', x: bx - 0.01, y: by - 0.01, w: 0.02, h: 0.02 };
+    const result = ride('(x-4)^2/4', { ...lvl, obstacles: [box] });
+    expect(result.reason).toBe('HIT_OBSTACLE');
+    expect(result.failAt!.x).toBeGreaterThan(stall.failAt!.x);
+    expect(result.failAt!.t).toBe(0);
+    expect(result.path).toEqual([]);
   });
 
   it('a round obstacle near the track is hit by the cart, not just the track', () => {
@@ -118,6 +146,9 @@ describe('simulate: OUT_OF_BOUNDS', () => {
     expect(result.reason).toBe('OUT_OF_BOUNDS');
     expect(result.failAt!.y).toBeLessThan(1);
     expect(result.failAt!.x).toBeCloseTo(2.01, 6);
+    // The cart rides down to where the track leaves the map.
+    expect(result.path.at(-1)!.x).toBeGreaterThanOrEqual(result.failAt!.x);
+    expect(result.failAt!.t).toBe(result.path.at(-1)!.t);
   });
 
   it('a hump above the ceiling is out of bounds', () => {
@@ -270,11 +301,16 @@ describe('simulate: the path the renderer replays', () => {
     expectSteadyFrames(result);
   });
 
-  it('a track that fails before the ride has nothing to replay', () => {
+  it('a broken track or a missed station has nothing to replay', () => {
     expect(ride('5-x/2', level({ start: { x: 0, y: 6, speed: 1 } })).path).toEqual([]);
     expect(ride('(x-5)/(x-5)', level({ start: { x: 0, y: 1, speed: 1 } })).path).toEqual([]);
+  });
+
+  it('a crash replays the ride up to the obstacle, in steady frames', () => {
     const box: Obstacle = { kind: 'rect', x: 4, y: 2, w: 1, h: 1 };
-    expect(ride('5-x/2', level({ obstacles: [box] })).path).toEqual([]);
+    const result = ride('5-x/2', level({ obstacles: [box] }));
+    expect(result.path.length).toBeGreaterThan(1);
+    expectSteadyFrames(result);
   });
 });
 
@@ -286,6 +322,7 @@ describe('simulate: the same ride always ends the same way', () => {
     ['a stall', '(x-4)^2/4', level({ start: { x: 0, y: 4, speed: 0.5 }, end: { x: 8, y: 4 } })],
     ['a timeout', '0', level({ start: { x: 0, y: 0, speed: 0.1 }, end: { x: 10, y: 0 } })],
     ['a missed start', '5-x/2', level({ start: { x: 0, y: 6, speed: 1 } })],
+    ['a crash', '5-x/2', level({ obstacles: [{ kind: 'rect', x: 4, y: 2, w: 1, h: 1 }] })],
   ];
 
   it.each(cases)('%s gives an identical result 100 times in a row', (_, input, lvl) => {

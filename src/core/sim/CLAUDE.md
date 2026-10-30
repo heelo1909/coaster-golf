@@ -48,7 +48,7 @@ SAMPLE_STEP = 0.01
 5. Track or cart circle touches any obstacle → `HIT_OBSTACLE`. Checking the sampled track is enough for v1, since the cart rides on the track.
 6. **Run the cart.** Record `path` every 4 steps (60 fps for the renderer). Stop on `N < 0` (`FLEW_OFF`), `v ≤ 0` before the end (`STALLED`), reaching `end.x` (success), or `t > MAX_TIME` (`TIMEOUT`).
 
-Checks 1–5 fail fast without running the cart. The player still gets a static failure marker to show.
+Checks 1–5 decide the result without the ride: the reason and the `failAt` point never depend on it. Checks 1–3 return an empty `path` (the player gets the failure marker only). For checks 4–5 (`OUT_OF_BOUNDS`, `HIT_OBSTACLE`) the cart is then ridden up to `failAt.x` to record a `path` for the replay, and `failAt.t` / `duration` are when it gets there. If that ride would fly off, stall or time out first, the replay would contradict the reason, so the `path` stays empty and `failAt.t` is 0 (user's choice, 2026-10-29).
 
 ## Determinism & the Server
 

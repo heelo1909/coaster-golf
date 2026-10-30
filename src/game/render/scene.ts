@@ -302,3 +302,35 @@ export function drawCart(ctx: CanvasRenderingContext2D, cam: Camera, pose: CartP
   }
   ctx.restore();
 }
+
+// Where a ride failed: a ✕ in a ring at the fail point, with a faint drop line to the x-axis
+// so the player can read off the x the result panel names.
+export function drawFailMarker(
+  ctx: CanvasRenderingContext2D,
+  cam: Camera,
+  x: number,
+  y: number,
+): void {
+  const sx = toScreenX(cam, x);
+  const sy = toScreenY(cam, y);
+  const s = theme.failMarkSize;
+  ctx.strokeStyle = theme.failMark;
+  ctx.lineWidth = 1;
+  ctx.setLineDash(theme.trackFaintDash);
+  ctx.beginPath();
+  ctx.moveTo(sx, sy);
+  ctx.lineTo(sx, toScreenY(cam, 0));
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.lineWidth = theme.failMarkWidth;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(sx - s, sy - s);
+  ctx.lineTo(sx + s, sy + s);
+  ctx.moveTo(sx + s, sy - s);
+  ctx.lineTo(sx - s, sy + s);
+  ctx.moveTo(sx + s * 1.7, sy);
+  ctx.arc(sx, sy, s * 1.7, 0, 2 * Math.PI);
+  ctx.stroke();
+  ctx.lineCap = 'butt';
+}

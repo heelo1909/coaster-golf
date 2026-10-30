@@ -24,11 +24,16 @@ export function mountPlayScreen(root: HTMLElement, level: Level, onNext?: () => 
 
   const result = createResultPanel({
     onNext,
-    onTryShorter: () => {
-      result.hide();
-      input.focus();
-    },
+    onTryShorter: editAgain,
+    onTryAgain: editAgain,
   });
+
+  // Both close the panel and put the player back in the box with their equation kept, the
+  // cursor at the end. The marker stays on the track until they change it.
+  function editAgain(): void {
+    result.hide();
+    input.focus();
+  }
 
   let lastGood: Track | null = null;
   let riding = false;

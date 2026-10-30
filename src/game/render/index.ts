@@ -6,7 +6,7 @@ import { fitCamera } from './camera';
 import type { Camera } from './camera';
 import { FAIL_EFFECT_SECONDS, REDUCED_MOTION_SPEED, failPose, hasFailEffect, poseAt } from './ride';
 import type { CartPose } from './ride';
-import { drawCart, drawStatic, drawTrack } from './scene';
+import { drawCart, drawFailMarker, drawStatic, drawTrack } from './scene';
 import type { Track } from './scene';
 import { theme } from './theme';
 
@@ -21,8 +21,8 @@ export interface Renderer {
   setTrack(f: Track | null, faded?: boolean): void;
   resize(): void; // call when the canvas's CSS size or devicePixelRatio changes
   // Plays a judged ride back from its recorded path, then the fail effect if it failed. The
-  // promise resolves when it ends, is skipped, or is cancelled by setTrack/setLevel. The cart
-  // stays drawn at its last pose until the track changes.
+  // promise resolves when it ends, is skipped, or is cancelled by setTrack/setLevel. The cart,
+  // and on a failed ride a marker where it failed, stay drawn until the track changes.
   playRide(result: SimResult): Promise<void>;
   skipRide(): void; // jumps straight to the end of the ride playing now
 }
@@ -37,6 +37,7 @@ export function createRenderer(canvas: HTMLCanvasElement, level: Level): Rendere
   let track: Track | null = null;
   let trackFaded = false;
   let cart: CartPose | null = null;
+  let failMark: { x: number; y: number } | null = null;
   let ride: { result: SimResult; done: () => void; frame: number } | null = null;
   let cam: Camera = layout();
 
@@ -63,10 +64,9 @@ export function createRenderer(canvas: HTMLCanvasElement, level: Level): Rendere
       drawTrack(ctx!, cam, current, track);
       ctx!.globalAlpha = 1;
     }
-    if (cart) {
-      ctx!.setTransform(cam.dpr, 0, 0, cam.dpr, 0, 0);
-      drawCart(ctx!, cam, cart);
-    }
+    ctx!.setTransform(cam.dpr, 0, 0, cam.dpr, 0, 0);
+    if (failMark) drawFailMarker(ctx!, cam, failMark.x, failMark.y);
+    if (cart) drawCart(ctx!, cam, cart);
   }
 
   // The last frame of a ride: the end of the path, plus the end of the fail effect.
@@ -78,9 +78,10 @@ export function createRenderer(canvas: HTMLCanvasElement, level: Level): Rendere
   function endRide(pose: CartPose | null): void {
     if (!ride) return;
     cancelAnimationFrame(ride.frame);
-    const { done } = ride;
+    const { done, result } = ride;
     ride = null;
     cart = pose;
+    failMark = result.failAt ?? null;
     frame();
     done();
   }
@@ -88,6 +89,7 @@ export function createRenderer(canvas: HTMLCanvasElement, level: Level): Rendere
   function clearCart(): void {
     endRide(null);
     cart = null;
+    failMark = null;
   }
 
   frame();
@@ -110,7 +112,12 @@ export function createRenderer(canvas: HTMLCanvasElement, level: Level): Rendere
     },
     playRide(result) {
       clearCart();
-      if (result.path.length === 0) return Promise.resolve(); // failed before the cart moved
+      if (result.path.length === 0) {
+        // Failed before the cart moved: there's only the marker to show.
+        failMark = result.failAt ?? null;
+        frame();
+        return Promise.resolve();
+      }
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       const speed = reduced ? REDUCED_MOTION_SPEED : 1;
       const end = result.path.at(-1)!.t;

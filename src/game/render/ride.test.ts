@@ -81,3 +81,17 @@ describe('failPose: the short effect after a failed ride', () => {
     expect(hasFailEffect('FLEW_OFF')).toBe(true);
   });
 });
+
+describe('a crash on a real level replays the ride up to the rock', () => {
+  it('c04: the V |x-4| rides into a rock, then sparks there', () => {
+    const level = campaign.find((l) => l.id === 'c04') as Level;
+    const judged = judge(level, '|x-4|');
+    if (!judged.ok) throw new Error('expected |x-4| to parse');
+    const { result } = judged;
+    expect(result.reason).toBe('HIT_OBSTACLE');
+    expect(result.path.length).toBeGreaterThan(1);
+    const end = poseAt(result.path, Infinity)!;
+    expect(end.x).toBeCloseTo(result.failAt!.x, 1);
+    expect(failPose(result.path, result.reason, 1)).toMatchObject({ spark: 1 });
+  });
+});

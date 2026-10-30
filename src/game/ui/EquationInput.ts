@@ -193,7 +193,10 @@ export function createEquationInput(
   return {
     element: root,
     value: () => input.value,
-    focus: () => input.focus(),
+    focus() {
+      input.focus();
+      input.setSelectionRange(input.value.length, input.value.length);
+    },
     flush() {
       if (timer === undefined) return;
       clearTimeout(timer);

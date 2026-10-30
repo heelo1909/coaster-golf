@@ -39,4 +39,5 @@ export const messages = {
   hint: (hint: string) => `Hint: ${hint}`,
   nextLevel: 'Next level',
   tryShorter: 'Try shorter',
+  tryAgain: 'Try again',
 };

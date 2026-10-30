@@ -52,9 +52,10 @@ export interface SimLevel {
 const MAX_STEPS = Math.round(MAX_TIME / DT);
 
 // Rides the cart along y = f(x) from the start station to the end station, in the order of
-// checks in sim/CLAUDE.md: checks 1–5 look at the track alone and fail fast at t = 0; only a
-// track that passes them gets ridden. Those fail-fast results have an empty path: there's no
-// ride to replay, only the failure marker.
+// checks in sim/CLAUDE.md: checks 1–5 look at the track alone and decide the result before
+// any ride. Broken tracks and missed stations have an empty path: there's no ride to replay,
+// only the failure marker. Off-the-map and crash results also get a path up to failAt, so the
+// cart can ride there before it fails (see failAfterRide).
 export function simulate(level: SimLevel, f: (x: number) => number): SimResult {
   const { start, end, bounds } = level;
   const track = sampleTrack(f, start.x, end.x);
@@ -72,27 +73,58 @@ export function simulate(level: SimLevel, f: (x: number) => number): SimResult {
   }
   for (let i = 0; i <= last; i++) {
     const y = track.y[i]!;
-    if (y < bounds.yMin || y > bounds.yMax) return fail('OUT_OF_BOUNDS', track.x[i]!, y, 0);
+    if (y < bounds.yMin || y > bounds.yMax) {
+      return failAfterRide('OUT_OF_BOUNDS', track, start.speed, track.x[i]!, y);
+    }
   }
   const hit = findHit(track, level.obstacles);
-  if (hit !== -1) return fail('HIT_OBSTACLE', track.x[hit]!, track.y[hit]!, 0);
+  if (hit !== -1) {
+    return failAfterRide('HIT_OBSTACLE', track, start.speed, track.x[hit]!, track.y[hit]!);
+  }
 
-  // The path starts at the station and gets a point every PATH_EVERY steps. A run that ends
-  // between those gets its last point too, so the replay ends exactly where the run did.
-  const cart = startCart(track, start.speed);
+  const run = runCart(track, start.speed, end.x);
+  const { cart, path } = run;
+  if (run.reason === 'WON') return { success: true, path, duration: cart.t };
+  return fail(run.reason, cart.x, cart.y, cart.t, path);
+}
+
+// An off-the-map or crash result, already decided by the track checks. The reason and the
+// failAt point never depend on the ride; the ride only adds a path for the replay, with
+// failAt.t when the cart gets there. If the cart would fly off, stall or time out before it
+// reaches x, the replay would contradict the reason, so the path stays empty instead.
+function failAfterRide(
+  reason: 'OUT_OF_BOUNDS' | 'HIT_OBSTACLE',
+  track: Track,
+  speed: number,
+  x: number,
+  y: number,
+): SimResult {
+  const run = runCart(track, speed, x);
+  if (run.reason !== 'WON') return fail(reason, x, y, 0);
+  return fail(reason, x, y, run.cart.t, run.path);
+}
+
+// Rides the cart until it reaches stopX ('WON') or the ride ends on its own. The path starts
+// at the station and gets a point every PATH_EVERY steps. A run that ends between those gets
+// its last point too, so the replay ends exactly where the run did.
+function runCart(
+  track: Track,
+  speed: number,
+  stopX: number,
+): { reason: 'WON' | 'FLEW_OFF' | 'STALLED' | 'TIMEOUT'; cart: Cart; path: PathPoint[] } {
+  const cart = startCart(track, speed);
   const path = [pointAt(cart)];
   for (let n = 1; n <= MAX_STEPS; n++) {
     stepCart(track, cart);
     const recorded = n % PATH_EVERY === 0;
     if (recorded) path.push(pointAt(cart));
-    const reason = rideOver(cart, end.x);
+    const reason = rideOver(cart, stopX);
     if (reason !== undefined) {
       if (!recorded) path.push(pointAt(cart));
-      if (reason === 'WON') return { success: true, path, duration: cart.t };
-      return fail(reason, cart.x, cart.y, cart.t, path);
+      return { reason, cart, path };
     }
   }
-  return fail('TIMEOUT', cart.x, cart.y, cart.t, path);
+  return { reason: 'TIMEOUT', cart, path };
 }
 
 // Why the ride stops after this step, in the order sim/CLAUDE.md gives; undefined while it
