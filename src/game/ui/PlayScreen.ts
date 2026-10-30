@@ -5,6 +5,7 @@
 import { judge } from '../../core';
 import type { Level } from '../../core';
 import { createRenderer } from '../render';
+import type { Best } from '../storage';
 import type { Track } from '../render';
 import { attachGestures } from './CanvasGestures';
 import { createEquationInput } from './EquationInput';
@@ -18,7 +19,9 @@ export interface PlayScreen {
 }
 
 export interface PlayActions {
-  onWin: (score: number, equation: string) => void; // before the panel shows, to save it
+  best?: Best | undefined; // this level's saved best, shown under the box
+  // Before the panel shows, to save the win; returns the best as it now stands.
+  onWin: (score: number, equation: string) => Best | undefined;
   onBack: () => void; // to level select
   onNext?: (() => void) | undefined; // left out on the last level
 }
@@ -93,7 +96,20 @@ export function mountPlayScreen(root: HTMLElement, level: Level, actions: PlayAc
   rideButton.textContent = messages.ride;
   rideButton.addEventListener('click', () => rideOrSkip());
 
-  panel.append(result.element, input.element, rideButton);
+  // The saved best, quietly under the box, so there's always a number to beat.
+  const bestLine = document.createElement('div');
+  bestLine.className = 'best-line';
+  bestLine.dataset.testid = 'best-line';
+  function showBest(best: Best | undefined): void {
+    bestLine.replaceChildren();
+    if (!best) return;
+    const equation = document.createElement('code');
+    equation.textContent = best.equation;
+    bestLine.append(messages.yourBest, equation, messages.bestChars(best.score));
+  }
+  showBest(actions.best);
+
+  panel.append(result.element, input.element, bestLine, rideButton);
   renderer.resize(); // the panel now takes its height, so measure the canvas again
 
   function setRiding(on: boolean): void {
@@ -117,7 +133,7 @@ export function mountPlayScreen(root: HTMLElement, level: Level, actions: PlayAc
     await renderer.playRide(judged.result);
     setRiding(false);
     if (input.value() !== text) return; // edited mid-ride: that ride no longer counts
-    if (judged.result.success) actions.onWin(judged.score, text);
+    if (judged.result.success) showBest(actions.onWin(judged.score, text));
     else failedRides++;
     result.show(resultOf(judged.result, judged.score, level, failedRides));
   }

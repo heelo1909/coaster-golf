@@ -56,6 +56,7 @@ export function mountLevelSelect(
   root: HTMLElement,
   levels: readonly Level[],
   progress: Progress,
+  notSaving: boolean, // storage is blocked: say so, quietly
   onPick: (id: string) => void,
 ): void {
   const screen = document.createElement('section');
@@ -105,6 +106,14 @@ export function mountLevelSelect(
     grid.append(item);
   }
 
-  screen.append(title, grid);
+  screen.append(title);
+  if (notSaving) {
+    const note = document.createElement('p');
+    note.className = 'levels-note';
+    note.dataset.testid = 'not-saving';
+    note.textContent = messages.notSaving;
+    screen.append(note);
+  }
+  screen.append(grid);
   root.replaceChildren(screen);
 }

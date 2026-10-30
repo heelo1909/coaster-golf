@@ -50,3 +50,49 @@ test('a link to a locked level goes to level select; Back returns from a level',
   await page.goBack();
   await expect(page.getByTestId('level-select')).toBeVisible();
 });
+
+test('a beaten level shows the best equation, and only a shorter win replaces it', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await page.getByTestId('level-c01').click();
+  await expect(page.getByTestId('best-line')).toBeEmpty();
+  await win(page, '0*x');
+  await expect(page.getByTestId('best-line')).toHaveText('Your best: 0*x · 3 chars');
+  await win(page, 'x-x+0');
+  await expect(page.getByTestId('best-line')).toHaveText('Your best: 0*x · 3 chars');
+  await win(page, '0');
+  await expect(page.getByTestId('best-line')).toHaveText('Your best: 0 · 1 char');
+
+  await page.reload();
+  await expect(page.getByTestId('best-line')).toHaveText('Your best: 0 · 1 char');
+});
+
+test('with storage blocked the game still plays, unlocks for the visit and says it will not save', async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.addInitScript(() => {
+    Object.defineProperty(window, 'localStorage', {
+      get() {
+        throw new DOMException('The operation is insecure.', 'SecurityError');
+      },
+    });
+  });
+  await page.goto('/');
+  await expect(page.getByTestId('not-saving')).toHaveText(
+    "Progress won't be saved in this browser.",
+  );
+  await page.getByTestId('level-c01').click();
+  await win(page, '0');
+  await page.getByTestId('next-level').click();
+  await expect(page.getByTestId('char-counter')).toHaveText('0 chars · par 5');
+  await page.getByTestId('back-to-levels').click();
+  await expect(page.getByTestId('level-c01-score')).toHaveText('Best 1 ★');
+  await expect(page.getByTestId('not-saving')).toHaveCount(0); // once per visit
+
+  await page.getByTestId('theme-toggle').click();
+  await page.getByTestId('theme-paper').click();
+  expect(errors).toEqual([]);
+});

@@ -46,6 +46,9 @@ export const messages = {
   locked: 'Locked',
   tileBest: (n: number) => `Best ${n}`,
   tilePar: (par: number) => `Par ${par}`,
+  yourBest: 'Your best: ',
+  bestChars: (n: number) => ` · ${chars(n)}`,
+  notSaving: "Progress won't be saved in this browser.",
   tileLabel: (num: number, name: string, locked: boolean, best: number | undefined, par: number) =>
     locked
       ? `Level ${num}, ${name}, locked`

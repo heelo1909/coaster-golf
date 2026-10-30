@@ -31,3 +31,16 @@ export function writeJson(storage: Storage | null, key: string, value: unknown):
     return false;
   }
 }
+
+// Whether saves will stick: false when storage is missing, blocked or full. Writes and removes
+// a probe key, so it's only for a one-off check at start-up.
+export function storageWorks(storage: Storage | null = browserStorage()): boolean {
+  try {
+    if (!storage) return false;
+    storage.setItem('cg:probe', '1');
+    storage.removeItem('cg:probe');
+    return true;
+  } catch {
+    return false;
+  }
+}

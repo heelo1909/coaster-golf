@@ -1,5 +1,5 @@
 import { campaign } from '../levels';
-import { loadProgress, saveBest } from './storage';
+import { loadProgress, saveBest, storageWorks } from './storage';
 import { isUnlocked, mountLevelSelect } from './ui/LevelSelect';
 import { mountPlayScreen } from './ui/PlayScreen';
 import type { PlayScreen } from './ui/PlayScreen';
@@ -18,12 +18,17 @@ applyTheme(savedTheme());
 // is blocked.
 let progress = loadProgress();
 let screen: PlayScreen | undefined;
+// When saves won't stick, level select says so once per visit, quietly.
+let noteNotSaving = !storageWorks();
 
 function show(route: Route, router: Router): void {
   screen?.unmount();
   screen = undefined;
   if (route.screen === 'levels') {
-    mountLevelSelect(app!, campaign, progress, (id) => router.show({ screen: 'play', id }));
+    mountLevelSelect(app!, campaign, progress, noteNotSaving, (id) =>
+      router.show({ screen: 'play', id }),
+    );
+    noteNotSaving = false;
     return;
   }
   const index = campaign.findIndex((l) => l.id === route.id);
@@ -35,8 +40,10 @@ function show(route: Route, router: Router): void {
   const level = campaign[index]!;
   const next = campaign[index + 1];
   screen = mountPlayScreen(app!, level, {
+    best: progress.best[level.id],
     onWin: (score, equation) => {
       progress = saveBest(progress, level.id, score, equation);
+      return progress.best[level.id];
     },
     onBack: () => router.show({ screen: 'levels' }),
     onNext: next && (() => router.show({ screen: 'play', id: next.id })),

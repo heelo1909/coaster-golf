@@ -127,7 +127,7 @@ Work through the sections in order. Each one has a goal, tasks, and a "Done when
 
 - [x] Level select screen: all 15 levels, showing locked/unlocked, best score, and a star if at or under par
 - [x] Beating a level unlocks the next
-- [ ] Best score and best equation per level saved in `localStorage` (wrapped in try/catch; the game still works if storage is blocked)
+- [x] Best score and best equation per level saved in `localStorage` (wrapped in try/catch; the game still works if storage is blocked)
 - [ ] A short "How to play" screen shown on the first visit
 
 **Done when:** progress survives a page reload, and the game still works in a private window with storage blocked.

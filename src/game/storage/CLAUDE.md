@@ -19,6 +19,7 @@ index.ts
 - Each stored value has a `version` field. If it's unknown or the JSON is corrupt, fall back to defaults. **Never crash on bad saved data.**
 - Store only what's needed: best score and equation per level, daily bests, streak, nickname, settings. **No personal data, ever.**
 - `saveBest()` only overwrites when the new score is **lower** (shorter); a tie keeps the first equation. It returns the new progress, which `main.ts` keeps in memory, so wins still unlock levels for the rest of a visit when storage is blocked.
+- `storageWorks()` (in `store.ts`) probes once at start-up whether saves will stick; when they won't, level select shows the quiet note once per visit.
 - `cg:v1:progress` is `{ version: 1, best: { <levelId>: { score, equation } } }`. A broken entry is dropped on its own; the rest still load.
 - Streak updates go through `core/daily/updateStreak()`. Don't re-implement the logic here.
 

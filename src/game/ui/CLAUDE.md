@@ -30,6 +30,8 @@ Screens are a simple state machine with `show(screen, params)`. The URL hash mir
 
 - One tile per campaign level (`tilesOf` is pure): the number, the name, then `Par N` (open), `Best N` with a ★ at or under par (beaten) or `Locked`. Locked tiles are disabled buttons. Each tile's `aria-label` says it all in words, star included.
 - A level is unlocked when the level before it has a saved best (`isUnlocked`); level 1 always is. Unlocks aren't stored separately, so they can't disagree with the bests.
+- With storage blocked, level select shows "Progress won't be saved in this browser." under its title, once per visit.
+- The play screen shows the saved best under the box (`best-line`: `Your best: x/3 · 3 chars`) and updates it after a shorter win. The box itself starts empty.
 - The play screen has a back button top-left (`back-to-levels`), mirroring the theme picker; the minimal canvas title starts right of it.
 
 ## Equation Input
