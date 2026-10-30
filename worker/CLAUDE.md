@@ -38,6 +38,7 @@ POST /submit
   body: { levelId: "c03" | "daily:42", equation: string, nickname: string }
   200 { ok: true, score, best, rank }    // score: this run; best and rank: the nickname's saved best
   400 { ok: false, error: "bad_request" | "bad_equation" | "run_failed" | "bad_nickname" | "unknown_level" | "daily_closed" }
+  413 { ok: false, error: "too_big" }     // body over 1 KB (in bytes), refused before JSON parsing
   429 { ok: false, error: "slow_down" }
 
 GET /leaderboard?level=c03          top 50 for a campaign level
@@ -69,6 +70,7 @@ CREATE INDEX idx_board ON scores (level_id, score, created_at);
 
 - Reject bodies over 1 KB and equations over 200 characters **before** parsing.
 - Rate limit: 30 submissions per minute per IP, using Cloudflare's Rate Limiting binding. Don't store IPs in D1.
+- Built: the limiter runs first on `/submit`, keyed by `CF-Connecting-IP` (only `/submit` is limited; reading boards isn't). Then the 1 KB byte check on the raw text, then JSON, then `equation.length > LIMITS.maxLength` (200, exported from `src/core`) as `bad_equation` before `judge()`.
 - Nicknames: 3–16 characters, `[A-Za-z0-9_]`, checked against a small profanity list (with letter-swap variants like `0→o`). Ask the user before adding a third-party list.
 - Built: `checkNickname()` in `src/core/nickname/` (shared with the browser). Two in-house lists: roots blocked anywhere after undoing swaps (0→o, 1→i or l, 3→e, 4→a, 5→s, 7→t, 8→b, 9→g) and underscores, and short words blocked only as a whole name or a whole `_` part (so "classic" is fine). Known trade-off: a long root inside a real name (Hancock) is blocked. Nicknames aren't owned: with no accounts, two players typing the same nickname share its row.
 - `judge()` is fast (under 50 ms), but cap total work anyway: reject if parsing hits the node limit.

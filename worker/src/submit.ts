@@ -3,7 +3,7 @@
 // Worker re-runs the game with judge() from src/core and saves only a winning run, with the
 // score judge() computed.
 
-import { checkNickname, judge } from '../../src/core';
+import { LIMITS, checkNickname, judge } from '../../src/core';
 import type { Env } from './env';
 import { placeOf } from './leaderboard';
 import { findLevel } from './levels';
@@ -22,7 +22,10 @@ export async function submit(body: unknown, env: Env, now: number): Promise<Subm
   if (typeof nickname !== 'string' || checkNickname(nickname) !== undefined) {
     return { ok: false, error: 'bad_nickname' };
   }
-  if (typeof equation !== 'string') return { ok: false, error: 'bad_equation' };
+  // Over-long equations are refused before any parsing.
+  if (typeof equation !== 'string' || equation.length > LIMITS.maxLength) {
+    return { ok: false, error: 'bad_equation' };
+  }
   const found = findLevel(levelId, now);
   if (!found.ok) return found;
 
