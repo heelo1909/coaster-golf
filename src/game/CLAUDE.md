@@ -42,4 +42,4 @@ typing). Every ride and every score goes through `judge()`.
 
 ## Art Direction
 
-The look must be **its own**: not Geometry Dash neon and not Desmos clean-white. Before Section 5's renderer work starts, propose 2–3 directions to the user (for example a hand-drawn blueprint, a retro theme-park poster, or a chalkboard), and record the pick in `progress.md` → Decisions. Every visual choice after that follows it.
+The look must be **its own**: not Geometry Dash neon and not Desmos clean-white. It is minimal and professional, with four themes the player picks from a low-key picker in the top-right corner (`ui/ThemePicker.ts`): **Graphite** (default), **Paper**, **Midnight** and the original **Blueprint**. The minimal three follow a strict 60-30-10 colour split. All values live in `render/theme.ts`; see `render/CLAUDE.md`. The choice is saved on the device through `storage/profile.ts`. Picks and changes are recorded in `progress.md` → Decisions.

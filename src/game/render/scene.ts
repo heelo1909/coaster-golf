@@ -71,17 +71,32 @@ export function drawGrid(ctx: CanvasRenderingContext2D, cam: Camera): void {
   const y0 = Math.ceil(view.yMin);
   const y1 = Math.floor(view.yMax);
 
-  for (let x = x0; x <= x1; x++) {
-    if (x === 0) continue;
-    gridLine(ctx, cam, x, view.yMin, x, view.yMax, x % MAJOR_EVERY === 0);
-  }
-  for (let y = y0; y <= y1; y++) {
-    if (y === 0) continue;
-    gridLine(ctx, cam, view.xMin, y, view.xMax, y, y % MAJOR_EVERY === 0);
+  if (theme.style === 'minimal') {
+    // A quiet dot at every whole-number point instead of lines.
+    ctx.fillStyle = theme.gridMinor;
+    ctx.beginPath();
+    for (let x = x0; x <= x1; x++) {
+      for (let y = y0; y <= y1; y++) {
+        const sx = toScreenX(cam, x);
+        const sy = toScreenY(cam, y);
+        ctx.moveTo(sx + theme.gridDot, sy);
+        ctx.arc(sx, sy, theme.gridDot, 0, 2 * Math.PI);
+      }
+    }
+    ctx.fill();
+  } else {
+    for (let x = x0; x <= x1; x++) {
+      if (x === 0) continue;
+      gridLine(ctx, cam, x, view.yMin, x, view.yMax, x % MAJOR_EVERY === 0);
+    }
+    for (let y = y0; y <= y1; y++) {
+      if (y === 0) continue;
+      gridLine(ctx, cam, view.xMin, y, view.xMax, y, y % MAJOR_EVERY === 0);
+    }
   }
 
   ctx.strokeStyle = theme.axis;
-  ctx.lineWidth = theme.axisWidth;
+  ctx.lineWidth = theme.style === 'minimal' ? 1 : theme.axisWidth;
   ctx.setLineDash([]);
   ctx.beginPath();
   ctx.moveTo(toScreenX(cam, view.xMin), toScreenY(cam, 0));
@@ -128,18 +143,32 @@ function gridLine(
   ctx.stroke();
 }
 
+// The level's number and name. Minimal: "04  The dip" in the top-left corner. Blueprint:
 // "FIG. 4 — THE DIP" along the bottom edge, like a drawing's title block.
 function drawTitle(ctx: CanvasRenderingContext2D, cam: Camera, level: Level): void {
   const fig = Number.parseInt(level.id.slice(1), 10);
-  const title = `FIG. ${Number.isFinite(fig) ? fig : level.id} — ${level.name.toUpperCase()}`;
+  const num = Number.isFinite(fig) ? fig : level.id;
   ctx.fillStyle = theme.label;
   ctx.font = `${theme.titleSize}px ${theme.font}`;
+  if (theme.style === 'minimal') {
+    // On a small block of paper, so it stays readable over the axis numbers behind it.
+    const text = `${String(num).padStart(2, '0')}  ${level.name}`;
+    const w = ctx.measureText(text).width;
+    ctx.fillStyle = theme.paper;
+    ctx.fillRect(8, 8, w + 16, theme.titleSize + 14);
+    ctx.fillStyle = theme.label;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText(text, 16, 15);
+    return;
+  }
   ctx.textAlign = 'center';
   ctx.textBaseline = 'bottom';
-  ctx.fillText(title, cam.width / 2, cam.height - 6);
+  ctx.fillText(`FIG. ${num} — ${level.name.toUpperCase()}`, cam.width / 2, cam.height - 6);
 }
 
-// White outlines filled with diagonal hatching, the drafting sign for solid material.
+// Outlines filled with a soft tint (minimal) or diagonal hatching, the drafting sign for
+// solid material (blueprint).
 export function drawObstacles(
   ctx: CanvasRenderingContext2D,
   cam: Camera,
@@ -156,10 +185,15 @@ export function drawObstacles(
       shape.arc(toScreenX(cam, o.x), toScreenY(cam, o.y), o.r * cam.scale, 0, Math.PI * 2);
     }
 
-    ctx.save();
-    ctx.clip(shape);
-    hatch(ctx, cam);
-    ctx.restore();
+    if (theme.style === 'minimal') {
+      ctx.fillStyle = theme.obstacleFill;
+      ctx.fill(shape);
+    } else {
+      ctx.save();
+      ctx.clip(shape);
+      hatch(ctx, cam);
+      ctx.restore();
+    }
 
     ctx.strokeStyle = theme.ink;
     ctx.lineWidth = theme.obstacleWidth;
@@ -170,7 +204,7 @@ export function drawObstacles(
 
 // Diagonal lines across the whole canvas; callers clip them to a shape first.
 function hatch(ctx: CanvasRenderingContext2D, cam: Camera): void {
-  ctx.strokeStyle = theme.hatch;
+  ctx.strokeStyle = theme.obstacleFill;
   ctx.lineWidth = 1;
   ctx.setLineDash([]);
   ctx.beginPath();
@@ -206,18 +240,23 @@ function station(
   ctx.beginPath();
   ctx.moveTo(toScreenX(cam, x), toScreenY(cam, y));
   ctx.lineTo(toScreenX(cam, far), toScreenY(cam, y));
-  ctx.moveTo(toScreenX(cam, legA), toScreenY(cam, y));
-  ctx.lineTo(toScreenX(cam, legA), toScreenY(cam, y - STATION_LEG));
-  ctx.moveTo(toScreenX(cam, legB), toScreenY(cam, y));
-  ctx.lineTo(toScreenX(cam, legB), toScreenY(cam, y - STATION_LEG));
+  // The minimal themes keep just the platform; the blueprint adds legs.
+  if (theme.style === 'blueprint') {
+    ctx.moveTo(toScreenX(cam, legA), toScreenY(cam, y));
+    ctx.lineTo(toScreenX(cam, legA), toScreenY(cam, y - STATION_LEG));
+    ctx.moveTo(toScreenX(cam, legB), toScreenY(cam, y));
+    ctx.lineTo(toScreenX(cam, legB), toScreenY(cam, y - STATION_LEG));
+  }
   ctx.stroke();
   ctx.lineCap = 'butt';
 
-  ctx.fillStyle = theme.mark;
+  const minimal = theme.style === 'minimal';
+  ctx.fillStyle = minimal ? theme.label : theme.mark;
   ctx.font = `${theme.labelSize}px ${theme.font}`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'bottom';
-  ctx.fillText(label, toScreenX(cam, (x + far) / 2), toScreenY(cam, y) - 6);
+  const text = minimal ? label.charAt(0) + label.slice(1).toLowerCase() : label;
+  ctx.fillText(text, toScreenX(cam, (x + far) / 2), toScreenY(cam, y) - 6);
 }
 
 // The player's track: solid between the stations, faint and dashed beyond them, sampled once
@@ -270,15 +309,24 @@ export function drawCart(ctx: CanvasRenderingContext2D, cam: Camera, pose: CartP
   ctx.save();
   ctx.translate(toScreenX(cam, pose.x), toScreenY(cam, pose.y));
   ctx.rotate(a);
+  const solid = theme.style === 'minimal';
   ctx.strokeStyle = theme.mark;
   ctx.fillStyle = theme.paper;
   ctx.lineWidth = theme.cartWidth;
   ctx.setLineDash([]);
-  // Body: a box from the wheels up to twice the radius, then two wheels on the rail.
+  // Body: a box from the wheels up to twice the radius (solid accent in the minimal themes,
+  // an outline on the blueprint), then two wheels on the rail.
   ctx.beginPath();
-  ctx.rect(-r, -2 * r, 2 * r, 1.4 * r);
-  ctx.fill();
-  ctx.stroke();
+  if (solid) {
+    ctx.roundRect(-r, -2 * r, 2 * r, 1.4 * r, r * 0.35);
+    ctx.fillStyle = theme.mark;
+    ctx.fill();
+    ctx.fillStyle = theme.paper;
+  } else {
+    ctx.rect(-r, -2 * r, 2 * r, 1.4 * r);
+    ctx.fill();
+    ctx.stroke();
+  }
   ctx.beginPath();
   for (const wx of [-r * 0.55, r * 0.55]) {
     ctx.moveTo(wx + r * 0.3, -r * 0.3);
@@ -314,7 +362,7 @@ export function drawFailMarker(
   const sx = toScreenX(cam, x);
   const sy = toScreenY(cam, y);
   const s = theme.failMarkSize;
-  ctx.strokeStyle = theme.failMark;
+  ctx.strokeStyle = theme.error;
   ctx.lineWidth = 1;
   ctx.setLineDash(theme.trackFaintDash);
   ctx.beginPath();

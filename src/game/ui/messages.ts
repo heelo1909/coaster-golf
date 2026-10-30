@@ -40,4 +40,5 @@ export const messages = {
   nextLevel: 'Next level',
   tryShorter: 'Try shorter',
   tryAgain: 'Try again',
+  theme: 'Theme',
 };

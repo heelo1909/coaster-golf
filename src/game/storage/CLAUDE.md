@@ -8,7 +8,7 @@ The **only** code that touches `localStorage`. Everything the player has done li
 store.ts      safe get/set wrapper (try/catch, JSON, versioning)
 progress.ts   campaign: unlocked levels, best score + equation per level
 daily.ts      best per daily number, StreakState
-profile.ts    nickname, settings (mute, seen how-to)
+profile.ts    settings: theme (Section 5); nickname, mute, seen how-to later
 index.ts
 ```
 

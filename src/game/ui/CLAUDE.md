@@ -12,6 +12,7 @@ PlayScreen.ts      canvas + input + Ride button + result (campaign and daily sha
 LevelSelect.ts     15 level tiles: locked/unlocked, best score, par star
 DailyScreen.ts     today's daily, countdown, best today, streak, share
 HowTo.ts           first-visit explainer
+ThemePicker.ts     low-key theme menu (top-right), applyTheme, savedTheme
 messages.ts        every player-facing string in one place
 index.ts
 ```

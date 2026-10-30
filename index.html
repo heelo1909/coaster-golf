@@ -5,16 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Coaster Golf</title>
     <style>
-      /* Blueprint look (progress.md → Decisions); canvas colours live in render/theme.ts. */
+      /* Colour tokens are set from render/theme.ts by applyTheme() (ui/ThemePicker.ts); these
+         defaults are Graphite, the default theme. data-style is "minimal" or "blueprint". */
       :root {
-        --paper: #1e4a72;
-        --panel: #173b5c;
-        --line: rgba(169, 200, 230, 0.32);
-        --label: #a9c8e6;
-        --ink: #f2f6fa;
-        --mark: #ffd27a;
-        --error: #ffb4a2;
+        --paper: #0f1115;
+        --panel: #181b21;
+        --line: rgba(217, 222, 229, 0.14);
+        --label: #8b93a1;
+        --ink: #d9dee5;
+        --mark: #d7ff3a;
+        --on-mark: #0f1115;
+        --error: #ff8a7a;
+        --ui: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
         --mono: 'JetBrains Mono', 'Cascadia Mono', Consolas, 'Courier New', monospace;
+        --radius: 10px;
+      }
+      :root[data-style='blueprint'] {
+        --radius: 2px;
       }
       html,
       body {
@@ -22,7 +29,8 @@
         height: 100%;
         background: var(--paper);
         color: var(--ink);
-        font-family: var(--mono);
+        font-family: var(--ui);
+        -webkit-font-smoothing: antialiased;
       }
       #app {
         display: flex;
@@ -36,10 +44,119 @@
         min-height: 0;
         width: 100%;
       }
+      /* Minimal themes: a solid accent Ride button, sentence case. */
+      :root[data-style='minimal'] .ride-btn {
+        border-color: var(--mark);
+        background: var(--mark);
+        color: var(--on-mark);
+        letter-spacing: 0;
+        text-transform: none;
+      }
+      :root[data-style='minimal'] .ride-btn:hover,
+      :root[data-style='minimal'] .ride-btn:focus-visible {
+        filter: brightness(1.08);
+        box-shadow:
+          0 0 0 2px var(--paper),
+          0 0 0 4px var(--mark);
+      }
+      :root[data-style='minimal'] .eq-input,
+      :root[data-style='minimal'] .result-btn {
+        border-width: 1px;
+        border-color: var(--line);
+      }
+      /* Keep the accent to 10%: the panel's frame and win title stay neutral, the star and
+         Ride carry the accent. */
+      :root[data-style='minimal'] .result:not(:empty) {
+        border-width: 1px;
+        border-color: var(--line);
+      }
+      :root[data-style='minimal'] .result[data-kind='won'] .result-title {
+        color: var(--ink);
+      }
+      .theme-picker {
+        position: fixed;
+        top: 8px;
+        right: 8px;
+        z-index: 1;
+      }
+      .theme-toggle {
+        display: grid;
+        place-items: center;
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        border: 0;
+        border-radius: 50%;
+        background: transparent;
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+      .theme-dot {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        border: 1.5px solid var(--label);
+        background: linear-gradient(90deg, var(--paper) 50%, var(--ink) 50%);
+        opacity: 0.7;
+      }
+      .theme-toggle:hover .theme-dot,
+      .theme-toggle:focus-visible .theme-dot,
+      .theme-toggle[aria-expanded='true'] .theme-dot {
+        opacity: 1;
+        border-color: var(--mark);
+      }
+      .theme-toggle:focus-visible {
+        outline: 2px solid var(--mark);
+        outline-offset: -4px;
+      }
+      .theme-menu {
+        position: absolute;
+        top: 46px;
+        right: 4px;
+        display: grid;
+        gap: 2px;
+        min-width: 168px;
+        padding: 6px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--panel);
+      }
+      .theme-menu[hidden] {
+        display: none;
+      }
+      .theme-option {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-height: 44px;
+        padding: 0 10px;
+        border: 0;
+        border-radius: calc(var(--radius) - 4px);
+        background: transparent;
+        color: var(--ink);
+        font: 14px var(--ui);
+        text-align: left;
+        cursor: pointer;
+      }
+      .theme-option:hover,
+      .theme-option:focus-visible {
+        background: var(--line);
+        outline: none;
+      }
+      .theme-option[aria-pressed='true'] {
+        color: var(--mark);
+      }
+      .theme-swatch {
+        width: 28px;
+        height: 14px;
+        border-radius: 4px;
+        box-shadow: inset 0 0 0 1px var(--line);
+      }
       .play-panel {
         background: var(--panel);
         border-top: 1px solid var(--line);
-        padding: 12px 16px 16px;
+        /* At most 640px of controls, centred, on wide screens. */
+        padding: 12px max(16px, calc((100% - 640px) / 2)) 16px;
       }
       .eq-row {
         display: flex;
@@ -53,7 +170,7 @@
         box-sizing: border-box;
         padding: 0 12px;
         border: 1.5px solid var(--label);
-        border-radius: 2px;
+        border-radius: var(--radius);
         background: var(--paper);
         color: var(--ink);
         font: 16px var(--mono);
@@ -115,10 +232,10 @@
         min-height: 44px;
         margin-top: 12px;
         border: 1.5px solid var(--mark);
-        border-radius: 2px;
+        border-radius: var(--radius);
         background: transparent;
         color: var(--mark);
-        font: 600 16px var(--mono);
+        font: 600 16px var(--ui);
         letter-spacing: 0.08em;
         text-transform: uppercase;
         cursor: pointer;
@@ -137,7 +254,7 @@
         margin-bottom: 12px;
         padding: 10px 12px;
         border: 1.5px solid var(--label);
-        border-radius: 2px;
+        border-radius: var(--radius);
       }
       .result[data-kind='won'] {
         border-color: var(--mark);
@@ -173,10 +290,10 @@
         flex: 1;
         min-height: 44px;
         border: 1.5px solid var(--label);
-        border-radius: 2px;
+        border-radius: var(--radius);
         background: transparent;
         color: var(--ink);
-        font: 14px var(--mono);
+        font: 14px var(--ui);
         cursor: pointer;
         touch-action: manipulation;
       }

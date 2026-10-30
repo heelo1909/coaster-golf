@@ -10,8 +10,13 @@ import { createEquationInput } from './EquationInput';
 import { messages } from './messages';
 import { createResultPanel, resultOf } from './ResultPanel';
 
-// Returns a function that unmounts the screen. `onNext` is left out on the last level.
-export function mountPlayScreen(root: HTMLElement, level: Level, onNext?: () => void): () => void {
+export interface PlayScreen {
+  unmount(): void;
+  redraw(): void; // after a theme change
+}
+
+// `onNext` is left out on the last level.
+export function mountPlayScreen(root: HTMLElement, level: Level, onNext?: () => void): PlayScreen {
   const canvas = document.createElement('canvas');
   canvas.className = 'play-canvas';
   canvas.dataset.testid = 'game-canvas';
@@ -90,5 +95,8 @@ export function mountPlayScreen(root: HTMLElement, level: Level, onNext?: () => 
 
   const onResize = (): void => renderer.resize();
   window.addEventListener('resize', onResize);
-  return () => window.removeEventListener('resize', onResize);
+  return {
+    unmount: () => window.removeEventListener('resize', onResize),
+    redraw: onResize,
+  };
 }

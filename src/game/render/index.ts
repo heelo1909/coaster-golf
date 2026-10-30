@@ -13,6 +13,17 @@ import { theme } from './theme';
 export type { Camera } from './camera';
 export type { Track } from './scene';
 export type { CartPose } from './ride';
+export {
+  DEFAULT_THEME,
+  THEME_IDS,
+  cssVars,
+  isThemeId,
+  setTheme,
+  theme,
+  themeName,
+  themeSwatch,
+} from './theme';
+export type { ThemeId } from './theme';
 
 export interface Renderer {
   setLevel(level: Level): void;
