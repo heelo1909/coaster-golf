@@ -67,6 +67,7 @@ export function isBlockedInput(inputType: string): boolean {
 export interface EquationInput {
   readonly element: HTMLElement;
   value(): string;
+  focus(): void;
   // Runs any pending preview now, so the drawn track matches the text before a ride.
   flush(): void;
   setPar(par: number): void;
@@ -192,6 +193,7 @@ export function createEquationInput(
   return {
     element: root,
     value: () => input.value,
+    focus: () => input.focus(),
     flush() {
       if (timer === undefined) return;
       clearTimeout(timer);

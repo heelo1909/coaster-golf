@@ -133,6 +133,59 @@
       .play-canvas[data-riding] {
         cursor: pointer;
       }
+      .result:not(:empty) {
+        margin-bottom: 12px;
+        padding: 10px 12px;
+        border: 1.5px solid var(--label);
+        border-radius: 2px;
+      }
+      .result[data-kind='won'] {
+        border-color: var(--mark);
+      }
+      .result[data-kind='failed'] {
+        border-color: var(--error);
+      }
+      .result-title {
+        font-size: 15px;
+        overflow-wrap: anywhere;
+      }
+      .result[data-kind='won'] .result-title,
+      .result-star {
+        color: var(--mark);
+      }
+      .result[data-kind='failed'] .result-title {
+        color: var(--error);
+      }
+      .result-star,
+      .result-hint {
+        margin-top: 6px;
+        font-size: 13px;
+      }
+      .result-hint {
+        color: var(--label);
+      }
+      .result-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .result-btn {
+        flex: 1;
+        min-height: 44px;
+        border: 1.5px solid var(--label);
+        border-radius: 2px;
+        background: transparent;
+        color: var(--ink);
+        font: 14px var(--mono);
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+      .result-btn:hover,
+      .result-btn:focus-visible {
+        border-color: var(--mark);
+        color: var(--mark);
+        outline: none;
+      }
       .eq-note {
         color: var(--mark);
         font-size: 13px;
