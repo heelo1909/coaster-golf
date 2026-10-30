@@ -28,7 +28,7 @@ Screens are a simple state machine with `show(screen, params)`. The URL hash mir
 
 ## How To
 
-- On a first visit (`profile.seenHowTo` not set) every route is replaced by `#/howto` first. Its one button ("Let's go") goes to level 1, or to the level a link pointed at, and saves `seenHowTo`. With storage blocked it shows once per visit.
+- On a first visit (`profile.seenHowTo` not set) every route is replaced by `#/howto` first. Its one button ("Let's go") goes to level 1, or to the level a link pointed at, and saves `seenHowTo`. That level still goes through the normal unlock check, so a link to a locked level ends on level select. With storage blocked it shows once per visit.
 - Level select has a "How to play" link to reopen it; then the button returns to level select.
 - Three numbered steps (type, ride, shorter wins) under a small SVG of a track drawn in the colour tokens. Backticks in the step strings in `messages.ts` mark equations, shown in monospace.
 

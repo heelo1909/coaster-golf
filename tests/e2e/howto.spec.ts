@@ -28,6 +28,13 @@ test('a first visit through a level link shows the how-to, then that level', asy
   await expect(page).toHaveURL(/#\/play\/c01$/);
 });
 
+test('a first visit through a locked level link ends on level select', async ({ page }) => {
+  await page.goto('/#/play/c05');
+  await page.getByTestId('how-to-done').click();
+  await expect(page.getByTestId('level-select')).toBeVisible();
+  await expect(page).toHaveURL(/#\/levels$/);
+});
+
 test('level select links back to the how-to, which returns to level select', async ({ page }) => {
   await page.goto('/');
   await page.getByTestId('how-to-done').click();
