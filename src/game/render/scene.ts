@@ -5,6 +5,7 @@ import { CART_RADIUS, JUMP_THRESHOLD, MAX_SLOPE } from '../../core';
 import type { Level, Obstacle } from '../../core';
 import { toScreenX, toScreenY, visibleWorld } from './camera';
 import type { Camera } from './camera';
+import type { ConfettiPiece } from './confetti';
 import type { CartPose } from './ride';
 import { MAJOR_EVERY, STATION_LEG, STATION_PLATFORM, theme } from './theme';
 
@@ -397,4 +398,26 @@ export function drawFailMarker(
   ctx.arc(sx, sy, s * 1.7, 0, 2 * Math.PI);
   ctx.stroke();
   ctx.lineCap = 'butt';
+}
+
+// The confetti burst for a win at or under par: small spinning slips in the accent, the ink
+// and the label colour. Sizes are in px, positions in world units.
+export function drawConfetti(
+  ctx: CanvasRenderingContext2D,
+  cam: Camera,
+  pieces: readonly ConfettiPiece[],
+): void {
+  const colours = [theme.mark, theme.ink, theme.label];
+  const w = theme.confettiSize;
+  ctx.save();
+  for (const p of pieces) {
+    ctx.globalAlpha = p.alpha;
+    ctx.fillStyle = colours[p.colour]!;
+    ctx.setTransform(cam.dpr, 0, 0, cam.dpr, 0, 0);
+    ctx.translate(toScreenX(cam, p.x), toScreenY(cam, p.y));
+    ctx.rotate(p.spin);
+    // Squashing one side with the spin makes a flat slip look like it's flipping over.
+    ctx.fillRect(-w / 2, (-w / 4) * Math.cos(p.spin * 1.7), w, (w / 2) * Math.cos(p.spin * 1.7));
+  }
+  ctx.restore();
 }

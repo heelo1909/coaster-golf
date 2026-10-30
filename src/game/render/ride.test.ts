@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { judge } from '../../core';
 import type { Level, PathPoint } from '../../core';
 import { campaign } from '../../levels';
-import { failPose, hasFailEffect, poseAt, speedAt } from './ride';
+import { WOBBLE_MAX, failPose, hasFailEffect, poseAt, speedAt, wobbleAt } from './ride';
 
 const path: PathPoint[] = [
   { t: 0, x: 0, y: 0, angle: 0 },
@@ -111,5 +111,40 @@ describe('speedAt: how fast the cart goes, for the rolling sound', () => {
   it('is 0 with too few points to tell', () => {
     expect(speedAt([], 0)).toBe(0);
     expect(speedAt([path[0]!], 0)).toBe(0);
+  });
+});
+
+describe('wobbleAt: the cart rocking on its wheels', () => {
+  // A 3-second ride sampled at 60 fps whose slope angle turns at `rate` radians per second.
+  function turning(rate: number): PathPoint[] {
+    return Array.from({ length: 181 }, (_, i) => {
+      const t = i / 60;
+      return { t, x: t, y: 0, angle: rate * t };
+    });
+  }
+  const times = Array.from({ length: 300 }, (_, i) => i / 100);
+
+  it('stays level on a straight track', () => {
+    const flat = turning(0);
+    for (const t of times) expect(Math.abs(wobbleAt(flat, t))).toBe(0);
+  });
+
+  it('rocks back and forth through a bend, more in a tighter one, never past the cap', () => {
+    const gentle = Math.max(...times.map((t) => Math.abs(wobbleAt(turning(1), t))));
+    const tight = times.map((t) => wobbleAt(turning(20), t));
+    const tightMax = Math.max(...tight.map(Math.abs));
+    expect(gentle).toBeGreaterThan(0.01);
+    expect(tightMax).toBeGreaterThan(gentle);
+    expect(tightMax).toBeLessThanOrEqual(WOBBLE_MAX);
+    expect(Math.min(...tight)).toBeLessThan(0);
+    expect(Math.max(...tight)).toBeGreaterThan(0);
+  });
+
+  it('settles to nothing at the end, so the cart stops level with the track', () => {
+    const ride = turning(20);
+    expect(Math.abs(wobbleAt(ride, 2.99))).toBeLessThan(0.01);
+    expect(wobbleAt(ride, 3)).toBe(0);
+    expect(wobbleAt(ride, 99)).toBe(0);
+    expect(wobbleAt([], 1)).toBe(0);
   });
 });

@@ -137,6 +137,7 @@ const sizes = {
   sparkLength: 18, // at full size
   failMarkSize: 7, // half the width of the ✕
   failMarkWidth: 2.5,
+  confettiSize: 7, // the long side of a confetti slip
   labelSize: 11,
   titleSize: 13,
   monoFont: MONO, // the equation itself, so every character is easy to count

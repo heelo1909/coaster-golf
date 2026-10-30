@@ -223,3 +223,19 @@ test('sound plays on a ride, and the mute toggle silences it and is remembered',
   expect(await sounds()).toBe(0);
   expect(errors).toEqual([]);
 });
+
+test('a win at par bursts confetti that clears by itself; a win over par does not', async ({
+  page,
+}) => {
+  const canvas = page.getByTestId('game-canvas');
+  await page.getByTestId('equation-input').fill('0*1');
+  await page.getByTestId('equation-input').press('Enter');
+  await expect(page.getByTestId('result-title')).toHaveText('Made it! 3 chars (par 1)');
+  await expect(canvas).not.toHaveAttribute('data-confetti');
+
+  await page.getByTestId('equation-input').fill('0');
+  await page.getByTestId('equation-input').press('Enter');
+  await expect(page.getByTestId('par-star')).toBeVisible();
+  await expect(canvas).toHaveAttribute('data-confetti');
+  await expect(canvas).not.toHaveAttribute('data-confetti', { timeout: 4000 });
+});

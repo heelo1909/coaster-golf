@@ -160,6 +160,7 @@ export function mountPlayScreen(root: HTMLElement, level: Level, actions: PlayAc
     setRiding(false);
     if (input.value() !== text) return; // edited mid-ride: that ride no longer counts
     if (judged.result.success) {
+      if (outcome.win && outcome.star) renderer.celebrate();
       lastWin = text;
       showBest(actions.onWin(judged.score, text));
     } else failedRides++;

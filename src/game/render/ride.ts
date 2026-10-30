@@ -112,3 +112,25 @@ export function speedAt(path: readonly PathPoint[], t: number): number {
 export function hasFailEffect(reason: FailReason | undefined): boolean {
   return reason === 'HIT_OBSTACLE' || reason === 'FLEW_OFF' || reason === 'STALLED';
 }
+
+// The cart rocks on its wheels as it rides: a small extra tilt (radians) that swings back and
+// forth at WOBBLE_HZ, sized by how fast the track is turning around t. It's 0 on a straight,
+// never more than WOBBLE_MAX, and settles to 0 over the ride's last WOBBLE_SETTLE seconds, so
+// the cart comes to rest level with the track. Only the drawing tilts; the path is untouched.
+export const WOBBLE_MAX = 0.12;
+const WOBBLE_HZ = 3.5;
+const WOBBLE_GAIN = 0.04; // radians of tilt per radian per second of turning
+const WOBBLE_WINDOW = 0.15; // seconds either side of t over which the turning is averaged
+const WOBBLE_SETTLE = 0.3;
+
+export function wobbleAt(path: readonly PathPoint[], t: number): number {
+  const first = path[0];
+  const last = path.at(-1);
+  if (!first || !last || t <= first.t || t >= last.t) return 0;
+  const before = poseAt(path, Math.max(t - WOBBLE_WINDOW, first.t))!;
+  const after = poseAt(path, Math.min(t + WOBBLE_WINDOW, last.t))!;
+  const turning = Math.abs(after.angle - before.angle) / (2 * WOBBLE_WINDOW);
+  const size = Math.min(turning * WOBBLE_GAIN, WOBBLE_MAX);
+  const settle = Math.min((last.t - t) / WOBBLE_SETTLE, (t - first.t) / WOBBLE_SETTLE, 1);
+  return size * settle * Math.sin(2 * Math.PI * WOBBLE_HZ * t);
+}

@@ -13,9 +13,11 @@ import {
   hasFailEffect,
   poseAt,
   speedAt,
+  wobbleAt,
 } from './ride';
 import type { CartPose } from './ride';
-import { drawCart, drawFailMarker, drawStatic, drawTrack } from './scene';
+import { CONFETTI_SECONDS, confettiAt } from './confetti';
+import { drawCart, drawConfetti, drawFailMarker, drawStatic, drawTrack } from './scene';
 import type { Track } from './scene';
 import { theme } from './theme';
 
@@ -54,6 +56,9 @@ export interface Renderer {
   // the path is over (the fail effect may still be playing); the sound follows it.
   playRide(result: SimResult, onFrame?: (speed: number, ended: boolean) => void): Promise<void>;
   skipRide(): void; // jumps straight to the end of the ride playing now
+  // A confetti burst from where the cart stopped, for a win at or under par. Nothing with
+  // reduced motion or without a cart; cancelled like the cart by setTrack/setLevel/playRide.
+  celebrate(): void;
   // Zoom by `factor` about (sx, sy), and pan by (dx, dy), in CSS px within the canvas. Either
   // one during a ride hands the camera back to the player.
   zoomAt(factor: number, sx: number, sy: number): void;
@@ -74,6 +79,7 @@ export function createRenderer(canvas: HTMLCanvasElement, level: Level, number?:
   let cart: CartPose | null = null;
   let failMark: { x: number; y: number } | null = null;
   let ride: { result: SimResult; done: () => void; frame: number } | null = null;
+  let burst: { x: number; y: number; k: number; frame: number } | null = null;
   let view: View = fitView(level.bounds);
   let userView: View = view; // where the player left the camera; rides return here
   let following = false;
@@ -126,6 +132,14 @@ export function createRenderer(canvas: HTMLCanvasElement, level: Level, number?:
     ctx!.setTransform(cam.dpr, 0, 0, cam.dpr, 0, 0);
     if (failMark) drawFailMarker(ctx!, cam, failMark.x, failMark.y);
     if (cart) drawCart(ctx!, cam, cart);
+    if (burst) drawConfetti(ctx!, cam, confettiAt(burst.x, burst.y, burst.k));
+  }
+
+  function stopBurst(): void {
+    if (!burst) return;
+    cancelAnimationFrame(burst.frame);
+    burst = null;
+    delete canvas.dataset.confetti;
   }
 
   function stopEasing(): void {
@@ -187,6 +201,7 @@ export function createRenderer(canvas: HTMLCanvasElement, level: Level, number?:
 
   function clearCart(): void {
     endRide(null);
+    stopBurst();
     cart = null;
     failMark = null;
   }
@@ -239,6 +254,7 @@ export function createRenderer(canvas: HTMLCanvasElement, level: Level, number?:
           onFrame?.(t < end ? speedAt(result.path, t) : 0, t >= end);
           if (t < end) {
             cart = poseAt(result.path, t);
+            if (cart && !reduced) cart.angle += wobbleAt(result.path, t);
           } else if (effect && t < end + FAIL_EFFECT_SECONDS) {
             cart = failPose(result.path, result.reason, (t - end) / FAIL_EFFECT_SECONDS);
           } else {
@@ -262,6 +278,26 @@ export function createRenderer(canvas: HTMLCanvasElement, level: Level, number?:
     },
     skipRide() {
       if (ride) endRide(finalPose(ride.result));
+    },
+    celebrate() {
+      stopBurst();
+      if (!cart || reducedMotion()) return;
+      const { x, y } = cart;
+      let started: number | undefined;
+      const tick = (now: number): void => {
+        if (!burst) return;
+        started ??= now;
+        burst.k = (now - started) / 1000 / CONFETTI_SECONDS;
+        if (burst.k >= 1) {
+          stopBurst();
+          frame();
+          return;
+        }
+        frame();
+        burst.frame = requestAnimationFrame(tick);
+      };
+      burst = { x, y, k: 0, frame: requestAnimationFrame(tick) };
+      canvas.dataset.confetti = '';
     },
     zoomAt(factor, sx, sy) {
       takeOver(zoomViewAt(view, cam, current.bounds, factor, sx, sy));

@@ -7,7 +7,8 @@ Draws the level and plays back a ride. **Rendering only shows; it never decides.
 ```
 camera.ts      world ↔ screen transform, fit-to-bounds, devicePixelRatio, View (zoom/pan)
 scene.ts       drawGrid, drawStations, drawObstacles, drawTrack, drawCart
-ride.ts        pure playback maths: poseAt(path, t), failPose(path, reason, k), speedAt(path, t)
+ride.ts        pure playback maths: poseAt(path, t), failPose(path, reason, k), speedAt(path, t), wobbleAt(path, t)
+confetti.ts    pure confetti maths: confettiAt(x, y, k), a fixed-seed burst in world units
 theme.ts       the four themes (palettes + style), sizes, setTheme, cssVars
 index.ts       createRenderer: setTrack, playRide → Promise, skipRide, zoomAt, panBy, resetView
 ```
@@ -20,6 +21,7 @@ index.ts       createRenderer: setTrack, playRide → Promise, skipRide, zoomAt,
 - **Track drawing:** sample the curve at the visible pixel resolution. Draw only the part between the stations solid, and show the rest faintly so players see where their curve goes. Break the line at `NaN` or big jumps; never draw a vertical line across a gap.
 - **Ride playback:** step through `path` by time with `requestAnimationFrame`. Interpolate between points. Rotate the cart by `angle`. On failure, finish at `failAt` and play the fail effect: a spark for `HIT_OBSTACLE`, a tumbling cart for `FLEW_OFF`, a slow roll-back wobble for `STALLED`.
 - A skip button (or tap) jumps straight to the end of the ride.
+- **Juice (Section 9):** while riding, the cart rocks on its wheels by `wobbleAt` (sized by how fast the track turns, capped at `WOBBLE_MAX`, settling to 0 at the end). It only tilts the drawing; the cart's position still comes from `path`. A win at or under par calls `celebrate()`: a 1.6 s confetti burst from where the cart stopped, in `mark`, `ink` and `label` (the burst is a par moment, so the accent is allowed). The canvas carries `data-confetti` while it plays (for the e2e). No wobble and no confetti with `prefers-reduced-motion`; a new track, level or ride cancels the burst.
 - **Zoom and pan:** the camera is a `View` (zoom relative to the fitted camera, plus the world point at the canvas centre), from 1× (the whole level) to 8×, with the centre kept inside the level. Zooming keeps the point under the finger or cursor in place. The view maths is pure in `camera.ts` and unit-tested.
 - **Follow camera:** during a ride the view eases toward the cart at `FOLLOW_ZOOM` (2.5×, or the player's zoom if higher), then eases back to the player's own view over 600 ms. If the player zooms or pans mid-ride, the camera is theirs and stops following. No following with `prefers-reduced-motion`.
 - `resize()` is cheap when nothing changed; the play screen calls it whenever the canvas may have changed size (mount, result panel open or close, a `ResizeObserver`). After a theme change, call `restyle()`.
