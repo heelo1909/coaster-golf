@@ -60,6 +60,11 @@ export default tseslint.config(
     },
   },
   {
+    // The Worker runs in Cloudflare's runtime, not a browser; its tests run in Node.
+    files: ['worker/**/*.ts'],
+    languageOptions: { globals: { ...globals.serviceworker, ...globals.node } },
+  },
+  {
     files: ['scripts/**/*.ts', '*.config.{js,ts}'],
     languageOptions: { globals: { ...globals.node } },
   },
