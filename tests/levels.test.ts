@@ -119,9 +119,9 @@ describe('the daily pool', () => {
     expect(today('2027-01-15T08:00:00+09:00')).not.toBe(today('2027-01-15T08:00:00-05:00'));
   });
 
-  it('every reference still wins with the starting speed 5% off either way', () => {
+  it('every reference still wins with the starting speed 8% off either way', () => {
     for (const level of daily) {
-      for (const k of [0.95, 1.05]) {
+      for (const k of [0.92, 1.08]) {
         const l = { ...level, start: { ...level.start, speed: level.start.speed * k } };
         expect(wins(l, level.reference), `${level.id} ×${k}`).toBe(true);
       }

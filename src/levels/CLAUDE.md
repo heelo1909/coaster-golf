@@ -43,7 +43,7 @@ index.ts                        imports and exports both lists in order
 - **Physics shapes what works.** A stretch that curves downward (a hilltop, a climbing root or log, the flanks of a narrow hole) throws a fast cart off, so the pool leans on valleys that curve upward everywhere (parabolas, Vs, circles, `6/x`, `2^x`, `-ln(x)`) and keeps hills low and slow (`cos(x)`, `x-xx/6`, `sin(x)^2/2`).
 - **Posts, not floating rocks**, steer the track: thin rects that hang from far above the level or stand on far below it, so a track can't route around them. A post sits 0.5 above the reference's highest point within 0.5 either side (the cart's reach on a slope), or 0.12 below its lowest point within 0.3.
 - **Daily par** = the shortest known winner, **+1** when it's shorter than the reference. The shortest are listed in `tests/levels.test.ts` (`dailyShortest`) and were found by brute force over every equation up to 5 characters plus fitted shapes (`xx/N-N`, `|x-N|/N`, `Nsin(x/N)`, … with short numbers). Longer answers weren't searched exhaustively, so players may beat par.
-- Each reference wins with the start speed at least ±9% off (the wavy d024 and d030 are the narrowest), and no campaign reference beats a daily level.
+- Each reference wins with the start speed ±8% off (`tests/levels.test.ts`; d024 Big Swell is the narrowest, failing just past −8%), and no campaign reference beats a daily level.
 
 ## Before Committing Any Level
 
