@@ -1,15 +1,18 @@
 // The renderer the UI talks to. It owns one canvas, keeps the static layer (paper, grid,
-// obstacles, stations) cached offscreen, and redraws only the track on top of it.
+// obstacles, stations) cached offscreen, and redraws only the track and the cart on top of it.
 
-import type { Level } from '../../core';
+import type { Level, SimResult } from '../../core';
 import { fitCamera } from './camera';
 import type { Camera } from './camera';
-import { drawStatic, drawTrack } from './scene';
+import { FAIL_EFFECT_SECONDS, REDUCED_MOTION_SPEED, failPose, hasFailEffect, poseAt } from './ride';
+import type { CartPose } from './ride';
+import { drawCart, drawStatic, drawTrack } from './scene';
 import type { Track } from './scene';
 import { theme } from './theme';
 
 export type { Camera } from './camera';
 export type { Track } from './scene';
+export type { CartPose } from './ride';
 
 export interface Renderer {
   setLevel(level: Level): void;
@@ -17,6 +20,11 @@ export interface Renderer {
   // an error).
   setTrack(f: Track | null, faded?: boolean): void;
   resize(): void; // call when the canvas's CSS size or devicePixelRatio changes
+  // Plays a judged ride back from its recorded path, then the fail effect if it failed. The
+  // promise resolves when it ends, is skipped, or is cancelled by setTrack/setLevel. The cart
+  // stays drawn at its last pose until the track changes.
+  playRide(result: SimResult): Promise<void>;
+  skipRide(): void; // jumps straight to the end of the ride playing now
 }
 
 export function createRenderer(canvas: HTMLCanvasElement, level: Level): Renderer {
@@ -28,6 +36,8 @@ export function createRenderer(canvas: HTMLCanvasElement, level: Level): Rendere
   let current = level;
   let track: Track | null = null;
   let trackFaded = false;
+  let cart: CartPose | null = null;
+  let ride: { result: SimResult; done: () => void; frame: number } | null = null;
   let cam: Camera = layout();
 
   function layout(): Camera {
@@ -53,16 +63,43 @@ export function createRenderer(canvas: HTMLCanvasElement, level: Level): Rendere
       drawTrack(ctx!, cam, current, track);
       ctx!.globalAlpha = 1;
     }
+    if (cart) {
+      ctx!.setTransform(cam.dpr, 0, 0, cam.dpr, 0, 0);
+      drawCart(ctx!, cam, cart);
+    }
+  }
+
+  // The last frame of a ride: the end of the path, plus the end of the fail effect.
+  function finalPose(result: SimResult): CartPose | null {
+    return result.success ? poseAt(result.path, Infinity) : failPose(result.path, result.reason, 1);
+  }
+
+  // Ends the ride playing now, leaving the cart at `pose`.
+  function endRide(pose: CartPose | null): void {
+    if (!ride) return;
+    cancelAnimationFrame(ride.frame);
+    const { done } = ride;
+    ride = null;
+    cart = pose;
+    frame();
+    done();
+  }
+
+  function clearCart(): void {
+    endRide(null);
+    cart = null;
   }
 
   frame();
   return {
     setLevel(next) {
+      clearCart();
       current = next;
       cam = layout();
       frame();
     },
     setTrack(f, faded = false) {
+      if (f !== track) clearCart();
       track = f;
       trackFaded = faded;
       frame();
@@ -70,6 +107,36 @@ export function createRenderer(canvas: HTMLCanvasElement, level: Level): Rendere
     resize() {
       cam = layout();
       frame();
+    },
+    playRide(result) {
+      clearCart();
+      if (result.path.length === 0) return Promise.resolve(); // failed before the cart moved
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const speed = reduced ? REDUCED_MOTION_SPEED : 1;
+      const end = result.path.at(-1)!.t;
+      const effect = !result.success && !reduced && hasFailEffect(result.reason);
+      return new Promise((resolve) => {
+        let started: number | undefined;
+        const tick = (now: number): void => {
+          if (!ride) return;
+          started ??= now;
+          const t = ((now - started) / 1000) * speed;
+          if (t < end) {
+            cart = poseAt(result.path, t);
+          } else if (effect && t < end + FAIL_EFFECT_SECONDS) {
+            cart = failPose(result.path, result.reason, (t - end) / FAIL_EFFECT_SECONDS);
+          } else {
+            endRide(finalPose(result));
+            return;
+          }
+          frame();
+          ride.frame = requestAnimationFrame(tick);
+        };
+        ride = { result, done: resolve, frame: requestAnimationFrame(tick) };
+      });
+    },
+    skipRide() {
+      if (ride) endRide(finalPose(ride.result));
     },
   };
 }

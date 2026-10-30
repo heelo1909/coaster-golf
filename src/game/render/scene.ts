@@ -1,10 +1,11 @@
 // Draws the level and the track. Everything here is in world units; positions go through
 // camera.ts to become pixels, and colours and widths come from theme.ts.
 
-import { JUMP_THRESHOLD, MAX_SLOPE } from '../../core';
+import { CART_RADIUS, JUMP_THRESHOLD, MAX_SLOPE } from '../../core';
 import type { Level, Obstacle } from '../../core';
 import { toScreenX, toScreenY, visibleWorld } from './camera';
 import type { Camera } from './camera';
+import type { CartPose } from './ride';
 import { MAJOR_EVERY, STATION_LEG, STATION_PLATFORM, theme } from './theme';
 
 export type Track = (x: number) => number;
@@ -257,4 +258,47 @@ function strokeLines(ctx: CanvasRenderingContext2D, cam: Camera, lines: Polyline
     }
   }
   ctx.stroke();
+}
+
+// The cart: an amber drafting mark sitting on the track, the size of the circle the
+// simulation collides with (CART_RADIUS along the track's upward normal), tilted with the
+// slope. A crash adds a spark of short rays around it.
+export function drawCart(ctx: CanvasRenderingContext2D, cam: Camera, pose: CartPose): void {
+  const r = Math.max(CART_RADIUS * cam.scale, theme.cartMinRadius);
+  // Screen y points down, so the world angle turns the other way.
+  const a = -pose.angle;
+  ctx.save();
+  ctx.translate(toScreenX(cam, pose.x), toScreenY(cam, pose.y));
+  ctx.rotate(a);
+  ctx.strokeStyle = theme.mark;
+  ctx.fillStyle = theme.paper;
+  ctx.lineWidth = theme.cartWidth;
+  ctx.setLineDash([]);
+  // Body: a box from the wheels up to twice the radius, then two wheels on the rail.
+  ctx.beginPath();
+  ctx.rect(-r, -2 * r, 2 * r, 1.4 * r);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  for (const wx of [-r * 0.55, r * 0.55]) {
+    ctx.moveTo(wx + r * 0.3, -r * 0.3);
+    ctx.arc(wx, -r * 0.3, r * 0.3, 0, 2 * Math.PI);
+  }
+  ctx.fill();
+  ctx.stroke();
+
+  if (pose.spark > 0) {
+    const s = pose.spark;
+    ctx.globalAlpha = 1 - s;
+    ctx.beginPath();
+    for (let i = 0; i < theme.sparkRays; i++) {
+      const ray = (i / theme.sparkRays) * 2 * Math.PI;
+      const inner = r * 1.2 + s * theme.sparkLength * 0.5;
+      const outer = r * 1.2 + s * theme.sparkLength * 1.5;
+      ctx.moveTo(Math.cos(ray) * inner, -r + Math.sin(ray) * inner);
+      ctx.lineTo(Math.cos(ray) * outer, -r + Math.sin(ray) * outer);
+    }
+    ctx.stroke();
+  }
+  ctx.restore();
 }

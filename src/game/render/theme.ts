@@ -22,6 +22,10 @@ export const theme = {
   obstacleWidth: 2,
   hatchGap: 7, // px between hatch lines
   stationWidth: 2.5,
+  cartWidth: 2, // outline of the cart and its wheels
+  cartMinRadius: 6, // px, so the cart stays visible when the level is zoomed far out
+  sparkRays: 8,
+  sparkLength: 18, // px, at full size
 
   font: '"JetBrains Mono", "Cascadia Mono", Consolas, "Courier New", monospace',
   labelSize: 11, // px

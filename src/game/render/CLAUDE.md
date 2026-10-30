@@ -6,10 +6,10 @@ Draws the level and plays back a ride. **Rendering only shows; it never decides.
 
 ```
 camera.ts      world ↔ screen transform, fit-to-bounds, devicePixelRatio
-scene.ts       drawGrid, drawStations, drawObstacles, drawTrack
-ride.ts        playRide(path) → animation, returns a Promise when finished
+scene.ts       drawGrid, drawStations, drawObstacles, drawTrack, drawCart
+ride.ts        pure playback maths: poseAt(path, t), failPose(path, reason, k)
 theme.ts       colors, line widths, fonts (from the chosen art direction)
-index.ts
+index.ts       createRenderer: setTrack, playRide(result) → Promise, skipRide
 ```
 
 ## Rules
@@ -20,6 +20,9 @@ index.ts
 - **Track drawing:** sample the curve at the visible pixel resolution. Draw only the part between the stations solid, and show the rest faintly so players see where their curve goes. Break the line at `NaN` or big jumps; never draw a vertical line across a gap.
 - **Ride playback:** step through `path` by time with `requestAnimationFrame`. Interpolate between points. Rotate the cart by `angle`. On failure, finish at `failAt` and play the fail effect: a spark for `HIT_OBSTACLE`, a tumbling cart for `FLEW_OFF`, a slow roll-back wobble for `STALLED`.
 - A skip button (or tap) jumps straight to the end of the ride.
+- `playRide` lives on the renderer (it owns the canvas and the frame loop); `ride.ts` stays pure so it can be tested. A new track or level cancels a ride in progress, and the cart stays at its last pose until the track changes. A ride with an empty `path` (failed before the cart moved) draws no cart.
+- The cart is drawn the size of the sim's collision circle (`CART_RADIUS`, sitting on the track along its upward normal), never smaller than `theme.cartMinRadius` px.
+- `prefers-reduced-motion`: the ride plays at `REDUCED_MOTION_SPEED`× and the fail effect jumps to its last frame.
 - All colors and sizes come from `theme.ts`, so swapping the art direction means editing one file.
 
 ## Performance

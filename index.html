@@ -109,6 +109,30 @@
         text-decoration: underline var(--error) 2px;
         text-underline-offset: 4px;
       }
+      .ride-btn {
+        display: block;
+        width: 100%;
+        min-height: 44px;
+        margin-top: 12px;
+        border: 1.5px solid var(--mark);
+        border-radius: 2px;
+        background: transparent;
+        color: var(--mark);
+        font: 600 16px var(--mono);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+      .ride-btn:hover,
+      .ride-btn:focus-visible {
+        background: var(--mark);
+        color: var(--paper);
+        outline: none;
+      }
+      .play-canvas[data-riding] {
+        cursor: pointer;
+      }
       .eq-note {
         color: var(--mark);
         font-size: 13px;

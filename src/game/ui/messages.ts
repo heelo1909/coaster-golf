@@ -5,5 +5,7 @@ export const messages = {
   equationLabel: 'Your track',
   equationPlaceholder: 'y = x/2',
   counter: (chars: number, par: number) => `${chars} chars · par ${par}`,
+  ride: 'Ride',
+  skip: 'Skip',
   noPasting: 'No pasting — type it out ✍️',
 };

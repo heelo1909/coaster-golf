@@ -66,12 +66,16 @@ export function isBlockedInput(inputType: string): boolean {
 
 export interface EquationInput {
   readonly element: HTMLElement;
+  value(): string;
+  // Runs any pending preview now, so the drawn track matches the text before a ride.
+  flush(): void;
   setPar(par: number): void;
 }
 
 export function createEquationInput(
   par: number,
   onPreview: (preview: Preview) => void,
+  onSubmit: () => void, // Enter = Ride
 ): EquationInput {
   const root = document.createElement('div');
   root.className = 'eq';
@@ -167,16 +171,33 @@ export function createEquationInput(
     if (isBlockedInput(event.inputType)) blockPaste(event);
   });
 
+  input.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' && !event.isComposing) {
+      event.preventDefault();
+      onSubmit();
+    }
+  });
+
   input.addEventListener('input', () => {
     note.replaceChildren();
     showCounter();
     clearTimeout(timer);
-    timer = setTimeout(update, PREVIEW_DEBOUNCE_MS);
+    timer = setTimeout(() => {
+      timer = undefined;
+      update();
+    }, PREVIEW_DEBOUNCE_MS);
   });
 
   showCounter();
   return {
     element: root,
+    value: () => input.value,
+    flush() {
+      if (timer === undefined) return;
+      clearTimeout(timer);
+      timer = undefined;
+      update();
+    },
     setPar(next) {
       currentPar = next;
       showCounter();
