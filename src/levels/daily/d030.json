@@ -1,0 +1,45 @@
+{
+  "id": "d030",
+  "name": "Twin Humps",
+  "bounds": {
+    "xMin": -1,
+    "xMax": 8,
+    "yMin": -2,
+    "yMax": 3
+  },
+  "start": {
+    "x": 0,
+    "y": 0,
+    "speed": 4
+  },
+  "end": {
+    "x": 6.28,
+    "y": 0
+  },
+  "obstacles": [
+    {
+      "kind": "rect",
+      "x": 1.37,
+      "y": -32,
+      "w": 0.4,
+      "h": 32.34
+    },
+    {
+      "kind": "rect",
+      "x": 4.51,
+      "y": -32,
+      "w": 0.4,
+      "h": 32.34
+    },
+    {
+      "kind": "rect",
+      "x": 2.94,
+      "y": 0.62,
+      "w": 0.4,
+      "h": 32.38
+    }
+  ],
+  "par": 10,
+  "reference": "sin(x)^2/2",
+  "hint": "Two humps the same size, never below zero."
+}

@@ -1,0 +1,23 @@
+{
+  "id": "d001",
+  "name": "Easy Slope",
+  "bounds": {
+    "xMin": -1,
+    "xMax": 9,
+    "yMin": -2,
+    "yMax": 6
+  },
+  "start": {
+    "x": 0,
+    "y": 4,
+    "speed": 2
+  },
+  "end": {
+    "x": 8,
+    "y": 0
+  },
+  "obstacles": [],
+  "par": 5,
+  "reference": "4-x/2",
+  "hint": "A straight line will do. Where does it start?"
+}

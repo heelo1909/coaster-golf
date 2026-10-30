@@ -1,0 +1,45 @@
+{
+  "id": "d010",
+  "name": "Touchdown",
+  "bounds": {
+    "xMin": -1,
+    "xMax": 6,
+    "yMin": -4,
+    "yMax": 4
+  },
+  "start": {
+    "x": 0,
+    "y": 2,
+    "speed": 2
+  },
+  "end": {
+    "x": 5,
+    "y": -2
+  },
+  "obstacles": [
+    {
+      "kind": "rect",
+      "x": 0.8,
+      "y": -34,
+      "w": 0.4,
+      "h": 33.38
+    },
+    {
+      "kind": "rect",
+      "x": 2.8,
+      "y": -1.55,
+      "w": 0.4,
+      "h": 35.55
+    },
+    {
+      "kind": "rect",
+      "x": 3.8,
+      "y": -1.55,
+      "w": 0.4,
+      "h": 35.55
+    }
+  ],
+  "par": 7,
+  "reference": "|x-2|-x",
+  "hint": "A steep drop, then a flat landing."
+}

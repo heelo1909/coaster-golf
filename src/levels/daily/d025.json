@@ -1,0 +1,45 @@
+{
+  "id": "d025",
+  "name": "Moon Base",
+  "bounds": {
+    "xMin": -5,
+    "xMax": 5,
+    "yMin": -6,
+    "yMax": 2
+  },
+  "start": {
+    "x": -3.9,
+    "y": -0.89,
+    "speed": 5
+  },
+  "end": {
+    "x": 3.9,
+    "y": -0.89
+  },
+  "obstacles": [
+    {
+      "kind": "rect",
+      "x": -2.7,
+      "y": -2.15,
+      "w": 0.4,
+      "h": 34.15
+    },
+    {
+      "kind": "rect",
+      "x": -0.2,
+      "y": -3.47,
+      "w": 0.4,
+      "h": 35.47
+    },
+    {
+      "kind": "rect",
+      "x": 2.3,
+      "y": -2.15,
+      "w": 0.4,
+      "h": 34.15
+    }
+  ],
+  "par": 7,
+  "reference": "-sqrt(16-xx)",
+  "hint": "Part of a circle."
+}

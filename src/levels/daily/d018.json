@@ -1,0 +1,30 @@
+{
+  "id": "d018",
+  "name": "Low Road",
+  "bounds": {
+    "xMin": -1,
+    "xMax": 9,
+    "yMin": -4,
+    "yMax": 2
+  },
+  "start": {
+    "x": 0,
+    "y": -2,
+    "speed": 7.5
+  },
+  "end": {
+    "x": 8,
+    "y": 0
+  },
+  "obstacles": [
+    {
+      "kind": "circle",
+      "x": 4,
+      "y": 0.4,
+      "r": 0.5
+    }
+  ],
+  "par": 5,
+  "reference": "x/4-2",
+  "hint": "Keep it low and straight."
+}

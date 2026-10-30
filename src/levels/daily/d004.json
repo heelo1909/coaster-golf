@@ -1,0 +1,31 @@
+{
+  "id": "d004",
+  "name": "Booster",
+  "bounds": {
+    "xMin": -1,
+    "xMax": 5,
+    "yMin": -2,
+    "yMax": 6
+  },
+  "start": {
+    "x": 0,
+    "y": 0.25,
+    "speed": 12
+  },
+  "end": {
+    "x": 4,
+    "y": 4
+  },
+  "obstacles": [
+    {
+      "kind": "rect",
+      "x": 2.24,
+      "y": 2.42,
+      "w": 0.4,
+      "h": 33.58
+    }
+  ],
+  "par": 5,
+  "reference": "2^x/4",
+  "hint": "Gentle at first, then it really takes off."
+}

@@ -1,0 +1,38 @@
+{
+  "id": "d015",
+  "name": "Ripple Pond",
+  "bounds": {
+    "xMin": 0,
+    "xMax": 12,
+    "yMin": -3,
+    "yMax": 4
+  },
+  "start": {
+    "x": 1.57,
+    "y": 1.27,
+    "speed": 1
+  },
+  "end": {
+    "x": 10.99,
+    "y": -0.18
+  },
+  "obstacles": [
+    {
+      "kind": "rect",
+      "x": 4.29,
+      "y": 0.12,
+      "w": 0.4,
+      "h": 33.88
+    },
+    {
+      "kind": "rect",
+      "x": 7.53,
+      "y": -33,
+      "w": 0.4,
+      "h": 33.13
+    }
+  ],
+  "par": 9,
+  "reference": "2sin(x)/x",
+  "hint": "Waves that fade as they go."
+}

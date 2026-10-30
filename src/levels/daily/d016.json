@@ -1,0 +1,31 @@
+{
+  "id": "d016",
+  "name": "Bowl",
+  "bounds": {
+    "xMin": -1,
+    "xMax": 5,
+    "yMin": -2,
+    "yMax": 4
+  },
+  "start": {
+    "x": 0,
+    "y": 2,
+    "speed": 4
+  },
+  "end": {
+    "x": 4,
+    "y": 2
+  },
+  "obstacles": [
+    {
+      "kind": "rect",
+      "x": 1.8,
+      "y": 0.63,
+      "w": 0.4,
+      "h": 33.38
+    }
+  ],
+  "par": 9,
+  "reference": "(x-2)^2/2",
+  "hint": "A curve with its bottom in the middle."
+}

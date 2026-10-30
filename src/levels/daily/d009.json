@@ -1,0 +1,31 @@
+{
+  "id": "d009",
+  "name": "Cool Down",
+  "bounds": {
+    "xMin": -1,
+    "xMax": 5,
+    "yMin": -2,
+    "yMax": 6
+  },
+  "start": {
+    "x": 0,
+    "y": 4,
+    "speed": 2
+  },
+  "end": {
+    "x": 4,
+    "y": 0.07
+  },
+  "obstacles": [
+    {
+      "kind": "rect",
+      "x": 1.2,
+      "y": 2.13,
+      "w": 0.4,
+      "h": 33.87
+    }
+  ],
+  "par": 5,
+  "reference": "4e^-x",
+  "hint": "Steep at first, then it eases off."
+}

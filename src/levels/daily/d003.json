@@ -1,0 +1,31 @@
+{
+  "id": "d003",
+  "name": "Duck Under",
+  "bounds": {
+    "xMin": -4,
+    "xMax": 4,
+    "yMin": -2,
+    "yMax": 3
+  },
+  "start": {
+    "x": -3,
+    "y": 1,
+    "speed": 4
+  },
+  "end": {
+    "x": 3,
+    "y": 1
+  },
+  "obstacles": [
+    {
+      "kind": "rect",
+      "x": -0.2,
+      "y": 0.53,
+      "w": 0.4,
+      "h": 32.47
+    }
+  ],
+  "par": 4,
+  "reference": "xx/9",
+  "hint": "Dip under the post and come back up."
+}

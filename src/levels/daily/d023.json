@@ -1,0 +1,31 @@
+{
+  "id": "d023",
+  "name": "Hyperbole",
+  "bounds": {
+    "xMin": 0,
+    "xMax": 7,
+    "yMin": -1,
+    "yMax": 8
+  },
+  "start": {
+    "x": 1,
+    "y": 6,
+    "speed": 2
+  },
+  "end": {
+    "x": 6,
+    "y": 1
+  },
+  "obstacles": [
+    {
+      "kind": "rect",
+      "x": 2.25,
+      "y": 3.58,
+      "w": 0.4,
+      "h": 34.42
+    }
+  ],
+  "par": 3,
+  "reference": "6/x",
+  "hint": "Steep at first, then it flattens out."
+}

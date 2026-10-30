@@ -1,0 +1,45 @@
+{
+  "id": "d005",
+  "name": "Trough",
+  "bounds": {
+    "xMin": -3,
+    "xMax": 7,
+    "yMin": 0,
+    "yMax": 6
+  },
+  "start": {
+    "x": -2,
+    "y": 4,
+    "speed": 4.5
+  },
+  "end": {
+    "x": 6,
+    "y": 4
+  },
+  "obstacles": [
+    {
+      "kind": "rect",
+      "x": 0.4,
+      "y": 2.5,
+      "w": 0.4,
+      "h": 33.5
+    },
+    {
+      "kind": "rect",
+      "x": 1.8,
+      "y": -30,
+      "w": 0.4,
+      "h": 31.88
+    },
+    {
+      "kind": "rect",
+      "x": 3.2,
+      "y": 2.5,
+      "w": 0.4,
+      "h": 33.5
+    }
+  ],
+  "par": 13,
+  "reference": "(|x|+|x-4|)/2",
+  "hint": "Down, flat along the bottom, then up."
+}

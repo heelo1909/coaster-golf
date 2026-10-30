@@ -140,7 +140,7 @@ Work through the sections in order. Each one has a goal, tasks, and a "Done when
 
 **Goal:** one shared level per day that brings people back.
 
-- [ ] A pool of daily levels (start with 30, kept separate from the Level Set), each validated by `check-levels`
+- [x] A pool of daily levels (start with 30, kept separate from the Level Set), each validated by `check-levels`
 - [ ] Date → level picked deterministically, rolling over at 00:00 UTC; everyone gets the same level
 - [ ] Daily screen: today's level, a countdown to the next one, your best today, and your streak (stored locally)
 - [ ] **Share button:** copies the share text defined in `src/core/daily/CLAUDE.md`, **never** revealing the equation

@@ -1,0 +1,31 @@
+{
+  "id": "d026",
+  "name": "Root Slide",
+  "bounds": {
+    "xMin": 0,
+    "xMax": 17,
+    "yMin": -4,
+    "yMax": 6
+  },
+  "start": {
+    "x": 1,
+    "y": 4,
+    "speed": 2
+  },
+  "end": {
+    "x": 16,
+    "y": -2
+  },
+  "obstacles": [
+    {
+      "kind": "rect",
+      "x": 6.05,
+      "y": 1.7,
+      "w": 0.4,
+      "h": 34.3
+    }
+  ],
+  "par": 8,
+  "reference": "6-2sqrt(x)",
+  "hint": "It drops fast, then slower and slower."
+}

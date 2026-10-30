@@ -1,0 +1,31 @@
+{
+  "id": "d027",
+  "name": "Lift Hill",
+  "bounds": {
+    "xMin": -1,
+    "xMax": 4,
+    "yMin": -2,
+    "yMax": 5
+  },
+  "start": {
+    "x": 0,
+    "y": 0,
+    "speed": 11
+  },
+  "end": {
+    "x": 3,
+    "y": 3
+  },
+  "obstacles": [
+    {
+      "kind": "rect",
+      "x": 1.53,
+      "y": 1.73,
+      "w": 0.4,
+      "h": 33.27
+    }
+  ],
+  "par": 5,
+  "reference": "xxx/9",
+  "hint": "Flat at the start, then steeper and steeper."
+}

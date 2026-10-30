@@ -1,0 +1,38 @@
+{
+  "id": "d012",
+  "name": "Tilted Bowl",
+  "bounds": {
+    "xMin": -1,
+    "xMax": 11,
+    "yMin": -4,
+    "yMax": 5
+  },
+  "start": {
+    "x": 0,
+    "y": 0,
+    "speed": 11
+  },
+  "end": {
+    "x": 10,
+    "y": 2.5
+  },
+  "obstacles": [
+    {
+      "kind": "rect",
+      "x": 7.8,
+      "y": -34,
+      "w": 0.4,
+      "h": 33.59
+    },
+    {
+      "kind": "rect",
+      "x": 4.8,
+      "y": -1.22,
+      "w": 0.4,
+      "h": 36.22
+    }
+  ],
+  "par": 6,
+  "reference": "xx/8-x",
+  "hint": "A parabola whose ends are at different heights."
+}

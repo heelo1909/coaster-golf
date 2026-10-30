@@ -1,0 +1,31 @@
+{
+  "id": "d011",
+  "name": "Crater",
+  "bounds": {
+    "xMin": -4,
+    "xMax": 4,
+    "yMin": -5,
+    "yMax": 2
+  },
+  "start": {
+    "x": -2.9,
+    "y": -0.77,
+    "speed": 4.5
+  },
+  "end": {
+    "x": 2.9,
+    "y": -0.77
+  },
+  "obstacles": [
+    {
+      "kind": "rect",
+      "x": -0.2,
+      "y": -2.46,
+      "w": 0.4,
+      "h": 34.46
+    }
+  ],
+  "par": 7,
+  "reference": "-sqrt(9-xx)",
+  "hint": "Down into a round hole and out again."
+}

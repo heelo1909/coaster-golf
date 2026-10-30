@@ -1,0 +1,31 @@
+{
+  "id": "d024",
+  "name": "Big Swell",
+  "bounds": {
+    "xMin": -1,
+    "xMax": 11,
+    "yMin": -2,
+    "yMax": 5
+  },
+  "start": {
+    "x": 0,
+    "y": 0,
+    "speed": 8.5
+  },
+  "end": {
+    "x": 9.42,
+    "y": 0
+  },
+  "obstacles": [
+    {
+      "kind": "rect",
+      "x": 4.51,
+      "y": -32,
+      "w": 0.4,
+      "h": 34.86
+    }
+  ],
+  "par": 9,
+  "reference": "3sin(x/3)",
+  "hint": "One long, stretched hump."
+}

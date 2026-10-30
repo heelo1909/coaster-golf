@@ -1,0 +1,31 @@
+{
+  "id": "d017",
+  "name": "Hump Back",
+  "bounds": {
+    "xMin": -1,
+    "xMax": 7,
+    "yMin": -2,
+    "yMax": 4
+  },
+  "start": {
+    "x": 0,
+    "y": 0,
+    "speed": 6.5
+  },
+  "end": {
+    "x": 6,
+    "y": 0
+  },
+  "obstacles": [
+    {
+      "kind": "rect",
+      "x": 2.8,
+      "y": -32,
+      "w": 0.4,
+      "h": 33.37
+    }
+  ],
+  "par": 6,
+  "reference": "x-xx/6",
+  "hint": "A hill that starts and ends at zero."
+}

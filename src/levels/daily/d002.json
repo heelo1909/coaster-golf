@@ -1,0 +1,31 @@
+{
+  "id": "d002",
+  "name": "Over and Under",
+  "bounds": {
+    "xMin": -1,
+    "xMax": 14,
+    "yMin": -4,
+    "yMax": 4
+  },
+  "start": {
+    "x": 0,
+    "y": 2,
+    "speed": 3
+  },
+  "end": {
+    "x": 12.57,
+    "y": 2
+  },
+  "obstacles": [
+    {
+      "kind": "rect",
+      "x": 6.08,
+      "y": -0.44,
+      "w": 0.4,
+      "h": 34.44
+    }
+  ],
+  "par": 9,
+  "reference": "2cos(x/2)",
+  "hint": "One slow wave from high to high."
+}

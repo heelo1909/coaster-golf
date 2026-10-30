@@ -1,0 +1,23 @@
+{
+  "id": "d013",
+  "name": "Ramp",
+  "bounds": {
+    "xMin": -1,
+    "xMax": 7,
+    "yMin": -2,
+    "yMax": 5
+  },
+  "start": {
+    "x": 0,
+    "y": 0,
+    "speed": 11
+  },
+  "end": {
+    "x": 6,
+    "y": 3
+  },
+  "obstacles": [],
+  "par": 3,
+  "reference": "x/2",
+  "hint": "Uphill all the way, in a straight line."
+}

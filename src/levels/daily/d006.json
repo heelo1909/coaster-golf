@@ -1,0 +1,31 @@
+{
+  "id": "d006",
+  "name": "The Notch",
+  "bounds": {
+    "xMin": -4,
+    "xMax": 4,
+    "yMin": -2,
+    "yMax": 5
+  },
+  "start": {
+    "x": -3,
+    "y": 3,
+    "speed": 4.5
+  },
+  "end": {
+    "x": 3,
+    "y": 3
+  },
+  "obstacles": [
+    {
+      "kind": "rect",
+      "x": -0.2,
+      "y": 1,
+      "w": 0.4,
+      "h": 34
+    }
+  ],
+  "par": 3,
+  "reference": "|x|",
+  "hint": "A V shape, point down."
+}

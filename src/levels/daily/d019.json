@@ -1,0 +1,45 @@
+{
+  "id": "d019",
+  "name": "Quartic",
+  "bounds": {
+    "xMin": -4,
+    "xMax": 4,
+    "yMin": -2,
+    "yMax": 5
+  },
+  "start": {
+    "x": -3,
+    "y": 3,
+    "speed": 4.5
+  },
+  "end": {
+    "x": 3,
+    "y": 3
+  },
+  "obstacles": [
+    {
+      "kind": "rect",
+      "x": -2,
+      "y": 1.54,
+      "w": 0.4,
+      "h": 33.46
+    },
+    {
+      "kind": "rect",
+      "x": 1.6,
+      "y": 1.54,
+      "w": 0.4,
+      "h": 33.46
+    },
+    {
+      "kind": "rect",
+      "x": -0.2,
+      "y": 0.5,
+      "w": 0.4,
+      "h": 34.5
+    }
+  ],
+  "par": 6,
+  "reference": "x^4/27",
+  "hint": "A bowl with a wide, flat bottom."
+}

@@ -1,0 +1,23 @@
+{
+  "id": "d028",
+  "name": "Long Ramp",
+  "bounds": {
+    "xMin": -1,
+    "xMax": 11,
+    "yMin": -2,
+    "yMax": 4
+  },
+  "start": {
+    "x": 0,
+    "y": 0,
+    "speed": 10
+  },
+  "end": {
+    "x": 10,
+    "y": 2
+  },
+  "obstacles": [],
+  "par": 3,
+  "reference": "x/5",
+  "hint": "A gentle slope, all the way up."
+}

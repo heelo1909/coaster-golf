@@ -33,9 +33,93 @@ describe('the Level Set', () => {
   it('gives every level a name', () => {
     expect(new Set(campaign.map((l) => l.name)).size).toBe(15);
   });
+});
 
-  it('has no daily levels yet (Section 7)', () => {
-    expect(daily).toEqual([]);
+const dailyDir = fileURLToPath(new URL('../src/levels/daily/', import.meta.url));
+
+// The shortest known winner for each daily level (found by brute force over every equation up
+// to 5 characters plus fitted shapes like `xx/N-N`), by id. Par is this length, +1 when it's
+// shorter than the reference.
+const dailyShortest: Record<string, string> = {
+  d001: '4-x/2',
+  d002: '2cos(x/2)',
+  d003: 'xx/8',
+  d004: 'xx.24',
+  d005: 'max(2,|x-2|)',
+  d006: '|x|',
+  d007: 'xx/2-3x',
+  d008: 'cos(x)',
+  d009: '4/3^x',
+  d010: '|x-2|-x',
+  d011: 'xx/2-5',
+  d012: 'xx/8-x',
+  d013: 'x/2',
+  d014: '5/x-5',
+  d015: '2sin(x)/x',
+  d016: '|x-2|-.2',
+  d017: 'x-xx/6',
+  d018: 'x/4-2',
+  d019: 'x^4/27',
+  d020: 'xx/3-.8x',
+  d021: '-x/3',
+  d022: '|x|/.9-.1',
+  d023: '6/x',
+  d024: '3sin(x/3)',
+  d025: 'xx/3-6',
+  d026: '6-2x^.5',
+  d027: 'xxx/9',
+  d028: 'x/5',
+  d029: 'xx-1',
+  d030: 'sin(x)^2/2',
+};
+
+describe('the daily pool', () => {
+  it('has 30 levels, d001 to d030, in schedule order', () => {
+    expect(daily.map((l) => l.id)).toEqual(
+      Array.from({ length: 30 }, (_, i) => `d${String(i + 1).padStart(3, '0')}`),
+    );
+  });
+
+  it('loads every level file in the daily folder', () => {
+    const files = readdirSync(dailyDir).filter((f) => f.endsWith('.json'));
+    expect(files.map((f) => f.replace('.json', '')).sort()).toEqual(daily.map((l) => l.id));
+  });
+
+  it('names every level, and no name repeats a campaign level', () => {
+    const names = [...campaign, ...daily].map((l) => l.name);
+    expect(new Set(names).size).toBe(45);
+  });
+
+  it('every reference wins, with its length as the score', () => {
+    for (const level of daily) {
+      const j = judge(level, level.reference);
+      expect(j.ok && j.result.success, level.id).toBe(true);
+      expect(j.ok && j.score, level.id).toBe(scoreEquation(level.reference));
+    }
+  });
+
+  it('every shortest known solution wins, and par is that length (+1 below the reference)', () => {
+    for (const level of daily) {
+      const best = dailyShortest[level.id]!;
+      expect(wins(level, best), `${level.id} ${best}`).toBe(true);
+      const n = scoreEquation(best);
+      expect(level.par, level.id).toBe(n < scoreEquation(level.reference) ? n + 1 : n);
+    }
+  });
+
+  it("doesn't reuse a campaign layout: no campaign reference beats a daily level", () => {
+    for (const level of daily) {
+      for (const c of campaign) expect(wins(level, c.reference), `${level.id} ${c.id}`).toBe(false);
+    }
+  });
+
+  it('every reference still wins with the starting speed 5% off either way', () => {
+    for (const level of daily) {
+      for (const k of [0.95, 1.05]) {
+        const l = { ...level, start: { ...level.start, speed: level.start.speed * k } };
+        expect(wins(l, level.reference), `${level.id} ×${k}`).toBe(true);
+      }
+    }
   });
 });
 

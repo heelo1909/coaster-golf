@@ -1,0 +1,31 @@
+{
+  "id": "d014",
+  "name": "Log Flume",
+  "bounds": {
+    "xMin": 0,
+    "xMax": 11,
+    "yMin": -7,
+    "yMax": 2
+  },
+  "start": {
+    "x": 1,
+    "y": 0,
+    "speed": 2
+  },
+  "end": {
+    "x": 10,
+    "y": -4.61
+  },
+  "obstacles": [
+    {
+      "kind": "rect",
+      "x": 3.7,
+      "y": -1.95,
+      "w": 0.4,
+      "h": 33.95
+    }
+  ],
+  "par": 6,
+  "reference": "-2ln(x)",
+  "hint": "Down fast, then hardly at all."
+}

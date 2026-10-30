@@ -1,0 +1,45 @@
+{
+  "id": "d022",
+  "name": "Chain",
+  "bounds": {
+    "xMin": -5,
+    "xMax": 5,
+    "yMin": -1,
+    "yMax": 7
+  },
+  "start": {
+    "x": -4,
+    "y": 4.12,
+    "speed": 5
+  },
+  "end": {
+    "x": 4,
+    "y": 4.12
+  },
+  "obstacles": [
+    {
+      "kind": "rect",
+      "x": -2.2,
+      "y": -31,
+      "w": 0.4,
+      "h": 32.85
+    },
+    {
+      "kind": "rect",
+      "x": 1.8,
+      "y": -31,
+      "w": 0.4,
+      "h": 32.85
+    },
+    {
+      "kind": "rect",
+      "x": -0.2,
+      "y": 1.62,
+      "w": 0.4,
+      "h": 35.38
+    }
+  ],
+  "par": 10,
+  "reference": "sqrt(1+xx)",
+  "hint": "A round bottom with straight sides."
+}

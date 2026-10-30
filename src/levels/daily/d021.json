@@ -1,0 +1,23 @@
+{
+  "id": "d021",
+  "name": "Seesaw",
+  "bounds": {
+    "xMin": -7,
+    "xMax": 7,
+    "yMin": -4,
+    "yMax": 4
+  },
+  "start": {
+    "x": -6,
+    "y": 2,
+    "speed": 1
+  },
+  "end": {
+    "x": 6,
+    "y": -2
+  },
+  "obstacles": [],
+  "par": 4,
+  "reference": "-x/3",
+  "hint": "One straight line, tipped down."
+}
