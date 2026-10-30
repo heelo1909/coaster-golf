@@ -46,8 +46,9 @@ function judge(level: Level, input: string):
   | { ok: true; result: SimResult; score: number };    // score only counts if result.success
 
 // daily/
-function dailyNumber(dateUtc: Date): number;           // #1 = launch day
+function dailyNumber(dateUtc: Date): number;           // #1 = launch day (tests may pass a launch)
 function dailyLevelIndex(dailyNumber: number, poolSize: number): number;
+function msUntilNextDaily(date: Date): number;         // to the next 00:00 UTC
 ```
 
 `judge()` is exported from `src/core/index.ts` (defined in `src/core/judge.ts`, so `level/validate.ts` can import it without a circular import). The UI and the Worker must both call `judge()`, never parse + simulate + score by hand, so they can't drift apart.

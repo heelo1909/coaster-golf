@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { checkLevels, formatReport, loadLevelFiles } from '../scripts/level-check';
+import { checkLevels, formatReport, loadLevelFiles, poolWarning } from '../scripts/level-check';
 import type { LevelFile } from '../scripts/level-check';
 
 const fixtures = fileURLToPath(new URL('./fixtures/check-levels/', import.meta.url));
@@ -144,5 +144,19 @@ describe('check-levels: the report', () => {
 
   it('says so when there are no level files at all', () => {
     expect(formatReport([])).toBe('check-levels: no level files found.');
+  });
+});
+
+describe('check-levels warns before the daily pool runs out', () => {
+  it('is quiet while at least 14 days are left after today', () => {
+    expect(poolWarning(30, 1)).toBeUndefined();
+    expect(poolWarning(30, 16)).toBeUndefined();
+  });
+
+  it('warns with 13 days left, and once the pool has wrapped', () => {
+    expect(poolWarning(30, 17)).toBe(
+      "⚠️  The daily pool has 13 days left after today's #17; add levels (at least 14 ahead).",
+    );
+    expect(poolWarning(30, 45)).toContain('has 0 days left');
   });
 });

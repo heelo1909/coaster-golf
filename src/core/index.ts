@@ -5,5 +5,6 @@ export const CORE_VERSION = 1;
 export * from './equation';
 export * from './sim';
 export * from './level';
+export * from './daily';
 export { judge } from './judge';
 export type { JudgeResult } from './judge';

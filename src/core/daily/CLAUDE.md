@@ -17,6 +17,7 @@ index.ts
 - `LAUNCH_DATE` is a constant (set it in Section 9). `dailyNumber(date)` = whole UTC days since launch + 1, so launch day is **#1**.
 - `dailyLevelIndex(n, poolSize)` = `(n - 1) % poolSize` for now. Once the pool wraps, players get repeats, so `check-levels` should warn when fewer than 14 future days are left.
 - Functions take the date as a parameter. They **never** call `new Date()` themselves, which keeps them testable and server-safe.
+- Built (Section 7): `LAUNCH_DATE` is a placeholder (2026-10-30) until Section 9. `dailyNumber(date, launch = LAUNCH_DATE)` takes the launch only so tests pin their own and don't change when the real date is set. Before launch it returns 0 or less, and `dailyLevelIndex` still maps that into the pool. `msUntilNextDaily(date)` counts to the next 00:00 UTC. `daysLeftInPool(n, poolSize)` = `poolSize - n`; `npm run check-levels` prints a warning (not a failure) below 14 (`poolWarning` in `scripts/level-check.ts`).
 
 ## Streaks
 

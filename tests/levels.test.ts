@@ -1,7 +1,7 @@
 import { readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { judge, scoreEquation } from '../src/core';
+import { dailyLevelIndex, dailyNumber, judge, scoreEquation } from '../src/core';
 import type { Level } from '../src/core';
 import { campaign, daily } from '../src/levels';
 
@@ -111,6 +111,12 @@ describe('the daily pool', () => {
     for (const level of daily) {
       for (const c of campaign) expect(wins(level, c.reference), `${level.id} ${c.id}`).toBe(false);
     }
+  });
+
+  it('two devices at the same moment, in different time zones, get the same level', () => {
+    const today = (iso: string): Level => daily[dailyLevelIndex(dailyNumber(new Date(iso)), 30)]!;
+    expect(today('2027-01-15T08:00:00+09:00')).toBe(today('2027-01-14T18:00:00-05:00'));
+    expect(today('2027-01-15T08:00:00+09:00')).not.toBe(today('2027-01-15T08:00:00-05:00'));
   });
 
   it('every reference still wins with the starting speed 5% off either way', () => {

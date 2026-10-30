@@ -4,7 +4,7 @@
 // can run it on fixture folders without exiting the process.
 import { readdirSync, readFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
-import { scoreEquation, validateLevel } from '../src/core';
+import { daysLeftInPool, scoreEquation, validateLevel } from '../src/core';
 
 export interface LevelFile {
   path: string;
@@ -117,4 +117,13 @@ export function formatReport(rows: LevelRow[]): string {
       : `${failed.length} of ${rows.length} levels failed`,
   );
   return out.join('\n');
+}
+
+// Days of the daily pool still unplayed after today's daily #n; below 14 the pool needs more
+// levels (src/levels/CLAUDE.md). A warning, not a failure.
+export const POOL_DAYS_AHEAD = 14;
+export function poolWarning(poolSize: number, today: number): string | undefined {
+  const left = daysLeftInPool(today, poolSize);
+  if (left >= POOL_DAYS_AHEAD) return undefined;
+  return `⚠️  The daily pool has ${Math.max(left, 0)} days left after today's #${today}; add levels (at least ${POOL_DAYS_AHEAD} ahead).`;
 }
