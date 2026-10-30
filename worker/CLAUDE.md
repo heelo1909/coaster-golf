@@ -36,8 +36,8 @@ Any `score`, `success` or `path` field in the request is ignored. A test proves 
 ```
 POST /submit
   body: { levelId: "c03" | "daily:42", equation: string, nickname: string }
-  200 { ok: true, score, rank }
-  400 { ok: false, error: "bad_equation" | "run_failed" | "bad_nickname" | "unknown_level" | "daily_closed" }
+  200 { ok: true, score, best, rank }    // score: this run; best and rank: the nickname's saved best
+  400 { ok: false, error: "bad_request" | "bad_equation" | "run_failed" | "bad_nickname" | "unknown_level" | "daily_closed" }
   429 { ok: false, error: "slow_down" }
 
 GET /leaderboard?level=c03          top 50 for a campaign level
@@ -46,6 +46,7 @@ GET /leaderboard?level=daily:42     top 50 for a daily (equations hidden until i
 ```
 
 - Daily submissions are accepted only **while that daily is live**, from its UTC start to its end.
+- Built: `src/levels.ts` `findLevel(levelId, now)` looks the level up in the bundled `src/levels` (`daily:N` only when `N` is today's `dailyNumber`). `src/submit.ts` saves with one `INSERT … ON CONFLICT DO UPDATE … WHERE excluded.score < scores.score`, then reads the best back to rank it. `handle(request, env, now)` takes `now` for tests. `bad_request` covers a body that isn't a JSON object.
 - Each nickname keeps only its **best** entry per level; a worse score isn't saved.
 - Ties go to whoever got there first.
 

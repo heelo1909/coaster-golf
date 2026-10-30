@@ -1,11 +1,22 @@
-// The leaderboard API (see worker/CLAUDE.md). Routes are added as Section 8 builds them.
+// The leaderboard API (see worker/CLAUDE.md): POST /submit and, next, GET /leaderboard.
 
 import type { Env } from './env';
+import { submit } from './submit';
 
-export async function handle(request: Request, env: Env): Promise<Response> {
-  void env;
+// `now` is passed by tests; the Worker uses the clock.
+export async function handle(request: Request, env: Env, now = Date.now()): Promise<Response> {
   const url = new URL(request.url);
-  return Response.json({ ok: false, error: 'not_found', path: url.pathname }, { status: 404 });
+  if (url.pathname === '/submit' && request.method === 'POST') {
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return Response.json({ ok: false, error: 'bad_request' }, { status: 400 });
+    }
+    const result = await submit(body, env, now);
+    return Response.json(result, { status: result.ok ? 200 : 400 });
+  }
+  return Response.json({ ok: false, error: 'not_found' }, { status: 404 });
 }
 
 export default {
