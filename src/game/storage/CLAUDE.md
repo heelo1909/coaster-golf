@@ -23,6 +23,7 @@ index.ts
 - `storageWorks()` (in `store.ts`) probes once at start-up whether saves will stick; when they won't, level select shows the quiet note once per visit.
 - `cg:v1:progress` is `{ version: 1, best: { <levelId>: { score, equation } } }`. A broken entry is dropped on its own; the rest still load.
 - Streak updates go through `core/daily/updateStreak()`. Don't re-implement the logic here.
+- `cg:v1:daily` is `{ version: 1, best: { <dailyNumber>: { score, equation } }, streak: { current, best, lastPlayed } }`. `saveDailyWin(save, n, score, equation)` moves the streak and keeps the shorter best, returning the new state for `main.ts` to keep in memory. A broken best is dropped alone; a broken streak (including `best < current`) starts over.
 
 ## Tests Required
 

@@ -20,6 +20,8 @@ export interface PlayScreen {
 
 export interface PlayActions {
   best?: Best | undefined; // this level's saved best, shown under the box
+  number?: string; // replaces the level's number in the canvas title (the daily's "#12")
+  bar?: HTMLElement; // an info line at the top of the panel (the daily's countdown)
   // Before the panel shows, to save the win; returns the best as it now stands.
   onWin: (score: number, equation: string) => Best | undefined;
   onBack: () => void; // to level select
@@ -45,7 +47,7 @@ export function mountPlayScreen(root: HTMLElement, level: Level, actions: PlayAc
   back.addEventListener('click', () => actions.onBack());
 
   root.replaceChildren(canvas, back, panel);
-  const renderer = createRenderer(canvas, level);
+  const renderer = createRenderer(canvas, level, actions.number);
 
   const panelView = createResultPanel({
     onNext: actions.onNext,
@@ -109,6 +111,7 @@ export function mountPlayScreen(root: HTMLElement, level: Level, actions: PlayAc
   }
   showBest(actions.best);
 
+  if (actions.bar) panel.append(actions.bar);
   panel.append(result.element, input.element, bestLine, rideButton);
   renderer.resize(); // the panel now takes its height, so measure the canvas again
 

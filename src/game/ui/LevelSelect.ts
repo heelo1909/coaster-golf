@@ -52,13 +52,28 @@ export function tilesOf(
   });
 }
 
+// Today's daily, as its card at the top of level select shows it.
+export interface DailyCard {
+  n: number;
+  name: string;
+  par: number;
+  best?: number | undefined;
+  streak: number; // the live streak; 0 hides it
+}
+
+export interface LevelSelectOptions {
+  progress: Progress;
+  daily: DailyCard;
+  notSaving: boolean; // storage is blocked: say so, quietly
+  onPick: (id: string) => void;
+  onDaily: () => void;
+  onHowTo: () => void;
+}
+
 export function mountLevelSelect(
   root: HTMLElement,
   levels: readonly Level[],
-  progress: Progress,
-  notSaving: boolean, // storage is blocked: say so, quietly
-  onPick: (id: string) => void,
-  onHowTo: () => void,
+  { progress, daily, notSaving, onPick, onDaily, onHowTo }: LevelSelectOptions,
 ): void {
   const screen = document.createElement('section');
   screen.className = 'levels';
@@ -67,6 +82,32 @@ export function mountLevelSelect(
   const title = document.createElement('h1');
   title.className = 'levels-title';
   title.textContent = messages.levelsTitle;
+
+  // The daily first: it's the reason to come back each day.
+  const card = document.createElement('button');
+  card.type = 'button';
+  card.className = 'daily-card';
+  card.dataset.testid = 'daily-card';
+  const cardTop = document.createElement('span');
+  cardTop.className = 'tile-number';
+  cardTop.textContent = `${messages.todaysDaily} · #${daily.n}`;
+  const cardName = document.createElement('span');
+  cardName.className = 'daily-card-name';
+  cardName.textContent = daily.name;
+  const cardScore = document.createElement('span');
+  cardScore.className = 'tile-score';
+  cardScore.dataset.testid = 'daily-card-score';
+  cardScore.textContent =
+    daily.best === undefined ? messages.tilePar(daily.par) : messages.tileBest(daily.best);
+  if (daily.best !== undefined && daily.best <= daily.par) {
+    const star = document.createElement('span');
+    star.className = 'tile-star';
+    star.textContent = ' ★';
+    cardScore.append(star);
+  }
+  if (daily.streak > 0) cardScore.append(` · ${messages.streak(daily.streak)}`);
+  card.append(cardTop, cardName, cardScore);
+  card.addEventListener('click', onDaily);
 
   const grid = document.createElement('ol');
   grid.className = 'levels-grid';
@@ -122,6 +163,6 @@ export function mountLevelSelect(
   howTo.textContent = messages.howToLink;
   howTo.addEventListener('click', onHowTo);
 
-  screen.append(grid, howTo);
+  screen.append(card, grid, howTo);
   root.replaceChildren(screen);
 }

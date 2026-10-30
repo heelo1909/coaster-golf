@@ -52,7 +52,8 @@ export interface Renderer {
   resetView(): void; // eases back to the whole level
 }
 
-export function createRenderer(canvas: HTMLCanvasElement, level: Level): Renderer {
+// `number` replaces the level's number in its title, for the daily ("#12").
+export function createRenderer(canvas: HTMLCanvasElement, level: Level, number?: string): Renderer {
   const ctx = canvas.getContext('2d');
   const staticLayer = document.createElement('canvas');
   const staticCtx = staticLayer.getContext('2d');
@@ -101,7 +102,7 @@ export function createRenderer(canvas: HTMLCanvasElement, level: Level): Rendere
       view,
     );
     staticCtx!.setTransform(dpr, 0, 0, dpr, 0, 0);
-    drawStatic(staticCtx!, cam, current);
+    drawStatic(staticCtx!, cam, current, number);
   }
 
   function frame(): void {

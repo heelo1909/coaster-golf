@@ -7,6 +7,11 @@ describe('router: the URL hash mirrors the screen', () => {
     expect(parseHash('#/play/c15')).toEqual({ screen: 'play', id: 'c15' });
   });
 
+  it('the daily has its own hash', () => {
+    expect(parseHash('#/daily')).toEqual({ screen: 'daily' });
+    expect(hashOf({ screen: 'daily' })).toBe('#/daily');
+  });
+
   it('the how-to has its own hash', () => {
     expect(parseHash('#/howto')).toEqual({ screen: 'howto' });
     expect(parseHash('#/howto/')).toEqual({ screen: 'levels' });

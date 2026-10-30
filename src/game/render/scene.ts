@@ -55,11 +55,17 @@ export function trackPolylines(
 
 // The static layer: paper, grid, axes, title block, obstacles and stations. Cached by the
 // renderer, so it is drawn only on resize or level change.
-export function drawStatic(ctx: CanvasRenderingContext2D, cam: Camera, level: Level): void {
+// `number` replaces the level's own number in the title (the daily shows "#12").
+export function drawStatic(
+  ctx: CanvasRenderingContext2D,
+  cam: Camera,
+  level: Level,
+  number?: string,
+): void {
   ctx.fillStyle = theme.paper;
   ctx.fillRect(0, 0, cam.width, cam.height);
   drawGrid(ctx, cam);
-  drawTitle(ctx, cam, level);
+  drawTitle(ctx, cam, level, number);
   drawObstacles(ctx, cam, level.obstacles);
   drawStations(ctx, cam, level);
 }
@@ -149,14 +155,19 @@ const TITLE_LEFT = 56;
 
 // The level's number and name. Minimal: "04  The dip" near the top-left corner. Blueprint:
 // "FIG. 4 — THE DIP" along the bottom edge, like a drawing's title block.
-function drawTitle(ctx: CanvasRenderingContext2D, cam: Camera, level: Level): void {
+function drawTitle(
+  ctx: CanvasRenderingContext2D,
+  cam: Camera,
+  level: Level,
+  number?: string,
+): void {
   const fig = Number.parseInt(level.id.slice(1), 10);
-  const num = Number.isFinite(fig) ? fig : level.id;
+  const num = number ?? (Number.isFinite(fig) ? String(fig).padStart(2, '0') : level.id);
   ctx.fillStyle = theme.label;
   ctx.font = `${theme.titleSize}px ${theme.font}`;
   if (theme.style === 'minimal') {
     // On a small block of paper, so it stays readable over the axis numbers behind it.
-    const text = `${String(num).padStart(2, '0')}  ${level.name}`;
+    const text = `${num}  ${level.name}`;
     const w = ctx.measureText(text).width;
     ctx.fillStyle = theme.paper;
     ctx.fillRect(8, 8, TITLE_LEFT + w, theme.titleSize + 14);
@@ -168,7 +179,8 @@ function drawTitle(ctx: CanvasRenderingContext2D, cam: Camera, level: Level): vo
   }
   ctx.textAlign = 'center';
   ctx.textBaseline = 'bottom';
-  ctx.fillText(`FIG. ${num} — ${level.name.toUpperCase()}`, cam.width / 2, cam.height - 6);
+  const fignum = number ?? (Number.isFinite(fig) ? String(fig) : level.id);
+  ctx.fillText(`FIG. ${fignum} — ${level.name.toUpperCase()}`, cam.width / 2, cam.height - 6);
 }
 
 // Outlines filled with a soft tint (minimal) or diagonal hatching, the drafting sign for

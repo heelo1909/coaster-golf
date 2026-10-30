@@ -258,6 +258,65 @@
         color: var(--ink);
         font: 0.95em var(--mono);
       }
+      /* Today's daily: a wide card above the level grid, accent-edged. */
+      .daily-card {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        width: 100%;
+        margin-bottom: 16px;
+        box-sizing: border-box;
+        padding: 12px 14px;
+        border: 1px solid var(--line);
+        border-left: 3px solid var(--mark);
+        border-radius: var(--radius);
+        background: var(--panel);
+        color: var(--ink);
+        font: 14px var(--ui);
+        text-align: left;
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+      .daily-card:hover,
+      .daily-card:focus-visible {
+        border-color: var(--mark);
+        outline: none;
+      }
+      .daily-card-name {
+        font-size: 17px;
+        font-weight: 600;
+      }
+      /* The daily's info line on the play screen. */
+      .daily-bar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 4px 12px;
+        margin-bottom: 10px;
+        color: var(--label);
+        font-size: 13px;
+      }
+      .daily-title {
+        color: var(--ink);
+        font-weight: 600;
+      }
+      .daily-next {
+        font-variant-numeric: tabular-nums;
+      }
+      .daily-streak:empty {
+        display: none;
+      }
+      .daily-new {
+        min-height: 32px;
+        padding: 0 10px;
+        border: 1px solid var(--mark);
+        border-radius: var(--radius);
+        background: transparent;
+        color: var(--mark);
+        font: 13px var(--ui);
+        cursor: pointer;
+      }
       .levels-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));

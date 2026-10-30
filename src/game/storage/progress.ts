@@ -16,7 +16,7 @@ export interface Progress {
   best: Record<string, Best>; // by level id; only levels that have been beaten
 }
 
-function isBest(value: unknown): value is Best {
+export function isBest(value: unknown): value is Best {
   if (typeof value !== 'object' || value === null) return false;
   const { score, equation } = value as { score?: unknown; equation?: unknown };
   return (

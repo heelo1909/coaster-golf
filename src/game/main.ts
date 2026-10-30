@@ -1,5 +1,15 @@
-import { campaign } from '../levels';
-import { loadProfile, loadProgress, saveBest, saveProfile, storageWorks } from './storage';
+import { dailyLevelIndex, dailyNumber, liveStreak } from '../core';
+import { campaign, daily } from '../levels';
+import {
+  loadDaily,
+  loadProfile,
+  loadProgress,
+  saveBest,
+  saveDailyWin,
+  saveProfile,
+  storageWorks,
+} from './storage';
+import { mountDailyScreen } from './ui/DailyScreen';
 import { mountHowTo } from './ui/HowTo';
 import { isUnlocked, mountLevelSelect } from './ui/LevelSelect';
 import { mountPlayScreen } from './ui/PlayScreen';
@@ -11,6 +21,7 @@ import { applyTheme, createThemePicker, savedTheme } from './ui/ThemePicker';
 const app = document.querySelector<HTMLElement>('#app');
 if (!app) throw new Error('missing #app');
 if (campaign.length === 0) throw new Error('no campaign levels');
+if (daily.length === 0) throw new Error('no daily levels');
 const first = campaign[0]!;
 
 // The saved theme goes on before anything is drawn, so the page never flashes another one.
@@ -19,6 +30,7 @@ applyTheme(savedTheme());
 // Kept in memory as well as saved, so wins still unlock levels for this visit when storage
 // is blocked.
 let progress = loadProgress();
+let dailySave = loadDaily();
 let screen: PlayScreen | undefined;
 // When saves won't stick, level select says so once per visit, quietly.
 let noteNotSaving = !storageWorks();
@@ -46,16 +58,34 @@ function show(route: Route, router: Router): void {
     });
     return;
   }
+  // Today's daily, by the UTC date (core/daily): the same level on every device.
+  const n = dailyNumber(new Date());
+  const today = daily[dailyLevelIndex(n, daily.length)]!;
   if (route.screen === 'levels') {
-    mountLevelSelect(
-      app!,
-      campaign,
+    mountLevelSelect(app!, campaign, {
       progress,
-      noteNotSaving,
-      (id) => router.show({ screen: 'play', id }),
-      () => router.show({ screen: 'howto' }),
-    );
+      daily: {
+        n,
+        name: today.name,
+        par: today.par,
+        best: dailySave.best[n]?.score,
+        streak: liveStreak(dailySave.streak, n),
+      },
+      notSaving: noteNotSaving,
+      onPick: (id) => router.show({ screen: 'play', id }),
+      onDaily: () => router.show({ screen: 'daily' }),
+      onHowTo: () => router.show({ screen: 'howto' }),
+    });
     noteNotSaving = false;
+    return;
+  }
+  if (route.screen === 'daily') {
+    screen = mountDailyScreen(app!, today, n, {
+      save: dailySave,
+      onWin: (score, equation) => (dailySave = saveDailyWin(dailySave, n, score, equation)),
+      onBack: () => router.show({ screen: 'levels' }),
+      onNewDay: () => router.replace({ screen: 'daily' }),
+    });
     return;
   }
   const index = campaign.findIndex((l) => l.id === route.id);

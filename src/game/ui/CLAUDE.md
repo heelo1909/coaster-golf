@@ -26,6 +26,13 @@ Screens are a simple state machine with `show(screen, params)`. The URL hash mir
 - So far the routes are `#/levels` and `#/play/<id>`; a screen joins the `Route` type in the section that builds it. Anything unknown (no hash, a typo) shows level select, which is where the site opens.
 - `main.ts` owns the redirect rule: an unknown or locked level id replaces the hash with `#/levels`.
 
+## Daily
+
+- `#/daily` plays today's level: `daily[dailyLevelIndex(dailyNumber(now), daily.length)]`, worked out in `main.ts` on every route. It reuses `PlayScreen` with an info bar on top (`Daily #12 · Next in 05:12:09 · 🔥 3-day streak`, `daily-bar`) and the canvas title `#12 Name` (the renderer's `number` option). No Next level on a win.
+- The countdown ticks every second (`formatCountdown`, rounded up). When midnight UTC passes mid-game, it becomes a "New daily is out →" button rather than swapping the level under the player.
+- The streak shown is `liveStreak` (alive if solved today or yesterday, else 0, hidden). Wins go through `storage/daily.ts` `saveDailyWin`, which moves the streak once per day.
+- Level select opens with a "Today's daily · #12" card (`daily-card`) above the grid: name, par or best with ★, and the streak. `mountLevelSelect` takes an options object.
+
 ## How To
 
 - On a first visit (`profile.seenHowTo` not set) every route is replaced by `#/howto` first. Its one button ("Let's go") goes to level 1, or to the level a link pointed at, and saves `seenHowTo`. That level still goes through the normal unlock check, so a link to a locked level ends on level select. With storage blocked it shows once per visit.

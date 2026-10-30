@@ -31,6 +31,7 @@ function updateStreak(prev: StreakState, solvedDaily: number): StreakState;
 - Anything else → `current = 1`
 - `best = max(best, current)`
 - A streak counts **solves**, not visits.
+- Built (Section 7): `NO_STREAK` is the empty state, and `liveStreak(state, today)` is the number to show: `current` while the last solve was today or yesterday, else 0. A solve dated before the last one (a clock set back) restarts at 1.
 
 ## Share Text
 
