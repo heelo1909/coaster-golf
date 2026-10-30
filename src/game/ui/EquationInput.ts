@@ -1,7 +1,7 @@
 // The equation box: a plain text input with a live character counter, a debounced live
 // preview of the track and of the pretty maths (KaTeX), and parse errors shown inline with
-// the bad character underlined. It only parses for the preview; judging a ride is judge()'s
-// job (see game/CLAUDE.md).
+// the bad character underlined. Pasting and dropping text are blocked, with a short note. It
+// only parses for the preview; judging a ride is judge()'s job (see game/CLAUDE.md).
 
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
@@ -55,6 +55,15 @@ export function counterOf(
   return { label: messages.counter(chars, par), underPar: parses && chars > 0 && chars <= par };
 }
 
+// beforeinput types that bring in text the player didn't type. Blocking these as well as the
+// paste and drop events covers browsers that skip one or the other (and Emacs-style yank).
+// This only stops casual copying of answers; the server re-runs every ride.
+const BLOCKED_INPUT_TYPES = new Set(['insertFromPaste', 'insertFromDrop', 'insertFromYank']);
+
+export function isBlockedInput(inputType: string): boolean {
+  return BLOCKED_INPUT_TYPES.has(inputType);
+}
+
 export interface EquationInput {
   readonly element: HTMLElement;
   setPar(par: number): void;
@@ -97,8 +106,14 @@ export function createEquationInput(
   error.setAttribute('aria-live', 'polite');
   input.setAttribute('aria-describedby', (error.id = 'eq-error'));
 
+  // "No pasting" lives apart from the parse error so the two never overwrite each other.
+  const note = document.createElement('div');
+  note.className = 'eq-note';
+  note.dataset.testid = 'paste-note';
+  note.setAttribute('aria-live', 'polite');
+
   row.append(input, counter);
-  root.append(row, math, error);
+  root.append(row, math, error, note);
 
   let currentPar = par;
   let parses = false;
@@ -141,7 +156,19 @@ export function createEquationInput(
     onPreview(preview);
   }
 
+  function blockPaste(event: Event): void {
+    event.preventDefault();
+    note.textContent = messages.noPasting;
+  }
+
+  input.addEventListener('paste', blockPaste);
+  input.addEventListener('drop', blockPaste);
+  input.addEventListener('beforeinput', (event) => {
+    if (isBlockedInput(event.inputType)) blockPaste(event);
+  });
+
   input.addEventListener('input', () => {
+    note.replaceChildren();
     showCounter();
     clearTimeout(timer);
     timer = setTimeout(update, PREVIEW_DEBOUNCE_MS);

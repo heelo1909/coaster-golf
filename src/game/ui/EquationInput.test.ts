@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { counterOf, previewOf, splitAtError } from './EquationInput';
+import { counterOf, isBlockedInput, previewOf, splitAtError } from './EquationInput';
 
 describe('previewOf: what the live preview shows while typing', () => {
   it('an empty box shows no track and no error', () => {
@@ -77,5 +77,26 @@ describe('counterOf: the live character counter', () => {
   it('stays plain for an unfinished equation or an empty box', () => {
     expect(counterOf('(x-', 9, false).underPar).toBe(false);
     expect(counterOf('', 9, true)).toEqual({ label: '0 chars · par 9', underPar: false });
+  });
+});
+
+describe('isBlockedInput: text the player did not type is kept out of the box', () => {
+  it('pasting, dropping and yanking text are blocked', () => {
+    expect(isBlockedInput('insertFromPaste')).toBe(true);
+    expect(isBlockedInput('insertFromDrop')).toBe(true);
+    expect(isBlockedInput('insertFromYank')).toBe(true);
+  });
+
+  it('typing, deleting and phone-keyboard composition still work', () => {
+    for (const type of [
+      'insertText',
+      'insertCompositionText',
+      'insertReplacementText',
+      'deleteContentBackward',
+      'deleteContentForward',
+      'historyUndo',
+    ]) {
+      expect(isBlockedInput(type)).toBe(false);
+    }
   });
 });
