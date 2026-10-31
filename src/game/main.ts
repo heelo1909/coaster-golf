@@ -28,7 +28,6 @@ const app = document.querySelector<HTMLElement>('#app');
 if (!app) throw new Error('missing #app');
 if (campaign.length === 0) throw new Error('no campaign levels');
 if (daily.length === 0) throw new Error('no daily levels');
-const first = campaign[0]!;
 
 // The saved theme goes on before anything is drawn, so the page never flashes another one.
 applyTheme(savedTheme());
@@ -68,14 +67,12 @@ function show(route: Route, router: Router): void {
   // About and Privacy are open to anyone, first visit or not (a privacy link must just work).
   if (route.screen === 'about' || route.screen === 'privacy') {
     const md = route.screen === 'about' ? messages.about : privacy;
-    mountDoc(app!, md, route.screen, messages.backToLevels, () =>
-      router.show({ screen: 'levels' }),
-    );
+    mountDoc(app!, md, route.screen, () => router.show({ screen: 'levels' }));
     return;
   }
   if (!seenHowTo && route.screen !== 'howto') {
-    // Straight into level 1 afterwards, or the level a link pointed at.
-    afterHowTo = route.screen === 'play' ? route : { screen: 'play', id: first.id };
+    // Level select afterwards, so the player sees the whole set, or the level a link pointed at.
+    afterHowTo = route.screen === 'play' ? route : { screen: 'levels' };
     router.replace({ screen: 'howto' });
     return;
   }

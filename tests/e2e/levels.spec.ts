@@ -71,6 +71,30 @@ test('a beaten level shows the best equation, and only a shorter win replaces it
 
   await page.reload();
   await expect(page.getByTestId('best-line')).toHaveText('Your best: 0 · 1 char');
+  // Coming back, the box holds the best, ready to shorten.
+  await expect(page.getByTestId('equation-input')).toHaveValue('0');
+  await expect(page.getByTestId('char-counter')).toHaveText('1 char · par 1');
+});
+
+test('Next level stays beside Ride once a level is beaten, also after closing the panel', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await page.getByTestId('level-c01').click();
+  await expect(page.getByTestId('back-to-levels')).toHaveText('Levels');
+  await expect(page.getByTestId('next-button')).toBeHidden();
+  await win(page, '0*x');
+  // The win panel has its own Next level, so the one beside Ride waits until it closes.
+  await expect(page.getByTestId('next-button')).toBeHidden();
+  await page.getByTestId('try-shorter').click();
+  await expect(page.getByTestId('next-button')).toBeVisible();
+  await page.getByTestId('next-button').click();
+  await expect(page).toHaveURL(/#\/play\/c02$/);
+  // Level 2 isn't beaten yet: no Next until it is.
+  await expect(page.getByTestId('next-button')).toBeHidden();
+  await page.getByTestId('back-to-levels').click();
+  await page.getByTestId('level-c01').click();
+  await expect(page.getByTestId('next-button')).toBeVisible();
 });
 
 test('with storage blocked the game still plays, unlocks for the visit and says it will not save', async ({
@@ -86,9 +110,8 @@ test('with storage blocked the game still plays, unlocks for the visit and says 
     });
   });
   await page.goto('/');
-  // Nothing can be saved, so the how-to comes first again; it leads to level 1.
+  // Nothing can be saved, so the how-to comes first again; it leads to level select.
   await page.getByTestId('how-to-done').click();
-  await page.getByTestId('back-to-levels').click();
   await expect(page.getByTestId('not-saving')).toHaveText(
     "Progress won't be saved in this browser.",
   );

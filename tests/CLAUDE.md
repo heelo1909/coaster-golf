@@ -29,7 +29,7 @@ npm run check-levels      level validation table
 ## E2E Smoke Tests (Playwright)
 
 Keep these few and stable. Run each at **375×812** and **1280×800**:
-1. Open the site → how-to shows on the first visit → dismiss → level 1
+1. Open the site → how-to shows on the first visit → dismiss → level select
 2. Type a winning equation → Ride → the win panel shows a score
 3. Type a broken equation → the inline error shows, and the page doesn't crash
 4. Reload → level 2 is unlocked (storage works)

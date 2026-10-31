@@ -150,9 +150,9 @@ function gridLine(
   ctx.stroke();
 }
 
-// Where the minimal title's text starts: the back button (ui/PlayScreen.ts) sits left of it,
-// on the same block of paper.
-const TITLE_LEFT = 56;
+// Where the minimal title's text starts: the "‹ Levels" button (ui/BackButton.ts) sits left
+// of it, on the same block of paper.
+const TITLE_LEFT = 104;
 
 // The level's number and name. Minimal: "04  The dip" near the top-left corner. Blueprint:
 // "FIG. 4 — THE DIP" along the bottom edge, like a drawing's title block.

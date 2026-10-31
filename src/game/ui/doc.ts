@@ -3,6 +3,8 @@
 // puts the text in with textContent only (never innerHTML), and only mailto:, https: and #/ links
 // become links, so the text can never inject anything.
 
+import { createBackButton } from './BackButton';
+
 export interface Inline {
   text: string;
   href?: string;
@@ -69,13 +71,7 @@ function inlineNodes(parts: readonly Inline[]): Node[] {
 
 // A text screen (About, Privacy): the back button top-left, then the document in one narrow
 // column, like the how-to.
-export function mountDoc(
-  root: HTMLElement,
-  md: string,
-  testid: string,
-  backLabel: string,
-  onBack: () => void,
-): void {
+export function mountDoc(root: HTMLElement, md: string, testid: string, onBack: () => void): void {
   const screen = document.createElement('article');
   screen.className = 'doc';
   screen.dataset.testid = testid;
@@ -95,14 +91,5 @@ export function mountDoc(
     }
   }
 
-  const back = document.createElement('button');
-  back.type = 'button';
-  back.className = 'back-btn';
-  back.dataset.testid = 'doc-back';
-  back.setAttribute('aria-label', backLabel);
-  back.innerHTML =
-    '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  back.addEventListener('click', onBack);
-
-  root.replaceChildren(back, screen);
+  root.replaceChildren(createBackButton('doc-back', onBack), screen);
 }

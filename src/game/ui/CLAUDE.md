@@ -51,7 +51,7 @@ Screens are a simple state machine with `show(screen, params)`. The URL hash mir
 
 ## How To
 
-- On a first visit (`profile.seenHowTo` not set) every route is replaced by `#/howto` first. Its one button ("Let's go") goes to level 1, or to the level a link pointed at, and saves `seenHowTo`. That level still goes through the normal unlock check, so a link to a locked level ends on level select. With storage blocked it shows once per visit.
+- On a first visit (`profile.seenHowTo` not set) every route is replaced by `#/howto` first. Its one button ("Let's go") goes to level select (so the player sees the whole set and the locks), or to the level a link pointed at, and saves `seenHowTo` (user's call, 2026-10-31). That level still goes through the normal unlock check, so a link to a locked level ends on level select. With storage blocked it shows once per visit.
 - Level select has a "How to play" link to reopen it; then the button returns to level select.
 - Three numbered steps (type, ride, shorter wins) under a small SVG of a track drawn in the colour tokens. Backticks in the step strings in `messages.ts` mark equations, shown in monospace.
 
@@ -60,8 +60,9 @@ Screens are a simple state machine with `show(screen, params)`. The URL hash mir
 - One tile per campaign level (`tilesOf` is pure): the number, the name, then `Par N` (open), `Best N` with a ★ at or under par (beaten) or `Locked`. Locked tiles are disabled buttons. Each tile's `aria-label` says it all in words, star included.
 - A level is unlocked when the level before it has a saved best (`isUnlocked`); level 1 always is. Unlocks aren't stored separately, so they can't disagree with the bests.
 - With storage blocked, level select shows "Progress won't be saved in this browser." under its title, once per visit.
-- The play screen shows the saved best under the box (`best-line`: `Your best: x/3 · 3 chars`) and updates it after a shorter win. The box itself starts empty.
-- The play screen has a back button top-left (`back-to-levels`), mirroring the theme picker; the minimal canvas title starts right of it.
+- The play screen shows the saved best under the box (`best-line`: `Your best: x/3 · 3 chars`) and updates it after a shorter win. A beaten level opens with its best equation already in the box (`EquationInput.setValue`), previewed, ready to shorten (user's call, 2026-10-31).
+- Once a level is beaten, **Next level →** (`next-button`) sits left of Ride, so the player can move on whenever they stop refining. It's hidden while the result panel is open (the panel has its own Next level), on the last level and on the daily.
+- Every screen but level select has a labelled **‹ Levels** button top-left (`ui/BackButton.ts`; `back-to-levels` on play, `doc-back` on About and Privacy), mirroring the theme picker; the minimal canvas title starts right of it (`TITLE_LEFT` in `render/scene.ts`).
 
 ## Equation Input
 

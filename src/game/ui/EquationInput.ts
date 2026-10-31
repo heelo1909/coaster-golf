@@ -97,6 +97,8 @@ export interface EquationInput {
   // Runs any pending preview now, so the drawn track matches the text before a ride.
   flush(): void;
   setPar(par: number): void;
+  // Puts `text` in the box and previews it straight away (a saved best when a level opens).
+  setValue(text: string): void;
 }
 
 export function createEquationInput(
@@ -259,6 +261,12 @@ export function createEquationInput(
     setPar(next) {
       currentPar = next;
       showCounter();
+    },
+    setValue(text) {
+      clearTimeout(timer);
+      timer = undefined;
+      input.value = text;
+      update();
     },
   };
 }

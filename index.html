@@ -190,15 +190,16 @@
         top: 8px;
         left: 8px;
         z-index: 1;
-        display: grid;
-        place-items: center;
-        width: 44px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
         height: 44px;
-        padding: 0;
+        padding: 0 12px 0 10px;
         border: 0;
-        border-radius: 50%;
+        border-radius: 22px;
         background: transparent;
         color: var(--label);
+        font: 14px var(--ui);
         cursor: pointer;
         touch-action: manipulation;
       }
@@ -673,6 +674,24 @@
       .eq-error u {
         text-decoration: underline var(--error) 2px;
         text-underline-offset: 4px;
+      }
+      /* Ride, with Next level beside it once the level is beaten. */
+      .play-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .play-actions .ride-btn {
+        flex: 1;
+        margin-top: 0;
+      }
+      .play-actions .next-btn {
+        flex: none;
+        min-height: 44px;
+        padding: 0 16px;
+      }
+      .next-btn[hidden] {
+        display: none;
       }
       .ride-btn {
         display: block;

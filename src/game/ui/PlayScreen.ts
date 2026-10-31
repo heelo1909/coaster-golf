@@ -7,6 +7,7 @@ import type { Level } from '../../core';
 import { createRenderer } from '../render';
 import type { Best } from '../storage';
 import type { Track } from '../render';
+import { createBackButton } from './BackButton';
 import { attachGestures } from './CanvasGestures';
 import { createEquationInput } from './EquationInput';
 import { messages } from './messages';
@@ -41,14 +42,7 @@ export function mountPlayScreen(root: HTMLElement, level: Level, actions: PlayAc
   panel.className = 'play-panel';
 
   // Top-left, mirroring the theme picker top-right; the canvas keeps that corner clear.
-  const back = document.createElement('button');
-  back.type = 'button';
-  back.className = 'back-btn';
-  back.dataset.testid = 'back-to-levels';
-  back.setAttribute('aria-label', messages.backToLevels);
-  back.innerHTML =
-    '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  back.addEventListener('click', () => actions.onBack());
+  const back = createBackButton('back-to-levels', () => actions.onBack());
 
   root.replaceChildren(canvas, back, panel);
   const renderer = createRenderer(canvas, level, actions.number);
@@ -74,11 +68,13 @@ export function mountPlayScreen(root: HTMLElement, level: Level, actions: PlayAc
     element: panelView.element,
     show(view: ResultView): void {
       panelView.show(view);
+      showNext();
       renderer.resize();
     },
     hide(): void {
       if (!panelView.element.hasChildNodes()) return;
       panelView.hide();
+      showNext();
       renderer.resize();
     },
   };
@@ -105,6 +101,22 @@ export function mountPlayScreen(root: HTMLElement, level: Level, actions: PlayAc
   rideButton.textContent = messages.ride;
   rideButton.addEventListener('click', () => rideOrSkip());
 
+  // Once the level is beaten, Next level stays beside Ride, so the player can move on whenever
+  // they're done refining. Hidden while the result panel is open (it has its own Next).
+  let beaten = actions.best !== undefined;
+  const nextButton = document.createElement('button');
+  nextButton.type = 'button';
+  nextButton.className = 'result-btn next-btn';
+  nextButton.dataset.testid = 'next-button';
+  nextButton.textContent = messages.nextLevelArrow;
+  nextButton.addEventListener('click', () => actions.onNext?.());
+  function showNext(): void {
+    nextButton.hidden = !beaten || !actions.onNext || panelView.element.hasChildNodes();
+  }
+  const actionsRow = document.createElement('div');
+  actionsRow.className = 'play-actions';
+  actionsRow.append(nextButton, rideButton);
+
   // The saved best, quietly under the box, so there's always a number to beat.
   const bestLine = document.createElement('div');
   bestLine.className = 'best-line';
@@ -119,7 +131,10 @@ export function mountPlayScreen(root: HTMLElement, level: Level, actions: PlayAc
   showBest(actions.best);
 
   if (actions.bar) panel.append(actions.bar);
-  panel.append(result.element, input.element, bestLine, rideButton);
+  panel.append(result.element, input.element, bestLine, actionsRow);
+  showNext();
+  // A level already beaten opens with the best equation in the box, ready to shorten.
+  if (actions.best) input.setValue(actions.best.equation);
   renderer.resize(); // the panel now takes its height, so measure the canvas again
 
   function setRiding(on: boolean): void {
@@ -162,6 +177,7 @@ export function mountPlayScreen(root: HTMLElement, level: Level, actions: PlayAc
     if (judged.result.success) {
       if (outcome.win && outcome.star) renderer.celebrate();
       lastWin = text;
+      beaten = true;
       showBest(actions.onWin(judged.score, text));
     } else failedRides++;
     result.show(resultOf(judged.result, judged.score, level, failedRides));
