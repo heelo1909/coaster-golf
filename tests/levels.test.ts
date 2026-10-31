@@ -39,7 +39,8 @@ const dailyDir = fileURLToPath(new URL('../src/levels/daily/', import.meta.url))
 
 // The shortest known winner for each daily level (found by brute force over every equation up
 // to 5 characters plus fitted shapes like `xx/N-N`), by id. Par is this length, +1 when it's
-// shorter than the reference.
+// shorter than the reference. Re-searched on 2026-10-31 once the map edges stopped counting:
+// d007, d011, d019 and d025 now have shorter answers that dip below the map.
 const dailyShortest: Record<string, string> = {
   d001: '4-x/2',
   d002: '2cos(x/2)',
@@ -47,11 +48,11 @@ const dailyShortest: Record<string, string> = {
   d004: 'xx.24',
   d005: 'max(2,|x-2|)',
   d006: '|x|',
-  d007: 'xx/2-3x',
+  d007: 'xx-6x',
   d008: 'cos(x)',
   d009: '4/3^x',
   d010: '|x-2|-x',
-  d011: 'xx/2-5',
+  d011: 'xx-9',
   d012: 'xx/8-x',
   d013: 'x/2',
   d014: '5/x-5',
@@ -59,13 +60,13 @@ const dailyShortest: Record<string, string> = {
   d016: '|x-2|-.2',
   d017: 'x-xx/6',
   d018: 'x/4-2',
-  d019: 'x^4/27',
+  d019: 'xx-6',
   d020: 'xx/3-.8x',
   d021: '-x/3',
   d022: '|x|/.9-.1',
   d023: '6/x',
   d024: '3sin(x/3)',
-  d025: 'xx/3-6',
+  d025: 'xx-16',
   d026: '6-2x^.5',
   d027: 'xxx/9',
   d028: 'x/5',
@@ -144,11 +145,11 @@ describe('every level can be beaten', () => {
 // Known solutions shorter than the reference, from golfing every level (see progress.md). Each
 // must win, and par is set from the shortest one.
 const shorter: Record<string, string[]> = {
-  c05: ['x-xx/8', 'x-x/8x'],
+  c05: ['x-xx/8', 'x-x/8x', 'xx-8x'],
   c06: ['xx/4-3x+6'],
   c07: ['3+x-xx/4', 'x-xx/4+3', '3+x-x^2/4'],
   c12: ['xx/4', 'x/4x'],
-  c14: ['|xx-4|/4', '|xx/4-1|'],
+  c14: ['|xx-4|/4', '|xx/4-1|', 'xx-8'],
 };
 
 describe('par', () => {

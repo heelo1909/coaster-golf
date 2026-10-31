@@ -6,7 +6,6 @@ const reasons: FailReason[] = [
   'MISSED_START',
   'MISSED_END',
   'BROKEN_TRACK',
-  'OUT_OF_BOUNDS',
   'HIT_OBSTACLE',
   'FLEW_OFF',
   'STALLED',

@@ -66,7 +66,7 @@ Work through the sections in order. Each one has a goal, tasks, and a "Done when
   - `FLEW_OFF`: the curve bends downward too sharply for the cart's speed (normal force < 0)
   - `STALLED`: speed reaches 0 before the end station (cart would roll back)
   - `HIT_OBSTACLE`: the track or cart touches an obstacle shape
-  - `OUT_OF_BOUNDS`: the track leaves the level's vertical limits
+  - ~~`OUT_OF_BOUNDS`: the track leaves the level's vertical limits~~ (removed 2026-10-31 at the user's request: the bounds only frame the view)
   - `BROKEN_TRACK`: `NaN`/infinite values or a jump discontinuity in the range
   - `MISSED_START` / `MISSED_END`: the track doesn't pass through the station zones
   - `TIMEOUT`: the run exceeds the maximum sim time

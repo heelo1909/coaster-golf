@@ -29,7 +29,7 @@ interface Level { /* see level/CLAUDE.md */ }
 function validateLevel(raw: unknown): { ok: true; level: Level } | { ok: false; errors: string[] };
 
 // sim/
-type FailReason = 'FLEW_OFF' | 'STALLED' | 'HIT_OBSTACLE' | 'OUT_OF_BOUNDS'
+type FailReason = 'FLEW_OFF' | 'STALLED' | 'HIT_OBSTACLE'
                 | 'BROKEN_TRACK' | 'MISSED_START' | 'MISSED_END' | 'TIMEOUT';
 interface SimResult {
   success: boolean;

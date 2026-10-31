@@ -44,11 +44,12 @@ SAMPLE_STEP = 0.01
 1. **Sample the track** from `start.x` to `end.x` at `SAMPLE_STEP`. Any `NaN`/`Infinity`, any `|f'| > MAX_SLOPE`, or any jump bigger than `JUMP_THRESHOLD` → `BROKEN_TRACK`, with `failAt` at the first bad point.
 2. `|f(start.x) - start.y| > STATION_TOLERANCE` → `MISSED_START`.
 3. `|f(end.x) - end.y| > STATION_TOLERANCE` → `MISSED_END`.
-4. Track outside `[yMin, yMax]` anywhere in the range → `OUT_OF_BOUNDS`.
-5. Track or cart circle touches any obstacle → `HIT_OBSTACLE`. Checking the sampled track is enough for v1, since the cart rides on the track.
-6. **Run the cart.** Record `path` every 4 steps (60 fps for the renderer). Stop on `N < 0` (`FLEW_OFF`), `v ≤ 0` before the end (`STALLED`), reaching `end.x` (success), or `t > MAX_TIME` (`TIMEOUT`).
+4. Track or cart circle touches any obstacle → `HIT_OBSTACLE`. Checking the sampled track is enough for v1, since the cart rides on the track.
+5. **Run the cart.** Record `path` every 4 steps (60 fps for the renderer). Stop on `N < 0` (`FLEW_OFF`), `v ≤ 0` before the end (`STALLED`), reaching `end.x` (success), or `t > MAX_TIME` (`TIMEOUT`).
 
-Checks 1–5 decide the result without the ride: the reason and the `failAt` point never depend on it. Checks 1–3 return an empty `path` (the player gets the failure marker only). For checks 4–5 (`OUT_OF_BOUNDS`, `HIT_OBSTACLE`) the cart is then ridden up to `failAt.x` to record a `path` for the replay, and `failAt.t` / `duration` are when it gets there. If that ride would fly off, stall or time out first, the replay would contradict the reason, so the `path` stays empty and `failAt.t` is 0 (user's choice, 2026-10-29).
+There is **no map-edge check**: the level's `bounds` only frame the view, and the track may go above or below them (user's call, 2026-10-31, after a tall parabola failed as "off the map" in a playtest; `OUT_OF_BOUNDS` was removed from `FailReason`). Gaps, walls, the stations, obstacles and the physics still decide everything.
+
+Checks 1–4 decide the result without the ride: the reason and the `failAt` point never depend on it. Checks 1–3 return an empty `path` (the player gets the failure marker only). For check 4 (`HIT_OBSTACLE`) the cart is then ridden up to `failAt.x` to record a `path` for the replay, and `failAt.t` / `duration` are when it gets there. If that ride would fly off, stall or time out first, the replay would contradict the reason, so the `path` stays empty and `failAt.t` is 0 (user's choice, 2026-10-29).
 
 ## Determinism & the Server
 

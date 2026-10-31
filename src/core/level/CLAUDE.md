@@ -16,7 +16,7 @@ index.ts
 interface Level {
   id: string;              // "c01".."c15" for the campaign, "d001".. for daily
   name: string;            // short, fun: "First Drop"
-  bounds: { xMin: number; xMax: number; yMin: number; yMax: number };
+  bounds: { xMin: number; xMax: number; yMin: number; yMax: number }; // the view, not a wall: the track may leave it
   start: { x: number; y: number; speed: number };  // speed in units/s, ≥ 0
   end: { x: number; y: number };                   // win when the cart reaches end.x
   obstacles: Obstacle[];

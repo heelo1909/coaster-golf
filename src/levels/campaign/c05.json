@@ -24,7 +24,7 @@
       "r": 1
     }
   ],
-  "par": 7,
+  "par": 6,
   "reference": "x(8-x)/8",
   "hint": "This time, go up and come back down."
 }

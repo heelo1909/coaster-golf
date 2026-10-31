@@ -74,7 +74,7 @@ describe('failPose: the short effect after a failed ride', () => {
   });
 
   it('other fails just stop at the last point', () => {
-    for (const reason of ['MISSED_END', 'OUT_OF_BOUNDS', 'BROKEN_TRACK', 'TIMEOUT'] as const) {
+    for (const reason of ['MISSED_END', 'BROKEN_TRACK', 'TIMEOUT'] as const) {
       expect(hasFailEffect(reason)).toBe(false);
       expect(failPose(path, reason, 0.5)).toEqual({ x: 4, y: 1, angle: 0, spark: 0 });
     }

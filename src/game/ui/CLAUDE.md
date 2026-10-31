@@ -90,7 +90,6 @@ Screens are a simple state machine with `show(screen, params)`. The URL hash mir
   - `HIT_OBSTACLE` → "Crashed into a rock at x = 3.0"
   - `MISSED_START` / `MISSED_END` → "Your track misses the start/end station"
   - `BROKEN_TRACK` → "The track has a gap or a wall at x = 2.0"
-  - `OUT_OF_BOUNDS` → "The track goes off the map"
   - `TIMEOUT` → "The ride took too long"
 - After 3 failed rides on a level, offer the level's `hint`, if it has one.
 

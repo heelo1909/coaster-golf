@@ -39,7 +39,7 @@
       "h": 34.15
     }
   ],
-  "par": 7,
+  "par": 6,
   "reference": "-sqrt(16-xx)",
   "hint": "Part of a circle."
 }

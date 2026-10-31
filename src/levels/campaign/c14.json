@@ -39,7 +39,7 @@
       "h": 1.5
     }
   ],
-  "par": 9,
+  "par": 5,
   "reference": "|x^2-4|/4",
   "hint": "Two valleys with a hill between them."
 }

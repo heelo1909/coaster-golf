@@ -9,7 +9,6 @@ const REASONS: FailReason[] = [
   'FLEW_OFF',
   'STALLED',
   'HIT_OBSTACLE',
-  'OUT_OF_BOUNDS',
   'BROKEN_TRACK',
   'MISSED_START',
   'MISSED_END',
@@ -38,7 +37,6 @@ describe('fail messages: every way to fail reads as plain words', () => {
     expect(messages.failed('BROKEN_TRACK', 2)).toBe('The track has a gap or a wall at x = 2.0');
     expect(messages.failed('MISSED_START', 0)).toBe('Your track misses the start station');
     expect(messages.failed('MISSED_END', 6)).toBe('Your track misses the end station');
-    expect(messages.failed('OUT_OF_BOUNDS', 1)).toBe('The track goes off the map');
     expect(messages.failed('TIMEOUT', 1)).toBe('The ride took too long');
   });
 

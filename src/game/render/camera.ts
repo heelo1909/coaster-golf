@@ -147,6 +147,28 @@ export function panView(
   return clampView({ ...view, cx: view.cx - dx / cam.scale, cy: view.cy + dy / cam.scale }, bounds);
 }
 
+// How far the camera may roam: the level's bounds, stretched up or down to take in the track
+// between `from` and `to` (the stations). The track may leave the map (the ride ignores the
+// bounds), so the follow camera and panning must be able to reach it. Undefined points are
+// skipped.
+export function extendBounds(
+  bounds: Level['bounds'],
+  f: ((x: number) => number) | null,
+  from: number,
+  to: number,
+): Level['bounds'] {
+  if (!f) return bounds;
+  let { yMin, yMax } = bounds;
+  const steps = 256;
+  for (let i = 0; i <= steps; i++) {
+    const y = f(from + ((to - from) * i) / steps);
+    if (!Number.isFinite(y)) continue;
+    if (y < yMin) yMin = y;
+    if (y > yMax) yMax = y;
+  }
+  return { ...bounds, yMin, yMax };
+}
+
 // Part of the way (k, 0–1) from a to b. Zoom moves in log space so it feels even.
 export function lerpView(a: View, b: View, k: number): View {
   return {

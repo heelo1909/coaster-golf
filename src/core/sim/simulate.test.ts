@@ -3,11 +3,10 @@ import { evaluate, parseEquation } from '../equation';
 import { CART_RADIUS, DT, MAX_TIME, PATH_EVERY, STATION_TOLERANCE, simulate } from './index';
 import type { Obstacle, SimLevel, SimResult } from './index';
 
-// A small test level: a gentle slope from (0, 5) down to (10, 0), roomy bounds, no obstacles.
-// Each test changes only what it's about.
+// A small test level: a gentle slope from (0, 5) down to (10, 0), no obstacles. Each test
+// changes only what it's about.
 function level(overrides: Partial<SimLevel> = {}): SimLevel {
   return {
-    bounds: { xMin: -1, xMax: 20, yMin: -10, yMax: 20 },
     start: { x: 0, y: 5, speed: 1 },
     end: { x: 10, y: 0 },
     obstacles: [],
@@ -139,24 +138,25 @@ describe('simulate: HIT_OBSTACLE', () => {
   });
 });
 
-describe('simulate: OUT_OF_BOUNDS', () => {
-  it('a valley that dips below the floor of the level is out of bounds', () => {
-    const lvl = { ...valley, bounds: { ...valley.bounds, yMin: 1 } };
-    const result = ride('(x-4)^2/4', lvl);
-    expect(result.reason).toBe('OUT_OF_BOUNDS');
-    expect(result.failAt!.y).toBeLessThan(1);
-    expect(result.failAt!.x).toBeCloseTo(2.01, 6);
-    // The cart rides down to where the track leaves the map.
-    expect(result.path.at(-1)!.x).toBeGreaterThanOrEqual(result.failAt!.x);
-    expect(result.failAt!.t).toBe(result.path.at(-1)!.t);
+describe('simulate: the map edges only frame the view', () => {
+  // A level's bounds (the visible map) are ignored by the ride: the track may leave them.
+  const framed = (yMin: number, yMax: number) => ({
+    ...valley,
+    bounds: { xMin: -1, xMax: 20, yMin, yMax },
   });
 
-  it('a hump above the ceiling is out of bounds', () => {
-    // The hump peaks at y ≈ 6.8 near x = 3.7.
-    const lvl = level({ bounds: { xMin: -1, xMax: 20, yMin: -10, yMax: 6 } });
-    const result = ride('5-x/2+4sin(pix/10)', lvl);
-    expect(result.reason).toBe('OUT_OF_BOUNDS');
-    expect(result.failAt!.y).toBeGreaterThan(6);
+  it('a valley that dips below the bottom of the map still wins', () => {
+    const lvl = framed(1, 20);
+    expect(ride('(x-4)^2/4', lvl)).toEqual(ride('(x-4)^2/4', valley));
+    expect(ride('(x-4)^2/4', lvl).success).toBe(true);
+  });
+
+  it('a track that climbs above the top of the map is judged like any other', () => {
+    // The hill peaks at y = 8, twice the height of a map that stops at 6.
+    const tall = '4+(8x-xx)/4';
+    const lvl = framed(-10, 6);
+    expect(ride(tall, lvl)).toEqual(ride(tall, valley));
+    expect(ride(tall, lvl).reason).not.toBe('BROKEN_TRACK');
   });
 });
 
@@ -214,19 +214,10 @@ describe('simulate: MISSED_START and MISSED_END', () => {
     expect(ride('5-x/2', lvl).reason).toBe('MISSED_START');
   });
 
-  it('missing the end is reported before leaving the level or hitting an obstacle', () => {
-    // 5-x touches this box at x = 2..3, drops below the floor after x = 7, and ends at -5.
+  it('missing the end is reported before hitting an obstacle', () => {
+    // 5-x touches this box at x = 2..3 and ends at -5, nowhere near the end station.
     const box: Obstacle = { kind: 'rect', x: 2, y: 2, w: 1, h: 1 };
-    const lvl = level({ bounds: { xMin: -1, xMax: 20, yMin: -2, yMax: 20 }, obstacles: [box] });
-    expect(ride('5-x', lvl).reason).toBe('MISSED_END');
-  });
-
-  it('leaving the level is reported before hitting an obstacle', () => {
-    // 5-x/2 reaches the end station, but runs through this box and dips under a floor of 0.5.
-    const box: Obstacle = { kind: 'rect', x: 4, y: 2.5, w: 1, h: 1 };
-    const lvl = level({ bounds: { xMin: -1, xMax: 20, yMin: 0.5, yMax: 20 }, obstacles: [box] });
-    expect(ride('5-x/2', lvl).reason).toBe('OUT_OF_BOUNDS');
-    expect(ride('5-x/2', level({ obstacles: [box] })).reason).toBe('HIT_OBSTACLE');
+    expect(ride('5-x', level({ obstacles: [box] })).reason).toBe('MISSED_END');
   });
 });
 

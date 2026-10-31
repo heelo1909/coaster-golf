@@ -18,7 +18,6 @@ export type FailReason =
   | 'FLEW_OFF'
   | 'STALLED'
   | 'HIT_OBSTACLE'
-  | 'OUT_OF_BOUNDS'
   | 'BROKEN_TRACK'
   | 'MISSED_START'
   | 'MISSED_END'
@@ -40,9 +39,9 @@ export interface SimResult {
 }
 
 // The parts of a level the simulation reads. Section 4's full Level has all of these, so it
-// can be passed straight in.
+// can be passed straight in. The level's bounds only frame the view: the track may go above or
+// below them (user's call, 2026-10-31).
 export interface SimLevel {
-  bounds: { xMin: number; xMax: number; yMin: number; yMax: number };
   start: { x: number; y: number; speed: number };
   end: { x: number; y: number };
   obstacles: readonly Obstacle[];
@@ -52,12 +51,12 @@ export interface SimLevel {
 const MAX_STEPS = Math.round(MAX_TIME / DT);
 
 // Rides the cart along y = f(x) from the start station to the end station, in the order of
-// checks in sim/CLAUDE.md: checks 1–5 look at the track alone and decide the result before
+// checks in sim/CLAUDE.md: checks 1–4 look at the track alone and decide the result before
 // any ride. Broken tracks and missed stations have an empty path: there's no ride to replay,
-// only the failure marker. Off-the-map and crash results also get a path up to failAt, so the
-// cart can ride there before it fails (see failAfterRide).
+// only the failure marker. A crash also gets a path up to failAt, so the cart can ride there
+// before it fails (see failAfterRide).
 export function simulate(level: SimLevel, f: (x: number) => number): SimResult {
-  const { start, end, bounds } = level;
+  const { start, end } = level;
   const track = sampleTrack(f, start.x, end.x);
   const last = track.count - 1;
 
@@ -71,12 +70,6 @@ export function simulate(level: SimLevel, f: (x: number) => number): SimResult {
   if (Math.abs(track.y[last]! - end.y) > STATION_TOLERANCE) {
     return fail('MISSED_END', end.x, track.y[last]!, 0);
   }
-  for (let i = 0; i <= last; i++) {
-    const y = track.y[i]!;
-    if (y < bounds.yMin || y > bounds.yMax) {
-      return failAfterRide('OUT_OF_BOUNDS', track, start.speed, track.x[i]!, y);
-    }
-  }
   const hit = findHit(track, level.obstacles);
   if (hit !== -1) {
     return failAfterRide('HIT_OBSTACLE', track, start.speed, track.x[hit]!, track.y[hit]!);
@@ -88,12 +81,12 @@ export function simulate(level: SimLevel, f: (x: number) => number): SimResult {
   return fail(run.reason, cart.x, cart.y, cart.t, path);
 }
 
-// An off-the-map or crash result, already decided by the track checks. The reason and the
+// A crash, already decided by the track checks. The reason and the
 // failAt point never depend on the ride; the ride only adds a path for the replay, with
 // failAt.t when the cart gets there. If the cart would fly off, stall or time out before it
 // reaches x, the replay would contradict the reason, so the path stays empty instead.
 function failAfterRide(
-  reason: 'OUT_OF_BOUNDS' | 'HIT_OBSTACLE',
+  reason: 'HIT_OBSTACLE',
   track: Track,
   speed: number,
   x: number,

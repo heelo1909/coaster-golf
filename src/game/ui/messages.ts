@@ -17,7 +17,6 @@ const failMessages: Record<FailReason, (x: string) => string> = {
   MISSED_START: () => 'Your track misses the start station',
   MISSED_END: () => 'Your track misses the end station',
   BROKEN_TRACK: (x) => `The track has a gap or a wall at x = ${x}`,
-  OUT_OF_BOUNDS: () => 'The track goes off the map',
   TIMEOUT: () => 'The ride took too long',
 };
 

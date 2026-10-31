@@ -4,7 +4,15 @@
 // follows the cart, then eases back to the player's own view.
 
 import type { Level, SimResult } from '../../core';
-import { clampView, fitView, lerpView, panView, viewCamera, zoomViewAt } from './camera';
+import {
+  clampView,
+  extendBounds,
+  fitView,
+  lerpView,
+  panView,
+  viewCamera,
+  zoomViewAt,
+} from './camera';
 import type { Camera, View } from './camera';
 import {
   FAIL_EFFECT_SECONDS,
@@ -75,6 +83,8 @@ export function createRenderer(canvas: HTMLCanvasElement, level: Level, number?:
 
   let current = level;
   let track: Track | null = null;
+  // Where the camera may roam: the level, plus wherever the track goes past it.
+  let reach = level.bounds;
   let trackFaded = false;
   let cart: CartPose | null = null;
   let failMark: { x: number; y: number } | null = null;
@@ -212,6 +222,7 @@ export function createRenderer(canvas: HTMLCanvasElement, level: Level, number?:
       clearCart();
       stopEasing();
       current = next;
+      reach = extendBounds(next.bounds, track, next.start.x, next.end.x);
       view = userView = fitView(next.bounds);
       applyView();
       frame();
@@ -219,6 +230,7 @@ export function createRenderer(canvas: HTMLCanvasElement, level: Level, number?:
     setTrack(f, faded = false) {
       if (f !== track) clearCart();
       track = f;
+      reach = extendBounds(current.bounds, f, current.start.x, current.end.x);
       trackFaded = faded;
       frame();
     },
@@ -266,7 +278,7 @@ export function createRenderer(canvas: HTMLCanvasElement, level: Level, number?:
             const dt = last === undefined ? 0 : (now - last) / 1000;
             const target = { zoom: Math.max(userView.zoom, FOLLOW_ZOOM), cx: cart.x, cy: cart.y };
             const k = 1 - Math.exp(-FOLLOW_RATE * dt);
-            view = clampView(lerpView(view, target, k), current.bounds);
+            view = clampView(lerpView(view, target, k), reach);
             applyView();
           }
           last = now;
@@ -300,10 +312,10 @@ export function createRenderer(canvas: HTMLCanvasElement, level: Level, number?:
       canvas.dataset.confetti = '';
     },
     zoomAt(factor, sx, sy) {
-      takeOver(zoomViewAt(view, cam, current.bounds, factor, sx, sy));
+      takeOver(zoomViewAt(view, cam, reach, factor, sx, sy));
     },
     panBy(dx, dy) {
-      takeOver(panView(view, cam, current.bounds, dx, dy));
+      takeOver(panView(view, cam, reach, dx, dy));
     },
     resetView() {
       following = false;

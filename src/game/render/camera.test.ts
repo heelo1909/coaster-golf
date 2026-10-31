@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   MAX_ZOOM,
   MIN_ZOOM,
+  clampView,
+  extendBounds,
   fitCamera,
   fitView,
   lerpView,
@@ -154,5 +156,27 @@ describe('zoom and pan: where the player is looking', () => {
     expect(lerpView(a, b, 1)).toEqual(b);
     expect(lerpView(a, b, 0.5).zoom).toBeCloseTo(2);
     expect(lerpView(a, b, 0.5).cx).toBeCloseTo(4);
+  });
+});
+
+describe('extendBounds: the camera can reach a track that leaves the map', () => {
+  it('stretches up and down to take in the track between the stations', () => {
+    const reach = extendBounds(bounds, (x) => 10 - (x - 4) ** 2, 0, 8);
+    expect(reach.yMax).toBeCloseTo(10);
+    expect(reach.yMin).toBeCloseTo(-6);
+    expect(reach.xMin).toBe(bounds.xMin);
+    expect(reach.xMax).toBe(bounds.xMax);
+  });
+
+  it('stays the level when the track fits, there is no track, or it is undefined', () => {
+    expect(extendBounds(bounds, (x) => x / 2, 0, 8)).toEqual(bounds);
+    expect(extendBounds(bounds, null, 0, 8)).toEqual(bounds);
+    expect(extendBounds(bounds, () => NaN, 0, 8)).toEqual(bounds);
+  });
+
+  it('lets the view follow a cart far above the map', () => {
+    const reach = extendBounds(bounds, () => 30, 0, 8);
+    expect(clampView({ zoom: 2.5, cx: 4, cy: 30 }, reach).cy).toBe(30);
+    expect(clampView({ zoom: 2.5, cx: 4, cy: 30 }, bounds).cy).toBe(bounds.yMax);
   });
 });
