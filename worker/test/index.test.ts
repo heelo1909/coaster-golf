@@ -30,6 +30,7 @@ describe('the leaderboard API', () => {
       );
     for (const origin of [
       'https://coastergolf.example',
+      'https://pages.example',
       'http://localhost:5173',
       'http://127.0.0.1:4173',
     ]) {
@@ -38,6 +39,7 @@ describe('the leaderboard API', () => {
     }
     for (const origin of [
       'https://evil.example',
+      'https://pages.example.evil.example',
       'http://localhost.evil.example',
       'https://localhost:5173',
     ]) {

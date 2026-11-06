@@ -37,7 +37,11 @@ export async function testEnv(): Promise<TestEnv> {
     },
   };
   return {
-    env: { DB: db, SUBMIT_LIMIT, ALLOWED_ORIGIN: 'https://coastergolf.example' },
+    env: {
+      DB: db,
+      SUBMIT_LIMIT,
+      ALLOWED_ORIGIN: 'https://coastergolf.example, https://pages.example',
+    },
     limited,
     dispose: () => mf.dispose(),
   };

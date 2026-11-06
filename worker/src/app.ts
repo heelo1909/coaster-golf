@@ -13,10 +13,11 @@ export const MAX_BODY_BYTES = 1024;
 const LOCAL = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
 function corsHeaders(request: Request, env: Env): Record<string, string> {
   const origin = request.headers.get('Origin');
-  if (
-    !origin ||
-    !(LOCAL.test(origin) || (env.ALLOWED_ORIGIN !== '' && origin === env.ALLOWED_ORIGIN))
-  ) {
+  // ALLOWED_ORIGIN is a comma-separated list: the Cloudflare site and the GitHub Pages copy.
+  const allowed = env.ALLOWED_ORIGIN.split(',')
+    .map((o) => o.trim())
+    .filter(Boolean);
+  if (!origin || !(LOCAL.test(origin) || allowed.includes(origin))) {
     return {};
   }
   return {

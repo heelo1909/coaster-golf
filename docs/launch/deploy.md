@@ -7,6 +7,7 @@ The exact steps that put Coaster Golf online, written as they were done (first o
 | Site (the game) | https://coaster-golf.coaster-golf.workers.dev, Worker `coaster-golf`, config `wrangler.jsonc` |
 | Leaderboard API | https://coaster-golf-api.coaster-golf.workers.dev, Worker `coaster-golf-api`, config `worker/wrangler.toml` |
 | Database | D1 `coaster-golf`, id `37aee9ea-1e0d-48d9-b7b2-b597e6622547` |
+| Second copy of the site | https://heelo1909.github.io/coaster-golf/, GitHub Pages, `.github/workflows/pages.yml` |
 
 Cloudflare Pages now deploys as a Worker with static assets, so the site is a Worker that only serves `dist/` (no code of its own). Both Workers have request logs off (`observability` disabled), so no visitor IPs are kept, as the privacy page says.
 
@@ -81,3 +82,13 @@ None for now (the owner's call, 2026-10-30): the game stays on the workers.dev a
 ## 8. Web Analytics
 
 _(after the site is live: add the site in the dashboard with the manual JS snippet, then build with `VITE_CF_BEACON_TOKEN=<token>` as well and redeploy)_
+
+## GitHub Pages copy (added 2026-11-06)
+
+The same game is also published on GitHub Pages at https://heelo1909.github.io/coaster-golf/, sharing the Cloudflare leaderboard. It deploys itself: every push to `main` runs `.github/workflows/pages.yml`, which runs `npm test` and `npm run check-levels`, builds with `BASE_PATH=/coaster-golf/` (Pages serves the repo under that path; the Cloudflare build keeps `/`) and `VITE_API_URL` set to the API Worker, and publishes `dist/`. No analytics token is set there.
+
+- Pages needs the repo to be **public** on a free GitHub plan (a private repo gets "Your current plan does not support GitHub Pages"). The owner chose to make it public on 2026-11-06.
+- Pages was switched on once with `gh api -X POST repos/heelo1909/coaster-golf/pages -f build_type=workflow`.
+- `ALLOWED_ORIGIN` in `worker/wrangler.toml` is a comma-separated list that includes `https://heelo1909.github.io` (origins have no path), so changing it means redeploying the API Worker (step 3).
+- To preview the Pages build locally, both the build and `vite preview` need `BASE_PATH=/coaster-golf/`.
+

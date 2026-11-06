@@ -83,7 +83,7 @@ Store nickname, equation, score and timestamp only. **No IPs, emails, user agent
 ## Other Rules
 
 - CORS: allow only the game's own origin (and `localhost` in dev).
-- Built: `ALLOWED_ORIGIN` in `wrangler.toml` `[vars]` (the live site's address; change it with the domain) plus `http://localhost:*` and `http://127.0.0.1:*`; `OPTIONS` preflight answers 204.
+- Built: `ALLOWED_ORIGIN` in `wrangler.toml` `[vars]` is a comma-separated list (the Cloudflare site and GitHub Pages), (the live site's address; change it with the domain) plus `http://localhost:*` and `http://127.0.0.1:*`; `OPTIONS` preflight answers 204.
 - All SQL uses bound parameters (`.bind()`); never build SQL from strings.
 - Wrangler config stays in this folder. Secrets (if any ever exist) go in `wrangler secret`, never in git.
 

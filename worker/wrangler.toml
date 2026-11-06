@@ -14,7 +14,7 @@ migrations_dir = "migrations"
 
 # The game's own origin, allowed by CORS besides localhost (the site Worker, wrangler.jsonc).
 [vars]
-ALLOWED_ORIGIN = "https://coaster-golf.coaster-golf.workers.dev"
+ALLOWED_ORIGIN = "https://coaster-golf.coaster-golf.workers.dev,https://heelo1909.github.io"
 
 # 30 submissions per minute per IP (worker/CLAUDE.md). IPs are only the limiter's key; they're
 # never stored.

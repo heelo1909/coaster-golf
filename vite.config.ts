@@ -3,6 +3,8 @@ import { defineConfig } from 'vitest/config';
 import { beaconTag } from './scripts/analytics';
 
 export default defineConfig(({ mode }) => ({
+  // '/' for Cloudflare; the GitHub Pages workflow builds with BASE_PATH=/coaster-golf/.
+  base: process.env.BASE_PATH ?? '/',
   plugins: [
     {
       // Cookie-free analytics in the built page, only when a token is set (scripts/analytics.ts).
